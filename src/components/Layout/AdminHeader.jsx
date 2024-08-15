@@ -111,13 +111,13 @@ const AdminHeader = ({ navOpen, setNavOpen }) => {
 
     <>
       <div className="w-full  h-[80px] shadow sticky top-0 left-0 z-30 flex items-center justify-between px-4 bg-white border border-red-400">
-        <div className=" flex items-center gap-5">
+        <div className=" flex items-center md:gap-5 gap-2">
           <div className="md:hidden">
-            <GiHamburgerMenu size={40} onClick={() => setNavOpen(true)} />
+            <GiHamburgerMenu size={30} onClick={() => setNavOpen(true)} />
           </div>
           <div className="800px:ml-10">
             <Link to="/admin/dashboard">
-              <img src={mainLogo} alt="Main Logo" className="h-[60px]" />
+              <img src={mainLogo} alt="Main Logo" className="h-[50px]" />
             </Link>
           </div>
 
@@ -125,7 +125,7 @@ const AdminHeader = ({ navOpen, setNavOpen }) => {
         </div>
 
         <div className="flex items-center">
-          <div className="flex items-center space-x-5">
+          <div className="flex items-center md:space-x-5 space-x-2">
             <div className="flex  flex-col items-center justify-start">
 
               <MdOutlineAdminPanelSettings size={30} />
@@ -137,18 +137,6 @@ const AdminHeader = ({ navOpen, setNavOpen }) => {
                 5
               </span>
             </div>
-            {/* <Link to="/dashboard/coupons" className="hidden md:block">
-              <AiOutlineGift color="#555" size={30} className="cursor-pointer" />
-            </Link> */}
-            {/* <Link to="/dashboard-events" className="hidden md:block">
-              <MdOutlineLocalOffer color="#555" size={30} className="cursor-pointer" />
-            </Link>
-            <Link to="/dashboard-products" className="hidden md:block">
-              <FiShoppingBag color="#555" size={30} className="cursor-pointer" />
-            </Link>
-            <Link to="/dashboard-orders" className="hidden md:block">
-              <FiPackage color="#555" size={30} className="cursor-pointer" />
-            </Link> */}
 
             <Link to="/dashboard-messages" className="hidden md:block">
               <BiMessageSquareDetail color="#555" size={30} className="cursor-pointer" />
@@ -201,14 +189,14 @@ const AdminHeader = ({ navOpen, setNavOpen }) => {
 
                           <div className="flex items-center justify-between mx-2 hover:bg-[#657082] rounded-md duration-300 p-2">
                             <Link to={subMenuItem?.link}>
-                            <li key={subIndex} className="text-gray-300 text-sm flex items-center cursor-pointer px-7">
-                              {subMenuItem.title}
-                            </li>
-                            {subMenuItem?.notication && (
-                              <div className="mr-3 flex items-center justify-center bg-red-500 text-white rounded-full w-6 h-6 text-xs">
-                                {subMenuItem.notication}
-                              </div>
-                            )}
+                              <li key={subIndex} className="text-gray-300 text-sm flex items-center cursor-pointer px-7">
+                                {subMenuItem.title}
+                              </li>
+                              {subMenuItem?.notication && (
+                                <div className="mr-3 flex items-center justify-center bg-red-500 text-white rounded-full w-6 h-6 text-xs">
+                                  {subMenuItem.notication}
+                                </div>
+                              )}
                             </Link>
                           </div>
 

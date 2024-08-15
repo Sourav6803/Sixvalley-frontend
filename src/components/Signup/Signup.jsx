@@ -78,13 +78,13 @@ const Signup = () => {
     };
 
     return (
-        <div className="min-h-screen bg-cover bg-center flex flex-col justify-center items-center py-6 sm:px-6 lg:px-8" style={{ backgroundImage: "url('https://www.tisdigitech.com/wp-content/uploads/2022/08/Best-eCommerce-Website-Development-Company-in-India.jpg')" }}>
+        <div className="min-h-screen bg-cover bg-center flex flex-col justify-center items-center md:py-6 py-3  sm:px-6 px-2 lg:px-8" style={{ backgroundImage: "url('https://www.tisdigitech.com/wp-content/uploads/2022/08/Best-eCommerce-Website-Development-Company-in-India.jpg')" }}>
             <div className="sm:mx-auto sm:w-full sm:max-w-md bg-white bg-opacity-90 rounded-xl shadow-lg p-8">
                 <h2 className="text-center text-2xl font-bold text-gray-700 mb-6">
                     Sign Up
                 </h2>
 
-                <form className="space-y-4" onSubmit={handleSubmit}>
+                <form className="space-y-2" onSubmit={handleSubmit}>
                     <div>
                         <label htmlFor="fullName" className="block text-lg font-medium text-gray-700">Full Name</label>
                         <input
