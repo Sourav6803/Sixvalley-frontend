@@ -436,7 +436,7 @@ const CreateProduct = () => {
                         }
 
                         // Upload variant images
-                        const variantImageUploadResponse = await axios.post('http://localhost:8000/api/v2/product/uploadImages', variantImagesForm, {
+                        const variantImageUploadResponse = await axios.post(`${server}/product/uploadImages`, variantImagesForm, {
                             headers: { 'Content-Type': 'multipart/form-data' }
                         });
                         const uploadedVariantImages = variantImageUploadResponse.data;
@@ -686,7 +686,7 @@ const CreateProduct = () => {
                 </div>
 
 
-                <button
+                {/* <button
                     type="button"
                     onClick={generateBulletPoints}
                     className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -703,7 +703,7 @@ const CreateProduct = () => {
                             ))}
                         </ul>
                     </div>
-                )}
+                )} */}
 
 
             </div>

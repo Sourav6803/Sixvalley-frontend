@@ -23,7 +23,7 @@ const SubSubCategory = () => {
 
     const [open, setOpen] = useState(false);
     const [name, setName] = useState("");
-    const [priority, setPriority] = useState(0);
+    const [priority, setPriority] = useState();
     const [mainCategory, setMainCategory] = useState("")
     const [subCategory, setSubCategory] = useState("")
     const [image, setImage] = useState(null);
@@ -99,7 +99,7 @@ const SubSubCategory = () => {
             dispatch(createSubSubCategory(newForm))
             setIsSubmitting(false);
             setName("");
-            setPriority(0);
+            setPriority();
             setMainCategory("");
             setSubCategory("")
             setImage(null)
@@ -176,7 +176,7 @@ const SubSubCategory = () => {
 
 
     return (
-        <div className='w-full p-5 bg-gray-200'>
+        <div className='w-full p-2 md:p-5 bg-gray-200'>
             <div className='flex items-center gap-2'>
                 <img src={Layout} alt='layout' className='h-5' />
                 <h3 className="text-[20px] text-slate-600 font-Poppins font-semibold">Sub Sub Category Setup</h3>
@@ -265,7 +265,7 @@ const SubSubCategory = () => {
                                 </form>
                             </div>
                             <div className="flex items-center justify-center p-4 rounded-md">
-                                <div className="border p-2 md:h-[40vh] h-[30vh] md:w-[30vh] w-[40vh] rounded-md overflow-hidden">
+                                <div className="border p-2 md:h-[45vh] h-[30vh] md:w-[45vh] w-[40vh] rounded-md overflow-hidden">
                                     {image ? (
                                         <img src={URL.createObjectURL(image)} alt="avatar" className="h-full w-full object-cover" />
                                     ) : (
@@ -285,7 +285,7 @@ const SubSubCategory = () => {
             </div>
 
             <div className='w-full mt-2 bg-white p-3 rounded-md  gap-2 hover:shadow-md'>
-                <div className='flex items-center justify-between'>
+                <div className='flex items-center justify-between flex-col md:flex-row gap-2 md:gap-0'>
                     <div className='flex items-center  '>
                         <div className='text-[20px] font-medium text-slate-700'>Sub Sub-Category List: {allSubSubCategory?.length}</div>
                     </div>
@@ -431,6 +431,7 @@ const SubSubCategory = () => {
                 onClose={() => setOpen(false)}
                 onConfirm={() => handleDelete(categoryId)}
                 title="Delete Confirmation"
+                buttonText={"Yes! Sure"}
                 message="Are you sure you want to delete this sub category?"
                 isDelete={isDelete}
             />
