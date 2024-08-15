@@ -10,7 +10,7 @@
 
 //  export const backend_url = "https://ecomerce-backend-basp.onrender.com/"
 
-export const server = "https://sixvalley-backend.onrender.com/avi/v2"
+export const server = "https://sixvalley-backend.onrender.com/api/v2"
 
 
  export const backend_url = "https://sixvalley-backend.onrender.com/"
