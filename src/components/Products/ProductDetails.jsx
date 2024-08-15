@@ -84,7 +84,7 @@ const ProductDetails = ({ data }) => {
             setClick(false);
         }
     }, [data, wishlist, dispatch])
-
+    
     // Extract unique attribute keys
     const attributeKeys = (data?.variants || []).reduce((keys, variant) => {
         variant.attributes.forEach(attr => {
@@ -331,7 +331,7 @@ const ProductDetails = ({ data }) => {
                                                     <div className="bg-[#e7e7e8] mt-2 p-2 border rounded-md">
                                                         {allCoupons && allCoupons
                                                             .filter(coupon => {
-                                                                const eligibleItems = data?.filter(
+                                                                const eligibleItems = cart.filter(
                                                                     item => coupon.couponCategory === "All" || item.category === coupon.couponCategory
                                                                 );
 
