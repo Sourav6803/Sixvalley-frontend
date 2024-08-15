@@ -1,0 +1,844 @@
+
+
+import React, { useCallback, useEffect, useState } from "react";
+import { AiOutlinePlusCircle } from "react-icons/ai";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { createProduct } from "../../redux/actions/product";
+import { categoriesData, colorNames } from "../../static/data";
+import { toast } from "react-toastify";
+import { ProgressBar } from "react-loader-spinner"
+import Loader from "../../pages/Loader";
+import ProductPng from "../../components/Admin/icon/products.png";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+import { FaUser } from "react-icons/fa";
+import Select, { components } from 'react-select';
+import { Switch } from "@material-tailwind/react";
+
+
+
+const CreateProduct = () => {
+    const { seller } = useSelector((state) => state.seller);
+    const { allCategory } = useSelector((state) => state?.category);
+    const { isLoading, success, error } = useSelector((state) => state.products);
+    const { allSubCategory } = useSelector((state) => state?.subCategory);
+    const { allSubSubCategory } = useSelector((state) => state?.subSubCategory);
+    const { allBrand } = useSelector((state) => state?.brand);
+    const { allAttribute } = useSelector((state) => state?.attribute);
+
+
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    const [images, setImages] = useState([]);
+    const [name, setName] = useState("");
+    const [description, setDescription] = useState("");
+    const [mainCategory, setMainCategory] = useState("")
+    const [subCategory, setSubCategory] = useState("");
+    const [subSubCategory, setSubSubCategory] = useState("");
+    const [brand, setBrand] = useState("");
+    const [productType, setProductType] = useState("")
+    const [sku, setSku] = useState("")
+    const [unit, setUnit] = useState("");
+    const [tags, setTags] = useState("");
+    const [customize, setCustomize] = useState('')
+    const [originalPrice, setOriginalPrice] = useState();
+    const [discountType, setDiscountType] = useState("")
+    const [discountPrice, setDiscountPrice] = useState();
+    const [stock, setStock] = useState(Number);
+    const [taxAmount, setTaxAmount] = useState();
+    const [shippingCost, setShippingCost] = useState("")
+    const [loading, setLoading] = useState(false)
+
+    const [filteredSubCategories, setFilteredSubCategories] = useState([]);
+    const [filteredSubSubCategories, setFilteredSubSubCategories] = useState([]);
+
+    const [colorOptions, setColorOptions] = useState([]);
+    const [showColors, setShowColors] = useState(false);
+    const [selectedColors, setSelectedColors] = useState(null);
+    const [selectedAttributes, setSelectedAttributes] = useState([]);
+    const [attributeValues, setAttributeValues] = useState({});
+    const [variations, setVariations] = useState([]);
+    const [attributeOptions, setAttributeOptions] = useState([])
+    const [colorImages, setColorImages] = useState({});
+
+    useEffect(() => {
+        const data = allAttribute?.map((item) => ({
+            value: item.name,
+            label: item.name,
+        }));
+        setAttributeOptions(data);
+    }, [allAttribute]);
+
+    useEffect(() => {
+        const data = colorNames?.map((color) => ({
+            value: color,
+            label: color,
+            color: color,
+        }));
+        setColorOptions(data);
+    }, []);
+
+    const handleAttributeChange = (selectedOptions) => {
+        setSelectedAttributes(selectedOptions);
+        setAttributeValues({});
+        setVariations([]);
+    };
+
+    const handleAttributeValueChange = (e, attribute) => {
+        const value = e.target.value;
+        setAttributeValues((prevValues) => ({
+            ...prevValues,
+            [attribute]: value,
+        }));
+    };
+
+    const handleAddAttributeValue = (attribute) => {
+        if (!attributeValues[attribute]) return;
+
+        const newValues = {
+            ...attributeValues,
+            [attribute]: '',
+            [attribute + 'List']: [...(attributeValues[attribute + 'List'] || []), attributeValues[attribute]],
+        };
+
+        setAttributeValues(newValues);
+        updateVariations(selectedColors, selectedAttributes, newValues);
+    };
+
+    const updateVariations = (colors = [], attributes, attributeValues) => {
+        const newVariations = [];
+        const attributeLists = attributes.map(attr => attributeValues[attr.value + 'List'] || []);
+
+        if (attributeLists.every(list => list.length === 0)) {
+            return;
+        }
+
+        const generateCombinations = (lists, prefix = []) => {
+            if (!lists.length) {
+                if (colors != null) {
+                    colors.forEach(color => {
+                        newVariations.push([...prefix, color.label, { price: '', sku: '', stock: '' }]);
+                    });
+                } else {
+                    newVariations.push([...prefix, { price: '', sku: '', stock: '' }]);
+                }
+                return;
+            }
+            lists[0].forEach(item => generateCombinations(lists.slice(1), [...prefix, item]));
+        };
+
+        generateCombinations(attributeLists);
+
+        setVariations(prevVariations => {
+            const combinedVariations = [...prevVariations, ...newVariations];
+            const uniqueVariations = Array.from(new Set(combinedVariations.map(v => JSON.stringify(v)))).map(e => JSON.parse(e));
+            return uniqueVariations.filter(variation => {
+                return selectedAttributes.every(attr => variation[selectedAttributes.indexOf(attr)] !== '') &&
+                    (showColors ? variation[selectedAttributes.length - 1] !== '' : true);
+            });
+        });
+    };
+
+    const handleVariationChange = (index, field, value) => {
+        const updatedVariations = [...variations];
+        const lastIndex = updatedVariations[index].length - 1;
+        updatedVariations[index][lastIndex][field] = value;
+        setVariations(updatedVariations);
+    };
+
+    const addMoreVariations = () => {
+        const hasValidData = selectedAttributes.every(attr => attributeValues[attr.value + 'List']?.length > 0);
+
+        if (hasValidData) {
+            setVariations(prevVariations => [
+                ...prevVariations,
+                [
+                    ...selectedAttributes.map(attr => ''),
+                    { price: '', sku: '', stock: '' }
+                ]
+            ]);
+
+            setAttributeValues(prevValues => {
+                const clearedValues = {};
+                selectedAttributes.forEach(attr => {
+                    clearedValues[attr.value] = '';
+                    clearedValues[attr.value + 'List'] = [];
+                });
+                return clearedValues;
+            });
+        } else {
+            console.log('Please enter valid attribute values before adding more.');
+        }
+    };
+
+    const toggleColors = (event) => {
+        setShowColors(event.target.checked);
+    };
+
+    const handleColorChange = (selectedOptions) => {
+        setSelectedColors(selectedOptions);
+        updateVariations(selectedOptions, selectedAttributes, attributeValues);
+    };
+
+    const getVariationKey = (variation) => {
+        const lastIndex = variation.length - 1;
+        return selectedAttributes.map(attr => variation[selectedAttributes.indexOf(attr)]).join('-') + (showColors ? `-${variation[lastIndex - 1]}` : '');
+    };
+
+    const isFormValid = () => {
+        return variations.every(
+            (variation) => variation[selectedAttributes.length] && variation[selectedAttributes.length].price && variation[selectedAttributes.length].sku && variation[selectedAttributes.length].stock
+        );
+    };
+
+
+
+    const SingleValue = ({ children, ...props }) => (
+        <components.SingleValue {...props}>
+            <span
+                style={{
+                    padding: '0.2em 0.4em',
+                    borderRadius: '0.2em',
+                    display: 'flex',
+                    alignItems: 'center',
+                }}
+            >
+                <span
+                    style={{
+                        width: '15px',
+                        height: '15px',
+                        backgroundColor: props.data.color,
+                        marginRight: '0.5em',
+                        border: '1px solid #ddd',
+                    }}
+                />
+                {children}
+            </span>
+        </components.SingleValue>
+    );
+
+    const Option = (props) => (
+        <components.Option {...props}>
+            <span style={{ display: 'flex', alignItems: 'center' }}>
+                <span
+                    style={{
+                        width: '15px',
+                        height: '15px',
+                        backgroundColor: props.data.color,
+                        marginRight: '0.5em',
+                        border: '1px solid #ddd',
+                    }}
+                />
+                {props.children}
+            </span>
+        </components.Option>
+    );
+
+
+    const existingSKUs = new Set();
+
+    const generateSKU = () => {
+        const length = 8;
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let sku = '';
+
+        while (sku.length < length) {
+            const randomIndex = Math.floor(Math.random() * chars.length);
+            sku += chars[randomIndex];
+        }
+
+        // Ensure uniqueness
+        if (existingSKUs.has(sku)) {
+            return generateSKU();
+        }
+
+        existingSKUs.add(sku);
+        // return sku;
+        setSku(sku)
+    }
+
+    const handleChange = (content, delta, source, editor) => {
+
+        setDescription(content);
+    };
+
+    const handleImageChange = (e) => {
+        e.preventDefault()
+        const files = Array.from(e?.target?.files);
+
+        setImages((prevImages) => [...prevImages, ...files]);
+    };
+
+    const handleImageUpload = (e, variationKey) => {
+        const files = e.target.files;
+        const imageUrls = Array.from(files).map(file => URL.createObjectURL(file));
+        setColorImages((prevImages) => ({
+            ...prevImages,
+            [variationKey]: [...(prevImages[variationKey] || []), ...imageUrls],
+        }));
+    };
+
+    const removeImage = (variationKey, index) => {
+        setColorImages((prevImages) => {
+            const updatedImages = [...prevImages[variationKey]];
+            updatedImages.splice(index, 1);
+            return {
+                ...prevImages,
+                [variationKey]: updatedImages,
+            };
+        });
+    };
+
+
+    const handleCategoryChange = useCallback((e) => {
+        const selectedMainCategory = e.target.value;
+        setMainCategory(selectedMainCategory);
+        const filteredSubCategories = allSubCategory?.filter(subCat => subCat.mainCategory === selectedMainCategory);
+        setFilteredSubCategories(filteredSubCategories);
+    }, [setMainCategory, allSubCategory]);
+
+
+    const handleSubCategoryChange = useCallback((e) => {
+        const selectedSubCategory = e.target.value;
+        setSubCategory(selectedSubCategory);
+        const filteredSubCategories = allSubSubCategory.filter(subCat => subCat.subCategory === selectedSubCategory);
+        setFilteredSubSubCategories(filteredSubCategories);
+    }, [setSubCategory, allSubSubCategory]);
+
+
+    const handleSubSubCategoryChange = useCallback((e) => {
+        setSubSubCategory(e.target.value)
+    }, [])
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        setLoading(true)
+        const newForm = new FormData();
+
+        images.forEach((image) => {
+            newForm.append("images", image);
+        });
+        newForm.append("name", name);
+        newForm.append("description", description);
+        newForm.append("category", mainCategory);
+        newForm.append("subCategory", subCategory);
+        newForm.append("subSubCategory", subSubCategory);
+        newForm.append("brand", brand);
+        newForm.append("productType", productType);
+        newForm.append("sku", sku);
+        newForm.append("unit", unit);
+        newForm.append("tags", tags);
+        newForm.append("customize", customize)
+        newForm.append("originalPrice", originalPrice);
+        newForm.append("dicountType", discountType);
+        newForm.append("discountAmount", discountPrice);
+        newForm.append("shippingCost", shippingCost);
+        newForm.append("stock", stock);
+        newForm.append("shopId", seller._id);
+
+
+
+        dispatch(createProduct(newForm))
+        setLoading(false)
+    };
+
+    useEffect(() => {
+        if (error) {
+            toast.error(error);
+        }
+
+        if (isLoading) {
+            <Loader />
+        }
+
+        if (success) {
+            toast.success("Product created successfully!");
+            // navigate("/dashboard");
+            // window.location.reload();
+        }
+    }, [dispatch, error, success, isLoading]);
+
+
+    return (
+        <div className="w-full p-1 md:p-3 bg-gray-200">
+            {/* create product form */}
+
+            <div className='flex items-center gap-2'>
+                <img src={ProductPng} alt='layout' className='h-5' />
+                <h3 className="text-[20px] text-slate-600 font-Poppins font-semibold">Add New Product</h3>
+            </div>
+
+            {/* first div */}
+
+            <div className="w-full mt-2 bg-white p-3  rounded-md h-[60vh]">
+                <div>
+                    <label className="pb-2">
+                        Product Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        name="name"
+                        value={name}
+                        className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="Enter your product name..."
+                    />
+                </div>
+
+                <div className="mt-3">
+                    <label className="pb-2">
+                        Description <span className="text-red-500">*</span>
+                    </label>
+
+                    <ReactQuill theme="snow" className="h-[30vh]" value={description} onChange={setDescription} />
+                </div>
+            </div>
+
+            {/* General setup */}
+
+            <div className="w-full mt-2 bg-white p-3  rounded-md hover:shadow-md">
+                <div className='flex items-center gap-2 mt-2 rounded-md bg-slate-200 p-3'>
+                    <FaUser className="" size={25} />
+                    <h3 className="text-[20px] text-slate-600 font-Poppins font-medium">General Setup</h3>
+                </div>
+
+                <div className="grid md:grid-cols-3 sm:grid-cols-2 lg:grid-cols-4 mt-3  gap-3">
+                    <div>
+                        <label className="pb-2 text-slate-700 font-medium text-lg ">
+                            Category <span className="text-red-500">*</span>
+                        </label>
+                        <select className="w-full text-slate-500 mt-2 border h-[35px] rounded-[5px]" value={mainCategory} onChange={handleCategoryChange} >
+                            <option value="Choose a category" className="text-slate-500">Choose a category</option>
+                            {allCategory &&
+                                allCategory.map((i) => (
+                                    <option className="text-gray-600" value={i.name} key={i._id}>
+                                        {i.name}
+                                    </option>
+                                ))}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="pb-2">Sub Category</label>
+
+                        <select className="w-full mt-2 border h-[35px] rounded-[5px]" value={subCategory} onChange={handleSubCategoryChange}>
+                            <option >Choose a Sub category</option>
+                            {filteredSubCategories?.map(category => (
+                                <option key={category._id} value={category.name}>
+                                    {category.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="pb-2">Sub Sub-Category</label>
+                        <select className="w-full mt-2 border h-[35px] rounded-[5px]" value={subSubCategory} onChange={handleSubSubCategoryChange}>
+                            <option value="" >Choose a Sub Sub-category</option>
+                            {filteredSubSubCategories?.map(category => (
+                                <option key={category.id} value={category.name}>
+                                    {category.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div >
+                        <label className="pb-2">Brand</label>
+                        <select className="w-full mt-2 border h-[35px] rounded-[5px]" value={brand} onChange={(e) => setBrand(e.target.value)} >
+                            <option value="Choose a category">Select Brand</option>
+                            {allBrand &&
+                                allBrand.map((i) => (
+                                    <option className="text-gray-600" value={i.brandName} key={i._id}>
+                                        {i.brandName}
+                                    </option>
+                                ))}
+                        </select>
+                    </div>
+
+                    <div  >
+                        <label className="pb-2" for="type">Product Type</label>
+                        <select id="type" className="w-full mt-2 border h-[35px] rounded-[5px]" value={productType} onChange={(e) => setProductType(e.target.value)}>
+                            <option value="" >Choose an type</option>
+                            <option value="Physical" >Physical</option>
+                            <option value="Digital" >Digital</option>
+                        </select>
+                    </div>
+
+                    <div className="">
+                        <label className="flex items-center justify-between mx-2">
+                            <div className="">Product SKU</div>
+                            <div className="text-blue-500 cursor-pointer hover:text-blue-600" onClick={generateSKU}>generate SKU</div>
+                        </label>
+                        <input
+                            type="text"
+                            name="sku"
+                            value={sku}
+                            className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            // onChange={(e) => setS(e.target.value)}
+                            placeholder="Ex: 254677"
+                        />
+                    </div>
+
+                    <div className="">
+                        <label className="pb-2">Unit</label>
+                        <select id="type" className="w-full mt-2 border h-[35px] rounded-[5px]" value={unit} onChange={(e) => setUnit(e.target.value)}>
+                            <option value="" >Choose an Unit</option>
+                            <option value="kg" >Kg</option>
+                            <option value="gm" >Gm</option>
+                            <option value="pc" >pc</option>
+                            <option value="inch" >Inch</option>
+                            <option value="m" >m</option>
+                            <option value="cm" >cm</option>
+                            <option value="ltrs" >ltrs</option>
+                            <option value="pairs" >Pairs</option>
+                        </select>
+                    </div>
+
+                    <div className="">
+                        <label className="pb-2">Search Tags</label>
+                        <input
+                            type="text"
+                            name="tags"
+                            value={tags}
+                            className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            onChange={(e) => setTags(e.target.value)}
+                            placeholder="Enter your product tags..."
+                        />
+                    </div>
+
+                    <div className="">
+
+                        <label className="pb-2">Customize </label>
+
+                        <div className="border border-gray-300 rounded-[3px] mt-2 h-[35px] flex items-center">
+                            <input className=" ml-2 " type="radio" name='customize' value='true' onChange={(e) => setCustomize(e.target.value)} />Yes
+                            <input className="ml-2 " type="radio" name='customize' value='false' onChange={(e) => setCustomize(e.target.value)} />No
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Pricing & Others */}
+
+            <div className="w-full mt-2 bg-white p-3  rounded-md hover:shadow-md">
+                <div className='flex items-center gap-2 mt-2 rounded-md bg-slate-200 p-3'>
+                    <FaUser className="" size={25} />
+                    <h3 className="text-[20px] text-slate-600 font-Poppins font-medium">Pricing & Others</h3>
+                </div>
+
+                <div className="grid md:grid-cols-3 sm:grid-cols-2 lg:grid-cols-4 mt-3  gap-3">
+                    <div>
+                        <label className="pb-2">
+                            Original Price
+                            <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="number"
+                            name="price"
+                            value={originalPrice}
+                            className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            onChange={(e) => setOriginalPrice(e.target.value)}
+                            placeholder="Enter your product price..."
+                        />
+                    </div>
+
+                    <div>
+                        <label className="pb-2">
+                            Discount Type <span className="text-red-500">*</span>
+                        </label>
+                        <select id="type" className="w-full mt-2 border h-[35px] rounded-[5px]" value={discountType} onChange={(e) => setDiscountType(e.target.value)}>
+                            <option value="" >Choose an type</option>
+                            <option value="Flat" >Flat</option>
+                            <option value="Percent" >Percent</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="pb-2">
+                            Discount Amount ({discountType === "Flat" ? "₹" : "%"}) <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="number"
+                            name="price"
+                            value={discountPrice}
+                            className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            onChange={(e) => setDiscountPrice(e.target.value)}
+                            placeholder="Enter your product price with discount..."
+                        />
+                    </div>
+
+                    <div>
+                        <label className="pb-2">
+                            Product Stock <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="number"
+                            name="price"
+                            defaultValue={0}
+                            value={stock}
+                            className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            onChange={(e) => setStock(e.target.value)}
+                            placeholder="Enter your product stock..."
+                        />
+                    </div>
+
+                    <div>
+                        <label className="pb-2">
+                            Tax amount (%) <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="number"
+                            name="price"
+                            value={taxAmount}
+                            className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            onChange={(e) => setTaxAmount(e.target.value)}
+                            placeholder="Enter your product tax amount"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="pb-2">
+                            Shipping Cost <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="number"
+                            name="price"
+                            value={shippingCost}
+                            className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            onChange={(e) => setShippingCost(e.target.value)}
+                            placeholder="Enter your shipping cost..."
+                        />
+                    </div>
+
+                </div>
+            </div>
+
+
+            {/* Product color variation wise image */}
+
+            <div className="w-full mt-2 bg-white p-3 rounded-md hover:shadow-md">
+                <div className="flex items-center gap-2 mt-2 rounded-md bg-slate-200 p-3">
+                    <FaUser size={25} />
+                    <h3 className="text-[20px] text-slate-600 font-Poppins font-medium">Variation Setup</h3>
+                </div>
+
+                <div className="items-center justify-around grid grid-cols-1 lg:grid-cols-2 gap-3 mt-5">
+                    <div className="mb-4">
+                        <label htmlFor="name" className="relative block text-lg font-medium text-gray-700">
+                            Select Color :
+                            <Switch
+                                checked={showColors}
+                                onChange={toggleColors}
+                                color="blue"
+                            />
+                        </label>
+                        {showColors && (
+                            <Select
+                                options={colorOptions}
+                                components={{ SingleValue, Option }}
+                                onChange={handleColorChange}
+                                isMulti
+                            />
+                        )}
+                    </div>
+
+                    <div className="mb-4">
+                        <label
+                            htmlFor="attribute"
+                            className="block text-lg font-medium text-gray-700"
+                        >
+                            Select Attributes :
+                        </label>
+                        <Select
+                            options={attributeOptions}
+                            value={selectedAttributes}
+                            onChange={handleAttributeChange}
+                            isMulti
+                        />
+                    </div>
+
+                    {selectedAttributes.map((attribute) => (
+                        <div key={attribute.value} className="mb-4">
+                            <label
+                                className="block text-lg font-medium text-gray-700"
+                                htmlFor={attribute.value}
+                            >
+                                {attribute.label} :
+                            </label>
+                            <div className="flex items-center space-x-2">
+                                <input
+                                    type="text"
+                                    value={attributeValues[attribute.value] || ''}
+                                    onChange={(e) => handleAttributeValueChange(e, attribute.value)}
+                                    placeholder={`Enter ${attribute.label}`}
+                                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-base focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition duration-300"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => handleAddAttributeValue(attribute.value)}
+                                    className="mt-1 px-4 py-2 bg-blue-500 text-white rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                >
+                                    Add
+                                </button>
+                            </div>
+
+                            <div className="mt-2 flex flex-wrap gap-2">
+                                {(attributeValues[attribute.value + 'List'] || []).map(
+                                    (value, index) => (
+                                        <span
+                                            key={index}
+                                            className="inline-flex items-center px-3 py-1 rounded-lg text-sm font-medium bg-gray-200 text-gray-700"
+                                        >
+                                            {value}
+                                        </span>
+                                    )
+                                )}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {variations.length > 0 && (
+                    <div className="border-2 rounded-md">
+                        <table className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-50">
+                                <tr>
+                                    {selectedAttributes.map((attribute) => (
+                                        <th
+                                            key={attribute.value}
+                                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                        >
+                                            {attribute.label}
+                                        </th>
+                                    ))}
+                                    {showColors && (
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Color
+                                        </th>
+                                    )}
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Price
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        SKU
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Stock
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {variations.map((variation, index) => {
+                                    const lastIndex = variation.length - 1;
+                                    return (
+                                        <tr key={index}>
+                                            {variation.slice(0, -1).map((value, idx) => (
+                                                <td
+                                                    key={idx}
+                                                    className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                                                >
+                                                    {value}
+                                                </td>
+                                            ))}
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <input
+                                                    type="text"
+                                                    value={variation[lastIndex].price}
+                                                    onChange={(e) =>
+                                                        handleVariationChange(
+                                                            index,
+                                                            'price',
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                    className="border rounded px-2 py-1"
+                                                />
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <input
+                                                    type="text"
+                                                    value={variation[lastIndex].sku}
+                                                    onChange={(e) =>
+                                                        handleVariationChange(
+                                                            index,
+                                                            'sku',
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                    className="border rounded px-2 py-1"
+                                                />
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <input
+                                                    type="text"
+                                                    value={variation[lastIndex].stock}
+                                                    onChange={(e) =>
+                                                        handleVariationChange(
+                                                            index,
+                                                            'stock',
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                    className="border rounded px-2 py-1"
+                                                />
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+
+                <div className="mt-5 flex justify-end space-x-3">
+                    <button
+                        type="button"
+                        onClick={addMoreVariations}
+                        className="px-4 py-2 bg-blue-500 text-white rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    >
+                        Add More
+                    </button>
+                </div>
+            </div>
+
+
+            {/* product image */}
+
+            <div className="w-full mt-2 bg-white p-3  rounded-md hover:shadow-md">
+                <div className='flex items-center gap-2 mt-2 rounded-md bg-slate-200 p-3'>
+                    <FaUser className="" size={25} />
+                    <h3 className="text-[20px] text-slate-600 font-Poppins font-medium">Upload Images</h3>
+                </div>
+
+                <div>
+                    <label className="pb-2">
+                        Upload Images <span className="text-red-500">*</span>
+                    </label>
+                    <input type="file" name="" id="upload" className="hidden" multiple onChange={handleImageChange} />
+                    <div className="w-full flex items-center flex-wrap">
+                        <label htmlFor="upload">
+                            <AiOutlinePlusCircle size={30} className="mt-3" color="#555" />
+                        </label>
+                        {images && images.map((i) => (
+                            <img src={URL.createObjectURL(i)} key={i} alt="" className="h-[150px] w-[130px] object-cover m-2 border-2" />
+                        ))}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div className="w-full  flex items-center justify-center">
+                <button className="mt-2 items-center cursor-pointer appearance-none text-center text-white block  px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-blue-600 " onClick={handleSubmit} >
+                    {isLoading ? (<Loader />) : "Create"}
+                </button>
+            </div>
+
+        </div>
+    );
+};
+
+export default CreateProduct;
