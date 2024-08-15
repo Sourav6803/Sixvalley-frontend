@@ -35,11 +35,7 @@ const Header = ({ activeHeading }) => {
     const [open, setOpen] = useState(false)
     const { cart } = useSelector(state => state.cart)
 
-    console.log(wishlist)
-    console.log(cart)
-
     const admin = user?.role === "Admin"
-
 
     const handleSearchChange = (e) => {
         const term = e.target.value
@@ -238,16 +234,18 @@ const Header = ({ activeHeading }) => {
                                 <div className='w-full justify-between flex pr-3 '>
                                     <div>
                                         <div className='relative mr-[15px] ' onClick={() => setOpenWishlist(true)}>
-                                            <IoIosHeart size={30} className='mt-5 ml-3 ' color='red' />
+                                            <IoIosHeart size={25} className='mt-5 ml-3 ' color='red' />
                                             {isAuthenticated && wishlist?.length > 0 && <span className='absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 top right p-0 m-0 text-white font-mono text-[12px] leading-tight text-center'>{wishlist && wishlist?.length}</span>}
                                         </div>
                                     </div>
+
                                     <div>
                                         {
-                                            user && <p className='mt-5'>Welcome, {user?.name}</p>
+                                            user && <p className='mt-5 text-[16px]'>Welcome, {user?.name}</p>
                                         }
                                     </div>
-                                    <RxCross1 size={30} className='mt-5 ml-4' onClick={() => setOpen(false)} />
+
+                                    <RxCross1 size={25} className='mt-5 ml-4 border-2 rounded-md border-blue-500 hover:border-red-500 cursor-pointer' onClick={() => setOpen(false)} />
                                 </div>
 
                                 <div className='my-8 w-[92%] m-auto h-[40px] relative' >
@@ -294,7 +292,7 @@ const Header = ({ activeHeading }) => {
                                         isAuthenticated ? (
                                             <div>
                                                 <Link to="/profile">
-                                                    <img src={`${user?.avatar}`} alt='' className='w-[110px] h-[110px] rounded-full border-[3px] border-[#33a466] ' />
+                                                    <img src={`${user?.avatar?.url}`} alt='' className='w-[110px] h-[110px] rounded-full border-[3px] border-[#33a466] ' />
                                                 </Link>
                                             </div>
                                         ) : (

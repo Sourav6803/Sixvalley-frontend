@@ -402,7 +402,7 @@ const CreateProduct = () => {
 
                     // Show loading spinner specific to image upload
                     setImageUploadLoading(true);
-                    const mainImageUploadResponse = await axios.post('http://localhost:8000/api/v2/product/uploadImages', mainImagesForm, {
+                    const mainImageUploadResponse = await axios.post(`${server}/product/uploadImages`, mainImagesForm, {
                         headers: { 'Content-Type': 'multipart/form-data' }
                     });
                     const uploadedMainImages = mainImageUploadResponse?.data;

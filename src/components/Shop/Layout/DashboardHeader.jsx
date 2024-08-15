@@ -247,6 +247,7 @@ const DashboardHeader = ({ navOpen, setNavOpen }) => {
                         {menu.submenuItems.map((subMenuItem, subIndex) => (
 
                           <div className="flex items-center justify-between mx-2 hover:bg-[#657082] rounded-md duration-300 p-2">
+                            <Link to={subMenuItem?.link}>
                             <li key={subIndex} className="text-gray-300 text-sm flex items-center cursor-pointer px-7">
                               {subMenuItem.title}
                             </li>
@@ -255,6 +256,7 @@ const DashboardHeader = ({ navOpen, setNavOpen }) => {
                                 {subMenuItem.notication}
                               </div>
                             )}
+                            </Link>
                           </div>
 
                         ))}

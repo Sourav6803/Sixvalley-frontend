@@ -126,11 +126,11 @@ const AdminHeader = ({ navOpen, setNavOpen }) => {
 
         <div className="flex items-center">
           <div className="flex items-center md:space-x-5 space-x-2">
-            <div className="flex  flex-col items-center justify-start">
+            {/* <div className="flex  flex-col items-center justify-start">
 
               <MdOutlineAdminPanelSettings size={30} />
               <p className="text-[14px]">Admin</p>
-            </div>
+            </div> */}
             <div className="relative cursor-pointer m-1">
               <IoMdNotificationsOutline className="text-2xl cursor-pointer dark:text-white text-black" size={35} />
               <span className="absolute -top-2 -right-1 bg-[#1f614d] rounded-full w-[20px] h-[20px] text-[12px] flex items-center justify-center text-white ">
