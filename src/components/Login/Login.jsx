@@ -3,13 +3,13 @@ import { AiFillGithub, AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/a
 import styles from "../../styles/styles"
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { backend_url, server } from '../../server';
+import { server } from '../../server';
 import { toast } from 'react-toastify';
-import { FcGoogle } from 'react-icons/fc';
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from "jwt-decode";
 import Loader from '../../pages/Loader';
-
+import socketIO from "socket.io-client";
+const ENDPOINT = "http://localhost:4000";
 
 const Login = () => {
     const [email, setEmail] = useState("")
@@ -17,6 +17,9 @@ const Login = () => {
     const [visible, setVisible] = useState("")
     const navigate = useNavigate()
     const [loading, setLoading] = useState(false)
+    const [userId, setUserId] = useState("")
+    const socketId = socketIO(ENDPOINT, { transports: ["websocket"], query: { userId: localStorage.getItem('userId') || "" } });
+
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -26,6 +29,12 @@ const Login = () => {
         }, { withCredentials: true }).then(res => {
             toast.success("Login success")
             setLoading(false)
+            const userId = res?.data?.user?._id; // Extract user ID from response
+            console.log("userId", userId)
+            setUserId(userId)
+            // Store userId in localStorage
+            localStorage.setItem('userId', userId);
+
             navigate("/")
             window.location.reload(true)
         }).catch(err => {
@@ -35,6 +44,16 @@ const Login = () => {
         })
 
     }
+
+    useEffect(() => {
+        if (userId) {
+            socketId.on(socketId.emit('addUser', userId))
+        }
+        return () => {
+            socketId.disconnect();
+        };
+
+    }, [socketId, userId])
 
 
     const onLoginSuccess = async (res) => {
@@ -57,25 +76,6 @@ const Login = () => {
         console.log(res);
     }
 
-
-    // const checkLoginStatus = async () => {
-    //     try {
-    //         const res = await axios.get(`http://localhost:8000/login/success`, { withCredentials: true });
-    //         console.log("response", res)
-    //         if (res.success === true) {
-    //             toast.success('Login successful');
-    //             navigate('/');
-    //         }
-    //     } catch (err) {
-    //         console.error(err);
-    //     }
-    // };
-
-
-    // const googleLogin = () => {
-    //     window.open("http://localhost:8000/auth/google/callback", "_self")
-    //     checkLoginStatus()
-    // }
 
     return (
         <div className='min-h-screen bg-gray-50 flex flex-col justify-center py-6 sm:px-6 lg:px-8' style={{ backgroundImage: "url('https://www.tisdigitech.com/wp-content/uploads/2022/08/Best-eCommerce-Website-Development-Company-in-India.jpg')" }} >

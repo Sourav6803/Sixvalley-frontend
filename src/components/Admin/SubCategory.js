@@ -20,7 +20,7 @@ const SubCategory = () => {
 
     const [open, setOpen] = useState(false);
     const [name, setName] = useState("");
-    const [priority, setPriority] = useState(0);
+    const [priority, setPriority] = useState();
     const [mainCategory, setMainCategory] = useState("")
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isDisabled, setIsDisabled] = useState(true);
@@ -142,7 +142,7 @@ const SubCategory = () => {
 
 
     return (
-        <div className='w-full p-5 bg-gray-200'>
+        <div className='w-full p-2 md:p-5 bg-gray-200'>
             <div className='flex items-center gap-2'>
                 <img src={Layout} alt='layout' className='h-5' />
                 <h3 className="text-[20px] text-slate-600 font-Poppins font-semibold">Sub Category Setup</h3>
@@ -194,7 +194,7 @@ const SubCategory = () => {
                                     >
                                         <option value="" disabled>Select a category</option>
                                         {allCategory?.map(category => (
-                                            <option key={category.id} value={category.id}>
+                                            <option key={category?.id} value={category?.id}>
                                                 {category.name}
                                             </option>
                                         ))}
@@ -216,7 +216,7 @@ const SubCategory = () => {
             </div>
 
              <div className='w-full mt-2 bg-white p-3 rounded-md  gap-2 hover:shadow-md'>
-                <div className='flex items-center justify-between'>
+                <div className='flex items-center justify-between flex-col md:flex-row gap-2 md:gap-0'>
                     <div className='flex items-center  '>
                         <div className='text-[20px] font-medium text-slate-700'>Sub Category List: {allSubCategory?.length}</div>
                     </div>

@@ -453,7 +453,7 @@ const AdminDashboardMain = () => {
 
             {/* Statisic 1 */}
             <div className="w-full  800px:flex items-center 1000px:justify-between  bg-slate-100 rounded-md p-3 mt-3 gap-2 grid lg:grid-cols-2 md:grid-cols-1 ">
-              <div className=" w-full md:w-[60%] bg-white rounded-md h-[50vh] md:h-[60vh]  ">
+              <div className=" w-full md:w-[60%] bg-white rounded-md h-[55vh] md:h-[60vh]  ">
                 <div>
                   <div id="chart">
                     <ReactApexChart options={options} series={series} type="line" height={400} />
@@ -478,7 +478,7 @@ const AdminDashboardMain = () => {
 
             <div className="w-full 800px:flex flex-col items-center  bg-slate-200 rounded-md p-3 mt-3">
               <h2 className="text-xl text-center font-semibold">Earning Statistics</h2>
-              <div className=" w-full bg-white rounded-md md:h-[56vh] h-[40vh] mt-3 ">
+              <div className=" w-full bg-white rounded-md md:h-[56vh] h-[45vh] mt-3 ">
                 <div>
                   <div id="chart">
                     <ReactApexChart options={options} series={series} type="line" height={350} />
@@ -659,7 +659,7 @@ const AdminDashboardMain = () => {
                   </div>
                 </div>
 
-               
+
               </div>
 
             </div>

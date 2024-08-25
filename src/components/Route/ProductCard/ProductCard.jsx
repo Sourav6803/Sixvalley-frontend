@@ -100,8 +100,8 @@ const ProductCard = ({ data, isEvent }) => {
                     ) : (
                         <AiOutlineHeart size={22} className='cursor-pointer absolute right-2 top-5 pr-1' color={click ? "red" : "white"} onClick={() => addToWishlistHandler(data)} title='Add to wishlist' />
                     )}
-                    <AiOutlineEye size={22} className='cursor-pointer absolute right-2 top-14 pr-1' color="white" onClick={() => setOpen(!open)} title='Quick View' />
-                    <AiOutlineShoppingCart size={25} className='cursor-pointer absolute right-2 top-24 pr-1' color="white" onClick={() => addToCartHandler(data?._id)} title='Add to cart' />
+                    {/* <AiOutlineEye size={22} className='cursor-pointer absolute right-2 top-14 pr-1' color="white" onClick={() => setOpen(!open)} title='Quick View' /> */}
+                    <AiOutlineShoppingCart size={25} className='cursor-pointer absolute right-2 top-14 pr-1' color="white" onClick={() => addToCartHandler(data?._id)} title='Add to cart' />
 
                     {open && <ProductDetailsCard open={open} setOpen={setOpen} data={data} />}
                 </div>

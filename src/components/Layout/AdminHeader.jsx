@@ -192,12 +192,13 @@ const AdminHeader = ({ navOpen, setNavOpen }) => {
                               <li key={subIndex} className="text-gray-300 text-sm flex items-center cursor-pointer px-7">
                                 {subMenuItem.title}
                               </li>
+                              </Link>
                               {subMenuItem?.notication && (
                                 <div className="mr-3 flex items-center justify-center bg-red-500 text-white rounded-full w-6 h-6 text-xs">
                                   {subMenuItem.notication}
                                 </div>
                               )}
-                            </Link>
+                            
                           </div>
 
                         ))}

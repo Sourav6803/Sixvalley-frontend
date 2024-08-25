@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import styles from "../../styles/styles"
 import { Link, useNavigate } from 'react-router-dom';
@@ -6,6 +6,8 @@ import axios from 'axios';
 import { server } from '../../server';
 import { toast } from 'react-toastify';
 import Loader from '../../pages/Loader';
+import socketIO from "socket.io-client";
+const ENDPOINT = "http://localhost:4000";
 
 
 const AdminLogin = () => {
@@ -14,6 +16,8 @@ const AdminLogin = () => {
     const [visible, setVisible] = useState("")
     const [loading, setLoading] = useState("")
     const navigate = useNavigate()
+    const [adminId, setAdminId] = useState("")
+    const socketId = socketIO(ENDPOINT, { transports: ["websocket"], query: { userId: localStorage.getItem('adminId') || "" } });
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -22,6 +26,11 @@ const AdminLogin = () => {
             email, password
         }, { withCredentials: true }).then(res => {
             toast.success("Login success")
+           
+            const admin_id = res.data?.user?._id
+            
+            setAdminId(admin_id)
+            localStorage.setItem('adminId', admin_id);
             setLoading(false)
             navigate("/admin/dashboard")
             window.location.reload(true)
@@ -32,11 +41,22 @@ const AdminLogin = () => {
         })
 
     }
+
+    useEffect(() => {
+        if (adminId) {
+            socketId.on(socketId.emit('addUser', adminId))
+        }
+
+        return () => {
+            socketId.disconnect();
+        };
+    }, [socketId, adminId])
+
     return (
 
         <>
             {
-                loading ? (<div>
+                loading ? (<div className='flex items-center justify-center min-h-screen'>
                     <Loader />
                 </div>) : (
                     <div className='min-h-screen bg-gray-50 flex flex-col justify-center py-6 sm:px-6 lg:px-8' >

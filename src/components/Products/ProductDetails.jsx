@@ -84,7 +84,7 @@ const ProductDetails = ({ data }) => {
             setClick(false);
         }
     }, [data, wishlist, dispatch])
-    
+
     // Extract unique attribute keys
     const attributeKeys = (data?.variants || []).reduce((keys, variant) => {
         variant.attributes.forEach(attr => {
@@ -224,16 +224,33 @@ const ProductDetails = ({ data }) => {
                                 <div className={`${styles.section} w-[100%] 80px:w-[80%] `}>
                                     <div className='w-full py-0'>
                                         <div className='block w-full 800px:flex'>
-                                            <div className='w-full p-2 rounded-md 800px:w-[50%] '>
+                                            <div className='w-full p-2  rounded-md 800px:w-[50%] '>
                                                 {
                                                     data && data?.images?.length && (
                                                         <Carousel showArrows={true} autoPlay infiniteLoop>
-                                                            {currentVariant?.images?.length ? (
-                                                                currentVariant.images.map((img, index) => <img src={img.url} alt={data?.title} key={index} />)
+                                                            {
+                                                                currentVariant?.images?.length ? (
+                                                                currentVariant.images.map((img, index) => 
+                                                                <div key={index} className="relative h-[55vh] md:h-[80vh] w-full ">
+                                                                    <img
+                                                                        src={img.url}
+                                                                        alt={data?.title}
+                                                                        className="  h-full w-full object-cover"
+                                                                    />
+                                                                </div>)
                                                             ) : (
-                                                                data.images.map((img, index) => <img src={img.url} alt={data?.title} key={index} />)
+                                                                data.images.map((img, index) => 
+                                                                <div key={index} className="relative h-[55vh]  w-full">
+                                                                    <img
+                                                                        src={img.url}
+                                                                        alt={data?.title}
+                                                                        className=" object-cover h-full w-full"
+                                                                    />
+                                                                </div>)
                                                             )}
                                                         </Carousel>
+
+
                                                     )
                                                 }
 

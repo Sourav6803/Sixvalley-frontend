@@ -11,7 +11,7 @@ import { createCategory } from '../../redux/actions/category';
 import Modal from '../../utils/Modal';
 import { AiFillDelete } from "react-icons/ai";
 import AllBrand from './AllBrand';
-import { requestFCMToken } from '../../firebaseUtils';
+import { requestFCMToken } from '../../utils/firebaseUtils';
 
 
 

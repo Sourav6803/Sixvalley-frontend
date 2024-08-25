@@ -16,7 +16,7 @@ const SubSubCategory = () => {
 
     const { allCategory } = useSelector((state) => state?.category);
     const { allSubCategory } = useSelector((state) => state?.subCategory);
-    const { success, error, allSubSubCategory } = useSelector((state) => state?.subSubCategory);
+    const { success, error, isLoading, allSubSubCategory } = useSelector((state) => state?.subSubCategory);
 
 
     const dispatch = useDispatch();
@@ -173,8 +173,6 @@ const SubSubCategory = () => {
     };
 
 
-
-
     return (
         <div className='w-full p-2 md:p-5 bg-gray-200'>
             <div className='flex items-center gap-2'>
@@ -184,7 +182,7 @@ const SubSubCategory = () => {
 
             <div className="w-full mt-2 bg-white p-3 rounded-md hover:shadow-md">
                 {
-                    isSubmitting ? (<div className='w-full h-full flex items-start justify-center'><Loader /></div>) : (
+                    isLoading ? (<div className='w-full h-full flex items-start justify-center'><Loader /></div>) : (
                         <div className='items-center justify-around grid grid-cols-1 lg:grid-cols-2 gap-4'>
                             <div className="p-4 rounded-md ">
                                 <form className='items-center justify-around grid grid-cols-1 lg:grid-cols-2 gap-2 '>
@@ -330,8 +328,6 @@ const SubSubCategory = () => {
                                                     <th scope="col" className="pl-12 pr-12 py-3.5 text-sm font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
                                                         Logo
                                                     </th>
-
-
 
                                                     <th scope="col" className="px-4 py-3.5 text-sm font-normal text-centert text-gray-500 dark:text-gray-400 whitespace-nowrap">
                                                         Main Category

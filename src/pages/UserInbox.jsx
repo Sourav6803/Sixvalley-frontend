@@ -7,14 +7,12 @@ import { server } from "../server";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineArrowRight, AiOutlineSend } from "react-icons/ai";
-import { MdEmojiEmotions } from "react-icons/md";
 import { TfiGallery } from "react-icons/tfi";
 import styles from "../styles/styles";
 import { toast } from "react-toastify";
 import { newMessages, uploadFile } from "../service/api";
 import { MdDownloadForOffline } from "react-icons/md";
 import { downloadMedia } from "../utils/common-utils";
-import EmojiPicker from 'emoji-picker-react';
 import ClipLoader from "react-spinners/ClipLoader"
 // const ENDPOINT = "https://multivendor-socket.onrender.com";
 const ENDPOINT = "http://localhost:4000";
@@ -278,7 +276,7 @@ const MessageList = ({ data, index, setOpen, setCurrentChat, me, setUserData, us
       }
     };
     getUser();
-  }, [me, data]);
+  }, [me,online, setActiveStatus, data]);
 
 
   const msgLength = data?.lastMessage?.length >= 10 ? data?.lastMessage.slice(0, 10) + "..." : data?.lastMessage

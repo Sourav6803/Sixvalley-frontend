@@ -27,7 +27,21 @@ const Coupon = () => {
     const [isDelete, setIsDelete] = useState(false);
     const [searchTearm, setSearchTearm] = useState("")
     const [searchData, setSearchData] = useState(null)
-    const allCouponType = ["Discount on purchase", "Free delivery", "First Order"]
+    const allCouponType = ["Discount on purchase", 
+            "Free delivery", 
+            "First Order",
+            "Buy One Get One Free (BOGO)",
+            "Percentage Off",
+            "Amount Off",
+            "Loyalty Reward",
+            "Seasonal Discount",
+            "Referral Discount",
+            "Student Discount",
+            "Bulk Purchase Discount",
+            "Clearance Sale",
+            "New Product Launch",
+            "App-Exclusive",
+            "Anniversary Sale"]
     const [couponType, setCouponType] = useState("")
     const [couponTitle, setCouponTitle] = useState("")
     const [couponCode, setCouponCode] = useState("")
@@ -39,9 +53,6 @@ const Coupon = () => {
     const [minPurchase, setMinPurchase] = useState(0)
     const [startDate, setStartDate] = useState(null)
     const [endDate, setEndDate] = useState(null)
-
-    const [filtredCupons, setFiltredCupons] = useState([])
-
     const [allCoupons, setAllCoupons] = useState([])
     const [isLoading, setIsLoading] = useState(false)
 

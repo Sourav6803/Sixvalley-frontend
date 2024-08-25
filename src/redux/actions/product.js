@@ -108,3 +108,25 @@ export const getAllProducts = () => async (dispatch) => {
         });
     }
 };
+
+export const getSingleProducts = (id) => async (dispatch) => {
+    
+    try {
+        dispatch({
+            type: "getSingleProductRequest",
+        });
+
+        const { data } = await axios.get(`${server}/product/getProduct/${id}`);
+        
+        
+        dispatch({
+            type: "getSingleProductSuccess",
+            payload: data,
+        });
+    } catch (error) {
+        dispatch({
+            type: "getSingleProductFailed",
+            payload: error?.response?.data?.message,
+        });
+    }
+};

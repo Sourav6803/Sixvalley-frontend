@@ -14,6 +14,7 @@ import ShopInboxPage from "../pages/Shop/ShopInboxPage";
 
 import ShopAllCupoun from "../pages/Shop/ShopAllCupon.jsx";
 import ShopBannerPage from "../pages/Shop/ShopBannerPage.jsx";
+import ShopProductView from "../pages/Shop/ShopProductView.jsx";
 
 export {
     ShopDashboardPage,
@@ -30,5 +31,7 @@ export {
     ShopWithDrawMoneyPage,
     ShopInboxPage,
     ShopAllCupoun,
-    ShopBannerPage
+    ShopBannerPage,
+    ShopProductView
+
 }

@@ -82,7 +82,7 @@ const NewProductCard = ({ data, isEvent }) => {
 
             <div className="w-2/3 py-1 px-1 md:p-4">
                 <h1 className="text-md font-medium text-gray-800 dark:text-white">{data.name.length > 20 ? data.name.slice(0,19)+ '...' : data.name}</h1>
-                <p className="mt-1 text-[12px] text-gray-600 dark:text-gray-400">{data.description}</p>
+                <p className="mt-1 text-[12px] text-gray-600 dark:text-gray-400">{data.description.length > 20 ? data.description.slice(0,19)+ '...' : data.description}</p>
                 <div className="flex items-center ">
                     <CustomRating value={Math.ceil(data.ratings)}  />
                 </div>

@@ -20,7 +20,7 @@ const Category = () => {
 
     const [open, setOpen] = useState(false);
     const [name, setName] = useState("");
-    const [priroity, setPriority] = useState(0);
+    const [priroity, setPriority] = useState();
     const [image, setImage] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isDisabled, setIsDisabled] = useState(true);
@@ -127,7 +127,7 @@ const Category = () => {
     };
 
     return (
-        <div className='w-full p-5 bg-gray-200'>
+        <div className='w-full md:p-5 p-2 bg-gray-200'>
             <div className='flex items-center gap-2'>
                 <img src={Layout} alt='layout' className='h-5' />
                 <h3 className="text-[20px] text-slate-600 font-Poppins font-semibold">Category Setup</h3>

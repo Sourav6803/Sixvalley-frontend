@@ -52,13 +52,28 @@ export const productReducer = createReducer(initialState, {
   getAllProductsSuccess: (state, action) => {
     state.isLoading = false;
     state.allProducts = action?.payload;
-    
+
   },
   getAllProductsFailed: (state, action) => {
     state.isLoading = false;
     state.error = action.payload;
   },
-  
+
+  // get single products
+  getSingleProductRequest: (state) => {
+    state.isLoading = true;
+  },
+  getSingleProductSuccess: (state, action) => {
+    state.isLoading = false;
+    state.singleProduct = action?.payload;
+
+  },
+  getSingleProductFailed: (state, action) => {
+    state.isLoading = false;
+    state.error = action.payload;
+  },
+
+
   clearErrors: (state) => {
     state.error = null;
   },

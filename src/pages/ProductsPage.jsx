@@ -48,7 +48,7 @@ const ProductsPage = () => {
 
         }
         setLoader(false)
-    }, [allProducts])
+    }, [allProducts, categoryData])
 
 
     const responsive = {

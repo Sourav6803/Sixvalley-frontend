@@ -200,7 +200,10 @@ const Navbar = () => {
     
 
     const handleSubmit = (category) => {
-        navigate(`/products?category=${category.name}`);
+        // navigate(`/products?category=${category.name}`);
+        if(category?.name === "Fashion"){
+            navigate(`/products/category/${category?.name}`)
+        }
     };
 
     return (
