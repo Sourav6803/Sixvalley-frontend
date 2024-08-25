@@ -468,7 +468,7 @@ const DashboardHero = () => {
 
         {/* statistic */}
         <div className="w-full flex items-center justify-center  bg-slate-100 rounded-md p-3 mt-3    ">
-          <div className=" w-full  bg-white rounded-md h-[50vh] md:h-[60vh] py-3 ">
+          <div className=" w-full  bg-white rounded-md h-[55vh] md:h-[60vh] py-3 ">
             <div>
               <div id="chart">
                 <ReactApexChart options={options} series={series} type="line" height={400} />
@@ -483,7 +483,7 @@ const DashboardHero = () => {
 
 
 
-        <div className="w-full flex items-center 1000px:justify-between  bg-slate-100 rounded-md mt-3 p-2">
+        {/* <div className="w-full flex items-center 1000px:justify-between  bg-slate-100 rounded-md mt-3 p-2">
 
               <div className="w-full grid md:grid-cols-2 sm:grid-cols-2   gap-2 rounded-md bg-white p-1">
 
@@ -616,10 +616,10 @@ const DashboardHero = () => {
 
               </div>
 
-            </div>
+            </div> */}
 
 
-        <div className="w-full block 800px:flex items-center justify-between gap-2">
+        {/* <div className="w-full block 800px:flex items-center justify-between gap-2">
           <div className="w-full mb-4 800px:w-[70%] min-h-[20vh]  shadow rounded px-2 py-5 bg-white">
             <div className="flex items-center ">
               <AiOutlineMoneyCollect
@@ -673,9 +673,9 @@ const DashboardHero = () => {
           </div>
         </div>
 
-        <br />
+        <br /> */}
 
-        <h3 className="text-[22px] font-Poppins pb-2">Latest Orders</h3>
+        {/* <h3 className="text-[22px] font-Poppins pb-2">Latest Orders</h3>
         <div className="w-full min-h-[45vh] bg-white rounded">
           <DataGrid
             rows={row}
@@ -684,7 +684,7 @@ const DashboardHero = () => {
             disableSelectionOnClick
             autoHeight
           />
-        </div>
+        </div> */}
       </div>
     </section>
   );

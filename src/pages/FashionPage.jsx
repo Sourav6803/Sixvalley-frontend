@@ -50,10 +50,12 @@ const FashionPage = () => {
     const [data, setData] = useState([])
     const [loader, setLoader] = useState(false)
     const [filterSubcategory, setFilterSubCategory] = useState([])
+    const [filterProduct, setFilterProduct] = useState([])
 
     const { allBanner } = useSelector(state => state.banner)
     const mainbanner = allBanner?.filter(banner => banner?.bannerType === "Main Banner" && banner?.resourceType === 'Fashion')
-    console.log(mainbanner)
+    
+
 
     const navigate = useNavigate();
 
@@ -80,6 +82,10 @@ const FashionPage = () => {
         }
     };
 
+    useEffect(()=>{
+        const filterData = allProducts.filter((product)=> product.category === "Fashion")
+        setFilterProduct(filterData)
+    },[allProducts])
 
     useEffect(() => {
         const filterData = allSubSubCategory && allSubSubCategory?.filter(cat => cat.mainCategory === "Fashion")
@@ -176,50 +182,14 @@ const FashionPage = () => {
 
 
             <div className={` !m-0 !p-0 !w-full `}>
-                {/* {
-                    categoryData === 'Painting' ?
-                        <Carousel
-                            swipeable={false}
-                            draggable={false}
-                            responsive={responsive}
-                            infinite={true}
-                            autoPlay={true}
-                            autoPlaySpeed={4000}
-                            keyBoardControl={true}
-                            showDots={false}
-                            slidesToSlide={1}
-                            containerClass="carousel-container"
-                            dotListClass="custom-dot-list-style"
-                            itemClass="carousel-item-padding-40-px"
-                        >
-                            {
-                                bannerData.map(image => (
-                                    <img src={image.url} alt="banner" key={image.id} className='h-[160px] md:h-[180px] w-full object-cover' />
-                                ))
-                            }
-                        </Carousel> : ''
-                } */}
-
-                {/* <div className=' grid grid-cols-4 p-1 gap-[10px] md:grid-cols-6 md:gap-[25px] lg:grid-cols-8 lg:gap-[25px] xl:grid-cols-8 xl:gap-[30px] ' style={{ backgroundImage: "url('https://img.freepik.com/free-vector/happy-diwali-background-with-hanging-diya_1017-27767.jpg?size=626&ext=jpg&ga=GA1.1.154591421.1690217633&semt=ais')", backgroundSize: "cover", backgroundRepeat: "no-repeat" }} >
-                    {
-                        categoryData === 'Painting' ?
-                            paintingSubCategoriesdata.map((subCat, i) => (
-                                <div className='pl-2' onClick={(i) => handleSubmit(subCat.title)} >
-                                    <img src={subCat.image_Url} alt='' className=' h-[50px] w-[50px] rounded-full  ' />
-                                    <p className='text-[14px] text-white font-semibold'>{subCat.title}</p>
-                                </div>
-                            )) : ''
-                    }
-                </div> */}
-
-
+                
                 <div className='!bg-orange-300 grid grid-cols-2 p-1 gap-[10px] md:grid-cols-2 md:gap-[25px] lg:grid-cols-4 lg:gap-[25px] xl:grid-cols-5 xl:gap-[30px] mb-6'>
                     {
-                        data && data.map((i, index) => <ProductCard data={i} key={index} />)
+                        filterProduct && filterProduct.map((i, index) => <ProductCard data={i} key={index} />)
                     }
                 </div>
                 {
-                    data && data.length === 0 ? (
+                    filterProduct && filterProduct.length === 0 ? (
                         <h1 className='text-center w-full pb-[110px] text-[20px]'> No products found!</h1>
                     ) : null
                 }

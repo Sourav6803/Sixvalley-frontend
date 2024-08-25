@@ -322,7 +322,7 @@ const AllProducts = () => {
                     <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
                       <div className="overflow-hidden border border-gray-200 dark:border-gray-700 md:rounded-lg">
                         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                          <thead className="bg-gray-50 dark:bg-gray-800">
+                          <thead className="bg-gray-50 ">
                             <tr>
                               <th scope="col" className="py-3.5 px-4 text-sm font-normal text-center  text-gray-500 dark:text-gray-400 whitespace-nowrap">
                                 SL
@@ -340,27 +340,27 @@ const AllProducts = () => {
                                 Price
                               </th>
 
-                              <th scope="col" className="pl-4 pr-4 py-3.5 text-sm font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                              <th scope="col" className="pl-4 pr-4 py-3.5 text-sm font-normal text-center text-gray-500  whitespace-nowrap">
                                 Brand
                               </th>
 
-                              <th scope="col" className="px-4 py-3.5 text-sm font-normal text-centert text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                              <th scope="col" className="px-4 py-3.5 text-sm font-normal text-centert text-gray-500  whitespace-nowrap">
                                 Category
                               </th>
 
-                              <th scope="col" className="px-4 py-3.5 text-sm font-normal text-centert text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                              <th scope="col" className="px-4 py-3.5 text-sm font-normal text-centert text-gray-500  whitespace-nowrap">
                                 Sub Category
                               </th>
 
-                              <th scope="col" className="px-4 py-3.5 text-sm font-normal text-centert text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                              <th scope="col" className="px-4 py-3.5 text-sm font-normal text-centert text-gray-500 whitespace-nowrap">
                                 Stock
                               </th>
 
-                              <th scope="col" className="px-4 py-3.5 text-sm font-normal text-centert text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                              <th scope="col" className="px-4 py-3.5 text-sm font-normal text-centert text-gray-500  whitespace-nowrap">
                                 Sold Out
                               </th>
 
-                              <th scope="col" className="px-4 py-3.5 text-sm font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                              <th scope="col" className="px-4 py-3.5 text-sm font-normal text-center text-gray-500  whitespace-nowrap">
                                 Verify Status
                               </th>
 
@@ -373,7 +373,7 @@ const AllProducts = () => {
                               </th>
                             </tr>
                           </thead>
-                          
+
                           <tbody className="bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-900">
                             {(searchData || products)?.length > 0 ? (searchData || products).map((product, index) => (
                               <tr key={index}>
