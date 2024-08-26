@@ -515,10 +515,10 @@ const CreateProduct = () => {
 
         if (success) {
             toast.success("Product created successfully!");
-            // navigate("/dashboard");
-            setTimeout(() => window.location.reload(), 500)
+            
+            setTimeout(() => navigate("/dashboard-products"), 800)
         }
-    }, [dispatch, error, success, isLoading]);
+    }, [dispatch, error, success, isLoading, navigate]);
 
 
     return (
