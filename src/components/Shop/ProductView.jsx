@@ -74,58 +74,7 @@ const ProductView = () => {
         }
     }, [name, images]);
 
-    // const handleFileInputChange = useCallback((e) => {
-    //     const file = e.target.files[0];
-    //     setBrandLogo(file);
-    // }, []);
-
-    // const handleChange = useCallback((e) => {
-    //     const inputValue = e.target.value;
-    //     setBrandName(inputValue.charAt(0).toUpperCase() + inputValue.slice(1));
-    // }, []);
-
-    // const handleSubmit = useCallback((e) => {
-    //     e.preventDefault();
-
-    //     if (!brandName ||  !brandLogo) {
-    //         toast.error("Please fill in all required fields.");
-    //         return;
-    //     }
-
-    //     setIsSubmitting(true);
-
-    //     const newForm = new FormData();
-    //     newForm.append("brandName", brandName);
-
-    //     if (brandLogo) {
-    //         newForm.append("brandLogo", brandLogo);
-    //     }
-
-    //     dispatch(updateBrand(id, newForm));
-
-    // }, [brandName, brandLogo, dispatch, id]);
-
-    // useEffect(() => {
-    //     if (error) {
-    //         setIsSubmitting(false);
-    //         toast.error(error);
-    //     }
-    //     if (uploadSuccess) {
-    //         setIsSubmitting(false);
-    //         toast.success("Brand updated successfully!");
-    //         setTimeout(()=>{
-    //             navigate("/admin/dashboard/all-brand")
-    //             window.location.reload()
-    //         },200)
-
-
-
-
-    //     }
-    // }, [error, success, navigate, uploadSuccess]);
-
-
-
+    
 
     return (
         <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 lg:p-8">
@@ -155,8 +104,6 @@ const ProductView = () => {
 
 
                             </Carousel>
-
-
                         )
                     }
                     <button className="bg-blue-500 text-white px-4 py-2 rounded-lg" onClick={()=>navigate(`/product/${singleProduct?._id}`)}>View live</button>

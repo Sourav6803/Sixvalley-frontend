@@ -5,6 +5,7 @@ import Loader from "../components/Layout/Loader"
 
 const SellerProtectedRoute = ({ children }) => {
     const { isLoading, isSeller, seller } = useSelector((state) => state?.seller)
+    
 
     if (isLoading === true || isSeller === undefined) {
         return (

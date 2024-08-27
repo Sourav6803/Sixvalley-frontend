@@ -177,10 +177,10 @@ const Header = ({ activeHeading }) => {
 
             {/* Mobile header */}
 
-            <div className={` ${active === true ? "shadow-sm fixed top-0 left-0 z-10" : null} w-full h-[60px] bg-white  z-50 top-0 left-0 shadow-sm 800px:hidden`}  >
+            <div className={` ${active === true ? "shadow-sm fixed top-0 left-0 z-10" : null} w-full h-[60px] bg-blue-400  z-50 top-0 left-0 shadow-sm 800px:hidden`}  >
                 <div className='w-full flex items-center justify-between ' >
                     <div className="mt-2  flex items-center  justify-center" >
-                        <BiMenuAltLeft size={40} className="ml-2 " onClick={() => setOpen(true)} />
+                        <BiMenuAltLeft size={40} className="ml-2 text-white " onClick={() => setOpen(true)} />
                         <Link to="/">
                             <img
                                 src={Logo}
@@ -197,19 +197,19 @@ const Header = ({ activeHeading }) => {
                     <div className=' flex items-center justify-center gap-2' >
                         <div>
                             <div className='relative ' onClick={() => setOpenWishlist(true)}>
-                                <IoIosHeart size={30} className=' ' color='red' />
+                                <IoIosHeart size={30} className='text-white ' color='red' />
                                 {isAuthenticated && wishlist?.length > 0 && <span className='absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 top right p-0 m-0  font-mono text-[12px] leading-tight text-center'>{wishlist && wishlist?.length}</span>}
                             </div>
                         </div>
                         <div className="relative cursor-pointer m-2">
-                            <IoMdNotificationsOutline size={30} className="  cursor-pointer  " />
-                            <span className="absolute top-0 right-0 bg-[#3bc177] rounded-full w-4 h-4 text-[12px] flex items-center justify-center  ">
+                            <IoMdNotificationsOutline size={30} className="text-white  cursor-pointer  " />
+                            <span className="absolute top-0 right-0 bg-white rounded-full w-4 h-4 text-[12px] flex items-center justify-center  ">
                                 5
                             </span>
                         </div>
                         <div className="relative mr-[20px]" onClick={() => setOpenCart(true)}>
-                            <AiOutlineShoppingCart size={30} color='' />
-                            {isAuthenticated && cart?.length >= 1 && <span className="absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 top right p-0 m-0  font-mono text-[12px]  leading-tight text-center">
+                            <AiOutlineShoppingCart size={30} color='' className='text-white' />
+                            {isAuthenticated && cart?.length >= 1 && <span className="absolute right-0 top-0 rounded-full bg-white w-4 h-4 top right p-0 m-0  font-mono text-[12px]  leading-tight text-center">
                                 {cart && cart?.length}
                             </span>}
                         </div>
