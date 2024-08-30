@@ -3,7 +3,7 @@
 // import { Typography, Box, styled } from '@mui/material'; 
 // import { categoriesData } from '../../../static/data';
 // import { useNavigate } from 'react-router-dom';
- 
+
 //  const navData = [
 //     { url: 'https://rukminim1.flixcart.com/flap/128/128/image/f15c02bfeb02d15d.png?q=100', text: 'Top Offers' },
 //     { url: 'https://rukminim1.flixcart.com/flap/128/128/image/29327f40e9c4d26b.png?q=100', text: 'Grocery' },
@@ -22,7 +22,7 @@
 //     justifyContent: 'space-between',
 //     //margin: '55px 130px 0 130px !important',
 //     overflowX: 'overlay',
-    
+
 //     marginLeft: 'auto',
 //     marginRight: 'auto',
 //     width: 'full',
@@ -44,9 +44,9 @@
 // `;
 
 // const Image = styled('img')(({ theme }) => ({
-    
+
 //     justifyContent: 'space-between',
-    
+
 //     overflowX: 'overlay',
 //     [theme.breakpoints.down('lg')]: {
 //         width: '90px',
@@ -66,12 +66,12 @@
 //         <Component>
 //             {
 //                 categoriesData.map((temp, index )=> (
-                    
+
 //                     <Container key={index}>
 //                         <Image src={temp.image_Url} className='rounded-full' style={{  width: 90 , height: 45 }}  alt=''  key={index}  onClick={() => handleSubmit(temp)}/>
 //                         <Text>{temp.title.length > 6 ? temp.title.slice(0,5) : temp.title}..</Text>
 //                     </Container>
-                    
+
 //                 ))
 //             }
 //         </Component>
@@ -196,12 +196,23 @@ import { useSelector } from 'react-redux';
 
 const Navbar = () => {
     const navigate = useNavigate();
-    const {allCategory} = useSelector(state=>state.category)
+    const { allCategory } = useSelector(state => state.category)
     
 
     const handleSubmit = (category) => {
+        console.log(category?.name.trim())
         // navigate(`/products?category=${category.name}`);
-        if(category?.name === "Fashion"){
+        if (category?.name.trim() === "Fashion") {
+            navigate(`/products/category/${category?.name}`)
+        } else if (category?.name.trim() === "Electronics") {
+            navigate(`/products/category/${category?.name}`)
+        }else if(category?.name.trim() === "Home Appliances"){
+            navigate(`/products/category/${category?.name}`)
+        }
+        else if(category?.name.trim() === "Grocery"){
+            navigate(`/products/category/${category?.name}`)
+        }
+        else if(category?.name.trim() === "Furniture"){
             navigate(`/products/category/${category?.name}`)
         }
     };
@@ -210,10 +221,10 @@ const Navbar = () => {
         <div className="flex justify-between overflow-x-auto px-4 mx-auto w-full bg-white">
             {Array.isArray(allCategory) && allCategory?.map((category, index) => (
                 <div key={index} className="p-3 text-center">
-                    <img 
-                        src={category.image.url} 
-                        alt={category.name} 
-                        className="w-24 h-12 md:w-20 md:h-10 lg:w-24 lg:h-12 rounded-full cursor-pointer" 
+                    <img
+                        src={category.image.url}
+                        alt={category.name}
+                        className="w-24 h-12 md:w-20 md:h-10 lg:w-24 lg:h-12 rounded-full cursor-pointer"
                         onClick={() => handleSubmit(category)}
                     />
                     <p className="text-sm font-semibold">

@@ -72,6 +72,7 @@ const CreateProduct = () => {
     const [afterDiscountPrice, setAfterDiscountPrice] = useState()
     const [selectedImage, setSelectedImage] = useState(null);
 
+
     const handleImageClick = (image) => {
         setSelectedImage(image);
         setOpen(true);
@@ -120,6 +121,8 @@ const CreateProduct = () => {
 
         setAttributeValues(newValues);
         updateVariations(selectedAttributes, newValues);
+
+
     };
 
     const updateVariations = (attributes, attributeValues) => {
@@ -300,7 +303,7 @@ const CreateProduct = () => {
     const handleSubCategoryChange = useCallback((e) => {
         const selectedSubCategory = e.target.value;
         setSubCategory(selectedSubCategory);
-        const filteredSubCategories = allSubSubCategory.filter(subCat => subCat.subCategory === selectedSubCategory);
+        const filteredSubCategories = allSubSubCategory.filter(subCat => subCat.subCategory.trim() === selectedSubCategory.trim());
         setFilteredSubSubCategories(filteredSubCategories);
     }, [setSubCategory, allSubSubCategory]);
 
@@ -515,10 +518,12 @@ const CreateProduct = () => {
 
         if (success) {
             toast.success("Product created successfully!");
-            
+
             setTimeout(() => navigate("/dashboard-products"), 800)
         }
     }, [dispatch, error, success, isLoading, navigate]);
+
+    let isFilled;
 
 
     return (
@@ -956,6 +961,7 @@ const CreateProduct = () => {
                                 <button
                                     type="button"
                                     onClick={() => handleAddAttributeValue(attribute.value)}
+                                    disabled={!attributeValues[attribute?.value]} // Disable until value is entered
                                     className="mt-1 px-4 py-2 bg-blue-500 text-white rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                                 >
                                     Add
@@ -979,6 +985,7 @@ const CreateProduct = () => {
                 </div>
 
                 {variations.length > 0 && (
+                    
                     <div className="border-2 md:w-[80vw] w-full rounded-md overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
@@ -1020,6 +1027,13 @@ const CreateProduct = () => {
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {variations.map((variation, index) => {
                                     const lastIndex = variation.length - 1;
+                                     isFilled =
+                                        variation[lastIndex].originalPrice &&
+                                        variation[lastIndex].discountType &&
+                                        variation[lastIndex].discountAmount &&
+                                        variation[lastIndex].afterDiscountPrice &&
+                                        variation[lastIndex].sku &&
+                                        variation[lastIndex].stock;
                                     return (
                                         <tr key={index}>
                                             {variation.slice(0, -1).map((value, idx) => (
@@ -1164,7 +1178,7 @@ const CreateProduct = () => {
                                                                     &times;
                                                                 </button>
 
-                                                                
+
                                                             </div>
                                                         ))}
                                                     </div>
@@ -1185,7 +1199,9 @@ const CreateProduct = () => {
                     <button
                         type="button"
                         onClick={addMoreVariations}
-                        className="px-4 py-2 bg-blue-500 text-white rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        disabled={!isFilled} // Disable if any field is empty
+                        className={`px-4 py-2 bg-blue-700 text-white rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
+                      !isFilled && 'cursor-not-allowed text-gray-400 bg-blue-300'} `}
                     >
                         Add More
                     </button>

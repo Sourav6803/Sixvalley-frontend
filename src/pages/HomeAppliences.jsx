@@ -14,8 +14,8 @@ import axios from 'axios';
 import { server } from '../server';
 import Loader from './Loader';
 import { styled } from '@mui/material';
-
 import { Fashion } from '../static/data';
+
 
 const responsive = {
     desktop: {
@@ -42,25 +42,26 @@ const Image = styled('img')(({ theme }) => ({
     loading: 'lazy' // Add lazy loading
 }));
 
-const FashionPage = () => {
+
+
+const HomeAppliences = () => {
     const [searchParams] = useSearchParams();
     const categoryData = searchParams.get("category")
     const { allProducts, isLoading } = useSelector(state => state?.products)
     const { allSubSubCategory } = useSelector(state => state.subSubCategory)
+    const { allSubCategory } = useSelector(state => state.subCategory)
     const [data, setData] = useState([])
     const [loader, setLoader] = useState(false)
     const [filterSubcategory, setFilterSubCategory] = useState([])
     const [filterProduct, setFilterProduct] = useState([])
 
     const { allBanner } = useSelector(state => state.banner)
-    const mainbanner = allBanner?.filter(banner => banner?.bannerType === "Main Banner" && banner?.resourceType === 'Fashion')
-
-
+    const mainbanner = allBanner?.filter(banner => banner?.bannerType === "Main Banner" && banner?.resourceType === 'Home Appliances')
 
     const navigate = useNavigate();
 
     const handleBannerClick = (banner) => {
-        console.log(banner.resourceValue)
+        // console.log(banner.resourceValue)
         switch (banner.resourceType) {
             case 'Product':
                 navigate(`/product/${banner.resourceValue}`);
@@ -83,19 +84,23 @@ const FashionPage = () => {
     };
 
     useEffect(() => {
-        const filterData = allProducts?.filter((product) => product?.category.trim() === "Fashion")
+        const filterData = allProducts?.filter((product) => product?.category.trim() === "Home Appliances")
         setFilterProduct(filterData)
     }, [allProducts])
 
     useEffect(() => {
-        const filterData = allSubSubCategory && allSubSubCategory?.filter(cat => cat.mainCategory.trim() === "Fashion")
+        const filterData = allSubSubCategory && allSubSubCategory?.filter(cat => cat.mainCategory === "Home Appliances")
         setFilterSubCategory(filterData)
     }, [allSubSubCategory])
 
 
 
+    // const handleSubmit = (name) => {
+    //     navigate(`/products?subCategory=${name}`)
+    // }
+
     const handleSubmit = (name) => {
-        navigate(`/products?subCategory=${encodeURIComponent(name.trim())}`)
+        navigate(`/products?category=${name}`)
     }
 
 
@@ -106,7 +111,7 @@ const FashionPage = () => {
             const d = allProducts
             setData(d)
         } else {
-            const d = allProducts && allProducts.filter((i) => i.category === categoryData)
+            const d = allProducts && allProducts.filter((i) => i?.category === categoryData)
             setData(d)
 
         }
@@ -149,16 +154,16 @@ const FashionPage = () => {
                     </div>
                 ))} */}
 
-                {Array.isArray(Fashion) && Fashion?.map((fashion, index) => (
+                {Array.isArray(filterSubcategory) && filterSubcategory?.map((category, index) => (
                     <div key={index} className="p-3 text-center">
                         <img
-                            src={fashion.imageUrl}
-                            alt={fashion.name}
+                            src={category.image.url}
+                            alt={category.name}
                             className="w-12 h-12 md:w-20 md:h-20 lg:w-24 lg:h-24 rounded-full object-cover cursor-pointer"
-                            onClick={() => handleSubmit(fashion?.title.trim())}
+                            onClick={() => handleSubmit(category?.name)}
                         />
                         <p className="text-sm font-semibold">
-                            {fashion?.title?.length > 6 ? `${fashion.title.slice(0, 5)}...` : fashion.title}
+                            {category?.name?.length > 6 ? `${category.name.slice(0, 5)}...` : category.name}
                         </p>
                     </div>
                 ))}
@@ -215,4 +220,4 @@ const FashionPage = () => {
     )
 }
 
-export default FashionPage
+export default HomeAppliences

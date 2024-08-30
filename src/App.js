@@ -51,6 +51,7 @@ import { requestFCMToken } from './utils/firebaseUtils.js';
 import CookieConsent from 'react-cookie-consent';
 import { useSelector } from 'react-redux';
 import FashionPage from './pages/FashionPage.jsx';
+import HomeAppliences from './pages/HomeAppliences.jsx';
 
 
 
@@ -281,6 +282,7 @@ const App = ({ data }) => {
           <Route path='/seller/activation/:activation_token' element={<SellerActivationPage />} />
           <Route path='/products' element={<ProductsPage />} />
           <Route path='/products/category/Fashion' element={<FashionPage />} />
+          <Route path='/products/category/Home Appliances' element={<HomeAppliences />} />
 
           <Route path='/productsss' element={<ProductSubcategoryPage />} />
           <Route path='/product/birthday-gift' element={<Birthday />} />

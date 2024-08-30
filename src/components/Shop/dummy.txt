@@ -5,19 +5,20 @@ import { AiOutlinePlusCircle } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { createProduct } from "../../redux/actions/product";
-import { categoriesData, colorNames } from "../../static/data";
+import { colorNames } from "../../static/data";
 import { toast } from "react-toastify";
-import { ProgressBar } from "react-loader-spinner"
+
 import Loader from "../../pages/Loader";
 import ProductPng from "../../components/Admin/icon/products.png";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { FaUser } from "react-icons/fa";
-import Select, { components } from 'react-select';
-import { Switch } from '@mui/material';
+import Select from 'react-select';
+
 import axios from "axios";
 import { server } from "../../server";
 import { htmlToText } from 'html-to-text';
+import ImageModal from "../../utils/ImageModal";
 
 const CreateProduct = () => {
     const { seller } = useSelector((state) => state.seller);
@@ -31,6 +32,7 @@ const CreateProduct = () => {
 
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const [open, setOpen] = useState(false);
     const [otherDetails, setOtherDetails] = useState([{ key: '', value: '' }]);
     const [images, setImages] = useState([]);
     const [name, setName] = useState("");
@@ -51,13 +53,11 @@ const CreateProduct = () => {
     const [taxAmount, setTaxAmount] = useState();
     const [shippingCost, setShippingCost] = useState("")
     const [loading, setLoading] = useState(false)
+    const [modalOpen, setModalOpen] = useState(false)
 
     const [filteredSubCategories, setFilteredSubCategories] = useState([]);
     const [filteredSubSubCategories, setFilteredSubSubCategories] = useState([]);
 
-    const [colorOptions, setColorOptions] = useState([]);
-    const [showColors, setShowColors] = useState(false);
-    const [selectedColors, setSelectedColors] = useState(null);
     const [selectedAttributes, setSelectedAttributes] = useState([]);
     const [attributeValues, setAttributeValues] = useState({});
     const [variations, setVariations] = useState([]);
@@ -70,6 +70,15 @@ const CreateProduct = () => {
     const [imageUploadLoading, setImageUploadLoading] = useState(false)
 
     const [afterDiscountPrice, setAfterDiscountPrice] = useState()
+    const [selectedImage, setSelectedImage] = useState(null);
+
+    console.log("subSubCategory :" , subSubCategory)
+
+    const handleImageClick = (image) => {
+        setSelectedImage(image);
+        setOpen(true);
+        setModalOpen(true);
+    };
 
     useEffect(() => {
         if (discountType === "Flat") {
@@ -87,15 +96,6 @@ const CreateProduct = () => {
         }));
         setAttributeOptions(data);
     }, [allAttribute]);
-
-    useEffect(() => {
-        const data = colorNames?.map((color) => ({
-            value: color,
-            label: color,
-            color: color,
-        }));
-        setColorOptions(data);
-    }, []);
 
     const handleAttributeChange = (selectedOptions) => {
         setSelectedAttributes(selectedOptions);
@@ -121,10 +121,10 @@ const CreateProduct = () => {
         };
 
         setAttributeValues(newValues);
-        updateVariations(selectedColors, selectedAttributes, newValues);
+        updateVariations(selectedAttributes, newValues);
     };
 
-    const updateVariations = (colors = [], attributes, attributeValues) => {
+    const updateVariations = (attributes, attributeValues) => {
         const newVariations = [];
         const attributeLists = attributes.map(
             (attr) => attributeValues[attr.value + "List"] || []
@@ -137,17 +137,7 @@ const CreateProduct = () => {
 
         const generateCombinations = (lists, prefix = []) => {
             if (!lists.length) {
-                if (colors?.length > 0) {
-                    colors.forEach((color) => {
-                        newVariations.push([
-                            ...prefix,
-                            color.label,
-                            { originalPrice: "", discountType: "", discountAmount: "", afterDiscountPrice: "", sku: "", stock: "", images: [] },
-                        ]);
-                    });
-                } else {
-                    newVariations.push([...prefix, { originalPrice: "", discountType: "", discountAmount: "", afterDiscountPrice: "", sku: "", stock: "", images: [] }]);
-                }
+                newVariations.push([...prefix, { originalPrice: "", discountType: "", discountAmount: "", afterDiscountPrice: "", sku: "", stock: "", images: [] }]);
                 return;
             }
             lists[0].forEach((item) => generateCombinations(lists.slice(1), [...prefix, item]));
@@ -161,15 +151,12 @@ const CreateProduct = () => {
                 new Set(combinedVariations.map((v) => JSON.stringify(v)))
             ).map((e) => JSON.parse(e));
             return uniqueVariations.filter((variation) => {
-                return (
-                    selectedAttributes.every(
-                        (attr) => variation[selectedAttributes.indexOf(attr)] !== ""
-                    ) && (showColors ? variation[selectedAttributes.length - 1] !== "" : true)
+                return selectedAttributes.every(
+                    (attr) => variation[selectedAttributes.indexOf(attr)] !== ""
                 );
             });
         });
     };
-
 
     const handleVariationChange = (index, field, value) => {
         const updatedVariations = [...variations];
@@ -212,30 +199,17 @@ const CreateProduct = () => {
             });
 
             // Optionally, clear selected colors if `showColors` is true
-            setSelectedColors([]);
+            // setSelectedColors([]);
         } else {
             toast.info("Please enter valid attribute values before adding more.");
         }
     };
 
-    // const getVariationKey = (variation) => {
-    //     const lastIndex = variation.length - 1;
-    //     return (
-    //         selectedAttributes
-    //             .map((attr) => variation[selectedAttributes.indexOf(attr)])
-    //             .join("-") + (showColors ? `-${variation[lastIndex - 1]}` : "")
-    //     );
-    // };
-
-
     const getVariationKey = useCallback((variation) => {
-        const lastIndex = variation.length - 1;
-        return (
-            selectedAttributes
-                .map((attr) => variation[selectedAttributes.indexOf(attr)])
-                .join("-") + (showColors ? `-${variation[lastIndex - 1]}` : "")
-        );
-    }, [selectedAttributes, showColors]);
+        return selectedAttributes
+            .map((attr) => variation[selectedAttributes.indexOf(attr)])
+            .join("-");
+    }, [selectedAttributes]);
 
     const existingSKUs = new Set();
 
@@ -258,7 +232,6 @@ const CreateProduct = () => {
         // return sku;
         setSku(sku)
     }
-
 
     const handleImageChange = (e) => {
         e.preventDefault()
@@ -311,7 +284,6 @@ const CreateProduct = () => {
         });
     };
 
-
     const handleCategoryChange = useCallback((e) => {
         const selectedMainCategory = e.target.value;
         setMainCategory(selectedMainCategory);
@@ -330,7 +302,7 @@ const CreateProduct = () => {
     const handleSubCategoryChange = useCallback((e) => {
         const selectedSubCategory = e.target.value;
         setSubCategory(selectedSubCategory);
-        const filteredSubCategories = allSubSubCategory.filter(subCat => subCat.subCategory === selectedSubCategory);
+        const filteredSubCategories = allSubSubCategory.filter(subCat => subCat.subCategory.trim() === selectedSubCategory.trim());
         setFilteredSubSubCategories(filteredSubCategories);
     }, [setSubCategory, allSubSubCategory]);
 
@@ -416,8 +388,6 @@ const CreateProduct = () => {
         return Math.max(afterDiscountPrice, 0);
     };
 
-
-
     const handleSubmit = useCallback(async (e) => {
         e.preventDefault();
         setLoading(true); // Show general loading spinner
@@ -434,10 +404,10 @@ const CreateProduct = () => {
 
                     // Show loading spinner specific to image upload
                     setImageUploadLoading(true);
-                    const mainImageUploadResponse = await axios.post('http://localhost:8000/api/v2/product/uploadImages', mainImagesForm, {
+                    const mainImageUploadResponse = await axios.post(`${server}/product/uploadImages`, mainImagesForm, {
                         headers: { 'Content-Type': 'multipart/form-data' }
                     });
-                    const uploadedMainImages = mainImageUploadResponse.data;
+                    const uploadedMainImages = mainImageUploadResponse?.data;
                     setImageUploadLoading(false); // Hide loading spinner
 
                     newForm.append("images", JSON.stringify(uploadedMainImages));
@@ -468,7 +438,7 @@ const CreateProduct = () => {
                         }
 
                         // Upload variant images
-                        const variantImageUploadResponse = await axios.post('http://localhost:8000/api/v2/product/uploadImages', variantImagesForm, {
+                        const variantImageUploadResponse = await axios.post(`${server}/product/uploadImages`, variantImagesForm, {
                             headers: { 'Content-Type': 'multipart/form-data' }
                         });
                         const uploadedVariantImages = variantImageUploadResponse.data;
@@ -511,7 +481,8 @@ const CreateProduct = () => {
             newForm.append("discountAmount", discountPrice);
             newForm.append("shippingCost", shippingCost);
             newForm.append("stock", stock);
-            newForm.append("shopId", seller._id);
+            seller && newForm.append("shopId", seller._id);
+            seller && newForm.append("productSource", "Seller");
 
             newForm.append("variants", JSON.stringify(variantsData));
 
@@ -532,11 +503,10 @@ const CreateProduct = () => {
         } finally {
             setLoading(false); // Hide general loading spinner
         }
-    }, [images, variations, getVariationKey, selectedAttributes, imageFiles, name, description, mainCategory, subCategory, subSubCategory, brand, productType, sku, unit, tags, keyPoints, customize, originalPrice, discountType, discountPrice, shippingCost, stock, seller._id, otherDetails, dispatch]);
+    }, [images, variations, getVariationKey, selectedAttributes, seller, imageFiles, name, description, mainCategory, subCategory, subSubCategory, brand, productType, sku, unit, tags, keyPoints, customize, originalPrice, discountType, discountPrice, shippingCost, stock, otherDetails, dispatch]);
 
 
     useEffect(() => {
-
         if (error) {
             toast.error(error);
         }
@@ -547,14 +517,14 @@ const CreateProduct = () => {
 
         if (success) {
             toast.success("Product created successfully!");
-            // navigate("/dashboard");
-            // setTimeout(() => window.location.reload(), 500)
+            
+            setTimeout(() => navigate("/dashboard-products"), 800)
         }
-    }, [dispatch, error, success, isLoading]);
+    }, [dispatch, error, success, isLoading, navigate]);
 
 
     return (
-        <div className="w-full p-1 md:p-3 bg-gray-200">
+        <div className="w-full px-1 md:px-3 bg-gray-200">
             {/* create product form */}
 
             <div className='flex items-center gap-2'>
@@ -718,7 +688,7 @@ const CreateProduct = () => {
                 </div>
 
 
-                <button
+                {/* <button
                     type="button"
                     onClick={generateBulletPoints}
                     className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -735,7 +705,7 @@ const CreateProduct = () => {
                             ))}
                         </ul>
                     </div>
-                )}
+                )} */}
 
 
             </div>
@@ -778,6 +748,7 @@ const CreateProduct = () => {
                             type="number"
                             name="price"
                             value={originalPrice}
+                            min={0}
                             className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                             onChange={(e) => setOriginalPrice(e.target.value)}
                             placeholder="Enter your product price..."
@@ -802,6 +773,7 @@ const CreateProduct = () => {
                         <input
                             type="number"
                             name="price"
+                            min={0}
                             value={discountPrice}
                             className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                             onChange={(e) => setDiscountPrice(e.target.value)}
@@ -816,6 +788,7 @@ const CreateProduct = () => {
                         <input
                             type="number"
                             name="price"
+                            min={0}
                             value={afterDiscountPrice}
                             className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                             readOnly
@@ -830,11 +803,11 @@ const CreateProduct = () => {
                         <input
                             type="number"
                             name="price"
-                            defaultValue={0}
+                            min={0}
                             value={stock}
                             className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                             onChange={(e) => setStock(e.target.value)}
-                            placeholder="Enter your product stock..."
+                            placeholder="ex: 10"
                         />
                     </div>
 
@@ -846,6 +819,7 @@ const CreateProduct = () => {
                             type="number"
                             name="price"
                             value={taxAmount}
+                            min={0}
                             className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                             onChange={(e) => setTaxAmount(e.target.value)}
                             placeholder="Enter your product tax amount"
@@ -859,6 +833,7 @@ const CreateProduct = () => {
                         <input
                             type="number"
                             name="price"
+                            min={0}
                             value={shippingCost}
                             className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                             onChange={(e) => setShippingCost(e.target.value)}
@@ -908,7 +883,7 @@ const CreateProduct = () => {
 
                         <button
                             type="button"
-                            className="mt-5 bg-red-500 text-white rounded-md px-3 py-1 h-[35px]"
+                            className="mt-7 bg-red-500 text-white rounded-md px-3 py-1 h-[35px]"
                             onClick={() => handleRemoveField(index)}
                         >
                             Remove
@@ -978,7 +953,7 @@ const CreateProduct = () => {
                                     value={attributeValues[attribute.value] || ''}
                                     onChange={(e) => handleAttributeValueChange(e, attribute.value)}
                                     placeholder={`Enter ${attribute.label}`}
-                                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-base focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition duration-300"
+                                    className="mt-1 block w-full px-4 py-1.5 border border-gray-300 rounded-md shadow-sm text-base focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition duration-300"
                                 />
                                 <button
                                     type="button"
@@ -1013,32 +988,28 @@ const CreateProduct = () => {
                                     {selectedAttributes.map((attribute) => (
                                         <th
                                             key={attribute.value}
-                                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                            className="px-3  py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                                         >
                                             {attribute.label}
                                         </th>
                                     ))}
-                                    {showColors && (
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Color
-                                        </th>
-                                    )}
-                                    <th className="px-6 py-3   text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+
+                                    <th className="px-3 py-3  text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         originalPrice
                                     </th>
-                                    <th className="px-6 py-3   text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-3 py-3    text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         discountType
                                     </th>
-                                    <th className="px-6 py-3   text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-3 py-3   text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         discountAmount
                                     </th>
-                                    <th className="px-6 py-3   text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-3 py-3   text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         afterDiscountPrice
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         SKU
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Stock
                                     </th>
 
@@ -1056,15 +1027,15 @@ const CreateProduct = () => {
                                             {variation.slice(0, -1).map((value, idx) => (
                                                 <td
                                                     key={idx}
-                                                    className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                                                    className="px-3 py-4 whitespace-nowrap text-sm text-gray-500"
                                                 >
                                                     {value}
                                                 </td>
                                             ))}
-                                            <td className="px-6 py-4  whitespace-nowrap text-sm text-gray-500">
+                                            <td className="px-3 py-4  whitespace-nowrap text-sm text-gray-500">
                                                 <input
                                                     type="number"
-                                                    placeholder="EnterOriginal Price.."
+                                                    placeholder="Original Price.."
                                                     value={variation[lastIndex].originalPrice}
                                                     min={0}
                                                     onChange={(e) =>
@@ -1074,11 +1045,11 @@ const CreateProduct = () => {
                                                             e.target.value
                                                         )
                                                     }
-                                                    className="border rounded px-2 py-1"
+                                                    className="border  w-[100px] rounded px-2 py-1"
                                                 />
                                             </td>
 
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 <div>
 
                                                     <select
@@ -1090,9 +1061,9 @@ const CreateProduct = () => {
                                                                 e.target.value
                                                             )
                                                         }
-                                                        className=" appearance-none block w-full px-3 h-[30px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                        className=" appearance-none block  w-[130px] px-3 h-[30px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                                     >
-                                                        <option value="" disabled>Select discount type</option>
+                                                        <option value="" disabled>Discount type</option>
                                                         <option value="Flat">Flat</option>
                                                         <option value="Percent">Percentage</option>
                                                         {/* Add more options as needed */}
@@ -1100,7 +1071,7 @@ const CreateProduct = () => {
                                                 </div>
                                             </td>
 
-                                            <td className="px-6 py-4  whitespace-nowrap text-sm text-gray-500">
+                                            <td className="px-3 py-4  whitespace-nowrap text-sm text-gray-500">
                                                 <input
                                                     type="number"
                                                     placeholder="Discount amount.."
@@ -1113,21 +1084,21 @@ const CreateProduct = () => {
                                                             e.target.value
                                                         )
                                                     }
-                                                    className="border rounded px-2 py-1"
+                                                    className="border  w-[100px] rounded px-2 py-1"
                                                 />
                                             </td>
 
-                                            <td className="px-6 py-4  whitespace-nowrap text-sm text-gray-500">
+                                            <td className="px-3 py-4  whitespace-nowrap text-sm text-gray-500">
                                                 <input
                                                     type="number"
                                                     placeholder="Ex: 500"
                                                     value={variation[lastIndex].afterDiscountPrice}
                                                     readOnly
-                                                    className="border rounded px-2 py-1 bg-gray-100"
+                                                    className="border  w-[100px] rounded px-2 py-1 bg-gray-100"
                                                 />
                                             </td>
 
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 <input
                                                     type="text"
                                                     value={variation[lastIndex].sku}
@@ -1139,15 +1110,16 @@ const CreateProduct = () => {
                                                             e.target.value
                                                         )
                                                     }
-                                                    className="border rounded px-2 py-1"
+                                                    className="border  w-[100px] rounded px-2 py-1"
                                                 />
                                             </td>
 
 
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 <input
                                                     type="number"
                                                     placeholder="Enter stock..."
+                                                    min={0}
                                                     value={variation[lastIndex].stock}
                                                     onChange={(e) =>
                                                         handleVariationChange(
@@ -1156,7 +1128,7 @@ const CreateProduct = () => {
                                                             e.target.value
                                                         )
                                                     }
-                                                    className="border rounded px-2 py-1"
+                                                    className="border  w-[100px] rounded px-2 py-1"
                                                 />
                                             </td>
 
@@ -1178,19 +1150,23 @@ const CreateProduct = () => {
                                                     </button>
                                                     <div className="flex gap-2 overflow-x-auto">
                                                         {colorImages[getVariationKey(variation)]?.map((url, imgIndex) => (
-                                                            <div key={imgIndex} className="relative w-20 h-10">
+                                                            <div key={imgIndex} className="relative w-[60px] h-[50px]" >
                                                                 <img
                                                                     src={url}
                                                                     alt={`Color ${variation[selectedAttributes.length]}-${imgIndex}`}
-                                                                    className="w-full h-full object-cover rounded-md"
+                                                                    className="w-full h-full object-cover rounded-md cursor-pointer"
+                                                                    onClick={(e) => handleImageClick(url)}
                                                                 />
+
                                                                 <button
                                                                     type="button"
                                                                     onClick={() => removeImage(getVariationKey(variation), imgIndex)}
-                                                                    className="absolute top-0 right-0 bg-red-600 text-white rounded-full p-1"
+                                                                    className="absolute  top-0 right-0 flex items-center j bg-red-600 text-white rounded-full px-[4px]"
                                                                 >
                                                                     &times;
                                                                 </button>
+
+                                                                
                                                             </div>
                                                         ))}
                                                     </div>
@@ -1204,6 +1180,8 @@ const CreateProduct = () => {
                         </table>
                     </div>
                 )}
+
+
 
                 <div className="mt-5 flex justify-end space-x-3">
                     <button
@@ -1243,11 +1221,15 @@ const CreateProduct = () => {
             </div>
 
             <div className="w-full  flex items-center justify-center">
-                <button className="mt-2 items-center cursor-pointer appearance-none text-center text-white block  px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-blue-600 " onClick={handleSubmit} >
-                    {isLoading || imageUploadLoading ? (<Loader />) : "Submit"}
+                <button className="mt-1 px-4 py-2 bg-blue-500 text-white rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 " onClick={handleSubmit} >
+                    {isLoading || loading || imageUploadLoading ? (<Loader />) : "Submit"}
                 </button>
             </div>
 
+
+            {modalOpen && (
+                <ImageModal open={open} onClose={() => setOpen(false)} image={selectedImage} />
+            )}
         </div>
     );
 };

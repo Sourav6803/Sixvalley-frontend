@@ -18,16 +18,27 @@ import Loader from './Loader';
 
 const ProductsPage = () => {
     const [searchParams] = useSearchParams();
-    const categoryData = searchParams.get("category")
+    const categoryData = searchParams.get("subCategory")
     const { allProducts, isLoading } = useSelector(state => state?.products)
     const [data, setData] = useState([])
     const [loader, setLoader] = useState(false)
+    const [filterSubcategory, setFilterSubCategory] = useState([])
+    const [filterProduct, setFilterProduct] = useState([])
+    const { allSubSubCategory } = useSelector(state => state.subSubCategory)
 
     const navigate = useNavigate()
 
     const handleSubmit = (i) => {
-        navigate(`/productsss?subCategory=${i}`)
+        navigate(`/products?subCategory=${i}`)
     }
+    console.log("categoryData: ", categoryData)
+
+    useEffect(() => {
+        const filterData = allSubSubCategory && allSubSubCategory?.filter(cat => cat.subCategory.trim() === categoryData.trim())
+        setFilterSubCategory(filterData)
+    }, [allSubSubCategory, categoryData])
+
+    console.log("filterSubcategory :", filterSubcategory)
 
 
     const bannerData = [
@@ -43,7 +54,7 @@ const ProductsPage = () => {
             const d = allProducts
             setData(d)
         } else {
-            const d = allProducts && allProducts.filter((i) => i.category === categoryData)
+            const d = allProducts && allProducts.filter((i) => i.subCategory.trim() === categoryData.trim())
             setData(d)
 
         }
@@ -70,41 +81,27 @@ const ProductsPage = () => {
         <div>
             <Header activeHeading={3} />
             <div className={` !m-0 !p-0 !w-full `}>
-                {
-                    categoryData === 'Painting' ?
-                        <Carousel
-                            swipeable={false}
-                            draggable={false}
-                            responsive={responsive}
-                            infinite={true}
-                            autoPlay={true}
-                            autoPlaySpeed={4000}
-                            keyBoardControl={true}
-                            showDots={false}
-                            slidesToSlide={1}
-                            containerClass="carousel-container"
-                            dotListClass="custom-dot-list-style"
-                            itemClass="carousel-item-padding-40-px"
-                        >
-                            {
-                                bannerData.map(image => (
-                                    <img src={image.url} alt="banner" key={image.id} className='h-[160px] md:h-[180px] w-full object-cover' />
-                                ))
-                            }
-                        </Carousel> : ''
-                }
 
-                <div className=' grid grid-cols-4 p-1 gap-[10px] md:grid-cols-6 md:gap-[25px] lg:grid-cols-8 lg:gap-[25px] xl:grid-cols-8 xl:gap-[30px] ' style={{ backgroundImage: "url('https://img.freepik.com/free-vector/happy-diwali-background-with-hanging-diya_1017-27767.jpg?size=626&ext=jpg&ga=GA1.1.154591421.1690217633&semt=ais')", backgroundSize: "cover", backgroundRepeat: "no-repeat" }} >
-                    {
-                        categoryData === 'Painting' ?
-                            paintingSubCategoriesdata.map((subCat, i) => (
-                                <div className='pl-2' onClick={(i) => handleSubmit(subCat.title)} >
-                                    <img src={subCat.image_Url} alt='' className=' h-[50px] w-[50px] rounded-full  ' />
-                                    <p className='text-[14px] text-white font-semibold'>{subCat.title}</p>
-                                </div>
-                            )) : ''
-                    }
+
+
+
+                <div className='grid grid-cols-5 md:grid-cols-6 justify-between overflow-x-auto px-4 mx-auto w-full bg-white'>
+                    {Array.isArray(filterSubcategory) && filterSubcategory?.map((category, index) => (
+                        <div key={index} className="p-3 text-center">
+                            <img
+                                src={category.image.url}
+                                alt={category.name}
+                                className="w-12 h-12 md:w-20 md:h-20 lg:w-24 lg:h-24 rounded-full object-cover cursor-pointer"
+                                onClick={() => handleSubmit(category?.name)}
+                            />
+                            <p className="text-sm font-semibold">
+                                {category?.name?.length > 6 ? `${category.name.slice(0, 5)}...` : category.name}
+                            </p>
+                        </div>
+                    ))}
                 </div>
+
+
 
 
                 <div className='!bg-orange-300 grid grid-cols-2 p-1 gap-[10px] md:grid-cols-2 md:gap-[25px] lg:grid-cols-4 lg:gap-[25px] xl:grid-cols-5 xl:gap-[30px] mb-6'>

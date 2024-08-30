@@ -15,7 +15,7 @@ import { server } from '../server';
 import Loader from './Loader';
 import { styled } from '@mui/material';
 
-import { Fashion } from '../static/data';
+
 
 const responsive = {
     desktop: {
@@ -42,7 +42,7 @@ const Image = styled('img')(({ theme }) => ({
     loading: 'lazy' // Add lazy loading
 }));
 
-const FashionPage = () => {
+const ElectronicsPage = () => {
     const [searchParams] = useSearchParams();
     const categoryData = searchParams.get("category")
     const { allProducts, isLoading } = useSelector(state => state?.products)
@@ -53,8 +53,8 @@ const FashionPage = () => {
     const [filterProduct, setFilterProduct] = useState([])
 
     const { allBanner } = useSelector(state => state.banner)
-    const mainbanner = allBanner?.filter(banner => banner?.bannerType === "Main Banner" && banner?.resourceType === 'Fashion')
-
+    const mainbanner = allBanner?.filter(banner => banner?.bannerType === "Main Banner" && banner?.resourceType === 'Electronics')
+    
 
 
     const navigate = useNavigate();
@@ -82,23 +82,24 @@ const FashionPage = () => {
         }
     };
 
-    useEffect(() => {
-        const filterData = allProducts?.filter((product) => product?.category.trim() === "Fashion")
+    useEffect(()=>{
+        const filterData = allProducts?.filter((product)=> product?.category === "Electronics" )
         setFilterProduct(filterData)
-    }, [allProducts])
+    },[allProducts])
 
     useEffect(() => {
-        const filterData = allSubSubCategory && allSubSubCategory?.filter(cat => cat.mainCategory.trim() === "Fashion")
+        const filterData = allSubSubCategory && allSubSubCategory?.filter(cat => cat.mainCategory === "Electronics")
         setFilterSubCategory(filterData)
     }, [allSubSubCategory])
 
 
 
     const handleSubmit = (name) => {
-        navigate(`/products?subCategory=${encodeURIComponent(name.trim())}`)
+        navigate(`/products?subCategory=${name}`)
     }
 
-
+    console.log(categoryData)
+    console.log(allProducts)
 
     useEffect(() => {
         setLoader(true)
@@ -129,13 +130,14 @@ const FashionPage = () => {
         }
     };
 
+
     return (
         <div>
-            {isLoading && <div className='flex items-center justify-center min-h-screen'><Loader /></div>}
+        {isLoading && <div className='flex items-center justify-center min-h-screen'><Loader /></div>}
             <Header activeHeading={3} />
             {/* className="flex justify-between overflow-x-auto px-4 mx-auto w-full bg-white" */}
             <div className="grid grid-cols-5 md:grid-cols-6 justify-between overflow-x-auto px-4 mx-auto w-full bg-white">
-                {/* {Array.isArray(filterSubcategory) && filterSubcategory?.map((category, index) => (
+                {Array.isArray(filterSubcategory) && filterSubcategory?.map((category, index) => (
                     <div key={index} className="p-3 text-center">
                         <img
                             src={category.image.url}
@@ -145,20 +147,6 @@ const FashionPage = () => {
                         />
                         <p className="text-sm font-semibold">
                             {category?.name?.length > 6 ? `${category.name.slice(0, 5)}...` : category.name}
-                        </p>
-                    </div>
-                ))} */}
-
-                {Array.isArray(Fashion) && Fashion?.map((fashion, index) => (
-                    <div key={index} className="p-3 text-center">
-                        <img
-                            src={fashion.imageUrl}
-                            alt={fashion.name}
-                            className="w-12 h-12 md:w-20 md:h-20 lg:w-24 lg:h-24 rounded-full object-cover cursor-pointer"
-                            onClick={() => handleSubmit(fashion?.title.trim())}
-                        />
-                        <p className="text-sm font-semibold">
-                            {fashion?.title?.length > 6 ? `${fashion.title.slice(0, 5)}...` : fashion.title}
                         </p>
                     </div>
                 ))}
@@ -196,7 +184,7 @@ const FashionPage = () => {
 
 
             <div className={` !m-0 !p-0 !w-full `}>
-
+                
                 <div className='!bg-orange-300 grid grid-cols-2 p-1 gap-[10px] md:grid-cols-2 md:gap-[25px] lg:grid-cols-4 lg:gap-[25px] xl:grid-cols-5 xl:gap-[30px] mb-6'>
                     {
                         filterProduct && filterProduct.map((i, index) => <ProductCard data={i} key={index} />)
@@ -209,10 +197,10 @@ const FashionPage = () => {
                 }
             </div>
 
-
+            
             <Footer />
         </div>
     )
 }
 
-export default FashionPage
+export default ElectronicsPage
