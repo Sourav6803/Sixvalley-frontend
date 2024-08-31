@@ -20,6 +20,7 @@ import { server } from "../../server";
 import { htmlToText } from 'html-to-text';
 import ImageModal from "../../utils/ImageModal";
 
+
 const CreateProduct = () => {
     const { seller } = useSelector((state) => state.seller);
     const { allCategory } = useSelector((state) => state?.category);
@@ -72,6 +73,21 @@ const CreateProduct = () => {
     const [afterDiscountPrice, setAfterDiscountPrice] = useState()
     const [selectedImage, setSelectedImage] = useState(null);
 
+    const [isOpen, setIsOpen] = useState(false);
+
+    const [dropdownOpen, setDropdownOpen] = useState({
+        mainCategory: false,
+        subCategory: false,
+        subSubCategory: false,
+        brand: false
+    });
+
+    const toggleDropdown = (dropdown) => {
+        setDropdownOpen((prevState) => ({
+            ...prevState,
+            [dropdown]: !prevState[dropdown],
+        }));
+    };
 
     const handleImageClick = (image) => {
         setSelectedImage(image);
@@ -286,11 +302,15 @@ const CreateProduct = () => {
     };
 
     const handleCategoryChange = useCallback((e) => {
-        const selectedMainCategory = e.target.value;
+
+        const selectedMainCategory = e;
+
         setMainCategory(selectedMainCategory);
+        setDropdownOpen({ ...dropdownOpen, mainCategory: false });
         const filteredSubCategories = allSubCategory?.filter(subCat => subCat.mainCategory === selectedMainCategory);
         setFilteredSubCategories(filteredSubCategories);
-    }, [setMainCategory, allSubCategory]);
+        setIsOpen(false); // Close dropdown after selection
+    }, [setMainCategory, allSubCategory, dropdownOpen]);
 
     const handleDescriptionChange = (html) => {
         // Convert HTML to plain text
@@ -303,14 +323,17 @@ const CreateProduct = () => {
     const handleSubCategoryChange = useCallback((e) => {
         const selectedSubCategory = e.target.value;
         setSubCategory(selectedSubCategory);
+        setDropdownOpen({ ...dropdownOpen, subCategory: false });
         const filteredSubCategories = allSubSubCategory.filter(subCat => subCat.subCategory.trim() === selectedSubCategory.trim());
         setFilteredSubSubCategories(filteredSubCategories);
-    }, [setSubCategory, allSubSubCategory]);
+        setIsOpen(false)
+    }, [setSubCategory, allSubSubCategory, dropdownOpen]);
 
 
     const handleSubSubCategoryChange = useCallback((e) => {
         setSubSubCategory(e.target.value)
-    }, [])
+        setDropdownOpen({ ...dropdownOpen, subSubCategory: false });
+    }, [dropdownOpen])
 
     const handleAddField = () => {
         setOtherDetails([...otherDetails, { key: '', value: '' }]);
@@ -388,6 +411,9 @@ const CreateProduct = () => {
 
         return Math.max(afterDiscountPrice, 0);
     };
+
+
+
 
     const handleSubmit = useCallback(async (e) => {
         e.preventDefault();
@@ -574,15 +600,51 @@ const CreateProduct = () => {
                         <label className="pb-2 text-slate-700 font-medium text-md ">
                             Category <span className="text-red-500">*</span>
                         </label>
-                        <select className="w-full text-slate-500 mt-2 border h-[35px] rounded-[5px]" value={mainCategory} onChange={handleCategoryChange} >
+
+                        {/* <select className="w-full text-slate-500 mt-2 border h-[35px] rounded-[5px]" value={mainCategory} onChange={handleCategoryChange} >
                             <option value="Choose a category" className="text-slate-500">Choose a category</option>
                             {allCategory &&
                                 allCategory.map((i) => (
-                                    <option className="text-gray-600" value={i.name} key={i._id}>
+                                    <option className="text-gray-600 flex gap-2" value={i.name} key={i._id}>
                                         {i.name}
                                     </option>
                                 ))}
-                        </select>
+                        </select> */}
+
+                        <div className="relative w-full mt-2">
+                            <div
+                                className="border h-[35px] rounded-[5px] flex items-center justify-between px-2 cursor-pointer text-slate-500"
+                                onClick={() => toggleDropdown('mainCategory')}
+                            >
+                                <span>{mainCategory || 'Choose a category'}</span>
+                                <span className="ml-2">&#9662;</span>
+                            </div>
+
+                            {dropdownOpen.mainCategory && (
+                                <div className="absolute w-full mt-2 border rounded-[5px] bg-white z-10">
+                                    <div
+                                        className="px-2 py-1 cursor-pointer hover:bg-gray-100 text-slate-500"
+                                    // onClick={() => handleCategoryChange({ name: 'Choose a category', image: '' })}
+                                    >
+                                        Choose a category
+                                    </div>
+                                    {allCategory && allCategory?.map((category) => (
+
+                                        <div
+                                            key={category._id}
+                                            className="flex items-center gap-2 px-2 py-1 cursor-pointer hover:bg-gray-100 text-gray-600"
+                                            onClick={() => handleCategoryChange(category?.name)}
+                                        >
+
+                                            <img src={category?.image?.url} alt={category?.name} className="w-6 h-6 rounded-full" />
+                                            <span>{category?.name}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+
                     </div>
 
                     <div>
@@ -600,14 +662,45 @@ const CreateProduct = () => {
 
                     <div>
                         <label className="pb-2 text-slate-700 font-medium text-md">Sub Sub-Category</label>
-                        <select className="w-full text-slate-500 mt-2 border h-[35px] rounded-[5px]" value={subSubCategory} onChange={handleSubSubCategoryChange}>
+                        {/* <select className="w-full text-slate-500 mt-2 border h-[35px] rounded-[5px]" value={subSubCategory} onChange={handleSubSubCategoryChange}>
                             <option value="" >Choose a Sub Sub-category</option>
                             {filteredSubSubCategories?.map(category => (
-                                <option key={category.id} value={category.name}>
+                                <option key={category._id} value={category.name}>
                                     {category.name}
                                 </option>
                             ))}
-                        </select>
+                        </select> */}
+
+                        <div className="relative w-full">
+                            <div
+                                className="border h-[35px] rounded-[5px] flex items-center justify-between px-2 cursor-pointer text-slate-500"
+                                onClick={() => toggleDropdown('subSubCategory')}
+                            >
+                                <span>{subSubCategory || 'Choose a Sub Sub-category'}</span>
+                                <span className="ml-2">&#9662;</span>
+                            </div>
+
+                            {dropdownOpen.subSubCategory && (
+                                <div className="absolute w-full mt-2 border rounded-[5px] bg-white z-10">
+                                    <div
+                                        className="px-2 py-1 cursor-pointer hover:bg-gray-100 text-slate-500"
+                                        onClick={() => handleSubSubCategoryChange({ name: '', image: '' })}
+                                    >
+                                        Choose a Sub Sub-category
+                                    </div>
+                                    {filteredSubSubCategories?.map((category) => (
+                                        <div
+                                            key={category._id}
+                                            className="flex items-center gap-2 px-2 py-1 cursor-pointer hover:bg-gray-100 text-gray-600"
+                                            onClick={() => handleSubSubCategoryChange(category)}
+                                        >
+                                            <img src={category.image.url} alt={category.name} className="w-6 h-6 rounded-full" />
+                                            <span>{category.name}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     <div >
@@ -985,7 +1078,7 @@ const CreateProduct = () => {
                 </div>
 
                 {variations.length > 0 && (
-                    
+
                     <div className="border-2 md:w-[80vw] w-full rounded-md overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
@@ -1027,7 +1120,7 @@ const CreateProduct = () => {
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {variations.map((variation, index) => {
                                     const lastIndex = variation.length - 1;
-                                     isFilled =
+                                    isFilled =
                                         variation[lastIndex].originalPrice &&
                                         variation[lastIndex].discountType &&
                                         variation[lastIndex].discountAmount &&
@@ -1200,8 +1293,7 @@ const CreateProduct = () => {
                         type="button"
                         onClick={addMoreVariations}
                         disabled={!isFilled} // Disable if any field is empty
-                        className={`px-4 py-2 bg-blue-700 text-white rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-                      !isFilled && 'cursor-not-allowed text-gray-400 bg-blue-300'} `}
+                        className={`px-4 py-2 bg-blue-700 text-white rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${!isFilled && 'cursor-not-allowed text-gray-400 bg-blue-300'} `}
                     >
                         Add More
                     </button>

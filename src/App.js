@@ -52,6 +52,8 @@ import CookieConsent from 'react-cookie-consent';
 import { useSelector } from 'react-redux';
 import FashionPage from './pages/FashionPage.jsx';
 import HomeAppliences from './pages/HomeAppliences.jsx';
+import GroceryPage from './pages/GroceryPage.jsx';
+import ElectronicsPage from './pages/ElectronicsPage.jsx';
 
 
 
@@ -283,6 +285,8 @@ const App = ({ data }) => {
           <Route path='/products' element={<ProductsPage />} />
           <Route path='/products/category/Fashion' element={<FashionPage />} />
           <Route path='/products/category/Home Appliances' element={<HomeAppliences />} />
+          <Route path='/products/category/Grocery' element={<GroceryPage />} />
+          <Route path='/products/category/Electronics' element={<ElectronicsPage />} />
 
           <Route path='/productsss' element={<ProductSubcategoryPage />} />
           <Route path='/product/birthday-gift' element={<Birthday />} />

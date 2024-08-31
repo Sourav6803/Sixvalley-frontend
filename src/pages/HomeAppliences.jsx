@@ -9,13 +9,9 @@ import { useSelector } from 'react-redux';
 import Footer from '../components/Layout/Footer';
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
-
-import axios from 'axios';
-import { server } from '../server';
 import Loader from './Loader';
 import { styled } from '@mui/material';
-import { Fashion } from '../static/data';
-
+import { HomeAppliencesData } from '../static/data';
 
 const responsive = {
     desktop: {
@@ -41,7 +37,6 @@ const Image = styled('img')(({ theme }) => ({
     },
     loading: 'lazy' // Add lazy loading
 }));
-
 
 
 const HomeAppliences = () => {
@@ -89,21 +84,13 @@ const HomeAppliences = () => {
     }, [allProducts])
 
     useEffect(() => {
-        const filterData = allSubSubCategory && allSubSubCategory?.filter(cat => cat.mainCategory === "Home Appliances")
+        const filterData = allSubSubCategory && allSubSubCategory?.filter(cat => cat?.mainCategory === "Home Appliances")
         setFilterSubCategory(filterData)
     }, [allSubSubCategory])
 
-
-
-    // const handleSubmit = (name) => {
-    //     navigate(`/products?subCategory=${name}`)
-    // }
-
     const handleSubmit = (name) => {
-        navigate(`/products?category=${name}`)
+        navigate(`/products?subCategory=${encodeURIComponent(name.trim())}`)
     }
-
-
 
     useEffect(() => {
         setLoader(true)
@@ -117,7 +104,6 @@ const HomeAppliences = () => {
         }
         setLoader(false)
     }, [allProducts, categoryData])
-
 
     const responsive = {
         desktop: {
@@ -140,30 +126,17 @@ const HomeAppliences = () => {
             <Header activeHeading={3} />
             {/* className="flex justify-between overflow-x-auto px-4 mx-auto w-full bg-white" */}
             <div className="grid grid-cols-5 md:grid-cols-6 justify-between overflow-x-auto px-4 mx-auto w-full bg-white">
-                {/* {Array.isArray(filterSubcategory) && filterSubcategory?.map((category, index) => (
-                    <div key={index} className="p-3 text-center">
-                        <img
-                            src={category.image.url}
-                            alt={category.name}
-                            className="w-12 h-12 md:w-20 md:h-20 lg:w-24 lg:h-24 rounded-full object-cover cursor-pointer"
-                            onClick={() => handleSubmit(category?.name)}
-                        />
-                        <p className="text-sm font-semibold">
-                            {category?.name?.length > 6 ? `${category.name.slice(0, 5)}...` : category.name}
-                        </p>
-                    </div>
-                ))} */}
 
-                {Array.isArray(filterSubcategory) && filterSubcategory?.map((category, index) => (
+                {Array.isArray(HomeAppliencesData) && HomeAppliencesData?.map((fashion, index) => (
                     <div key={index} className="p-3 text-center">
                         <img
-                            src={category.image.url}
-                            alt={category.name}
+                            src={fashion.imageUrl}
+                            alt={fashion.name}
                             className="w-12 h-12 md:w-20 md:h-20 lg:w-24 lg:h-24 rounded-full object-cover cursor-pointer"
-                            onClick={() => handleSubmit(category?.name)}
+                            onClick={() => handleSubmit(fashion?.title?.trim())}
                         />
                         <p className="text-sm font-semibold">
-                            {category?.name?.length > 6 ? `${category.name.slice(0, 5)}...` : category.name}
+                            {fashion?.title?.length > 9 ? `${fashion?.title?.slice(0, 9)}...` : fashion?.title}
                         </p>
                     </div>
                 ))}

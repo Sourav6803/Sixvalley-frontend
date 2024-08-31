@@ -2,21 +2,16 @@ import React, { useEffect, useState } from 'react'
 import Header from '../components/Layout/Header';
 import styles from '../styles/styles';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { paintingSubCategoriesdata } from '../static/data';
+import { GroceryData, paintingSubCategoriesdata } from '../static/data';
 import ProductCard from '../components/Route/ProductCard/ProductCard';
 import { useSelector } from 'react-redux';
 
 import Footer from '../components/Layout/Footer';
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
-
-import axios from 'axios';
-import { server } from '../server';
 import Loader from './Loader';
 import { styled } from '@mui/material';
-import { ElectronicsData } from '../static/data';
-
-
+import { HomeAppliencesData } from '../static/data';
 
 const responsive = {
     desktop: {
@@ -43,25 +38,25 @@ const Image = styled('img')(({ theme }) => ({
     loading: 'lazy' // Add lazy loading
 }));
 
-const ElectronicsPage = () => {
+
+const GroceryPage = () => {
     const [searchParams] = useSearchParams();
     const categoryData = searchParams.get("category")
     const { allProducts, isLoading } = useSelector(state => state?.products)
     const { allSubSubCategory } = useSelector(state => state.subSubCategory)
+    const { allSubCategory } = useSelector(state => state.subCategory)
     const [data, setData] = useState([])
     const [loader, setLoader] = useState(false)
     const [filterSubcategory, setFilterSubCategory] = useState([])
     const [filterProduct, setFilterProduct] = useState([])
 
     const { allBanner } = useSelector(state => state.banner)
-    const mainbanner = allBanner?.filter(banner => banner?.bannerType === "Main Banner" && banner?.resourceType === 'Electronics')
-
-
+    const mainbanner = allBanner?.filter(banner => banner?.bannerType === "Main Banner" && banner?.resourceType === 'Home Appliances')
 
     const navigate = useNavigate();
 
     const handleBannerClick = (banner) => {
-        console.log(banner.resourceValue)
+        // console.log(banner.resourceValue)
         switch (banner.resourceType) {
             case 'Product':
                 navigate(`/product/${banner.resourceValue}`);
@@ -84,15 +79,14 @@ const ElectronicsPage = () => {
     };
 
     useEffect(() => {
-        const filterData = allProducts?.filter((product) => product?.category.trim() === "Electronics")
+        const filterData = allProducts?.filter((product) => product?.category.trim() === "Home Appliances")
         setFilterProduct(filterData)
     }, [allProducts])
 
     useEffect(() => {
-        const filterData = allSubSubCategory && allSubSubCategory?.filter(cat => cat.mainCategory.trim() === "Electronics")
+        const filterData = allSubSubCategory && allSubSubCategory?.filter(cat => cat?.mainCategory === "Home Appliances")
         setFilterSubCategory(filterData)
     }, [allSubSubCategory])
-
 
     const handleSubmit = (name) => {
         navigate(`/products?subCategory=${encodeURIComponent(name.trim())}`)
@@ -104,13 +98,12 @@ const ElectronicsPage = () => {
             const d = allProducts
             setData(d)
         } else {
-            const d = allProducts && allProducts.filter((i) => i.category === categoryData)
+            const d = allProducts && allProducts.filter((i) => i?.category === categoryData)
             setData(d)
 
         }
         setLoader(false)
     }, [allProducts, categoryData])
-
 
     const responsive = {
         desktop: {
@@ -127,14 +120,14 @@ const ElectronicsPage = () => {
         }
     };
 
-
     return (
         <div>
             {isLoading && <div className='flex items-center justify-center min-h-screen'><Loader /></div>}
             <Header activeHeading={3} />
             {/* className="flex justify-between overflow-x-auto px-4 mx-auto w-full bg-white" */}
             <div className="grid grid-cols-5 md:grid-cols-6 justify-between overflow-x-auto px-4 mx-auto w-full bg-white">
-                {Array.isArray(ElectronicsData) && ElectronicsData?.map((fashion, index) => (
+
+                {Array.isArray(GroceryData) && GroceryData?.map((fashion, index) => (
                     <div key={index} className="p-3 text-center">
                         <img
                             src={fashion.imageUrl}
@@ -200,4 +193,4 @@ const ElectronicsPage = () => {
     )
 }
 
-export default ElectronicsPage
+export default GroceryPage

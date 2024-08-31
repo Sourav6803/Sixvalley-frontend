@@ -335,10 +335,30 @@ export const paintingSubCategoriesdata = [
   }
 ]
 
-const HomeAppliences = [
-  {
-
-  }
+export const HomeAppliencesData = [
+  
+    {
+      title: "Kitchen items",
+      link: "/products?subCategory=Kitchen items",
+      imageUrl: "https://static.vecteezy.com/system/resources/previews/033/634/362/non_2x/kitchen-utensils-and-utensils-on-a-table-ai-generated-free-photo.jpg"
+    },
+    {
+      title: "Home Furnishing",
+      link: "/products?subCategory=Home Furnishing",
+      imageUrl: "https://www.furnishingforum.com/assets/img/soft-furnishing.jpg"
+    },
+    {
+      title: "Home Improvement Tools",
+      link: "/products?subCategory=Home Improvement Tools",
+      imageUrl: "https://cdn.vectorstock.com/i/1000v/39/58/construction-tools-with-house-vector-20073958.jpg"
+    },
+    {
+      title: "Decor & Lighting",
+      link: "/products?subCategory=Decor & Lighting",
+      imageUrl: "https://jumanji.livspace-cdn.com/magazine/wp-content/uploads/sites/2/2020/10/23183401/Optimise-2.jpg"
+    },
+    
+  
 ]
 
 export const Fashion = [
@@ -375,6 +395,98 @@ export const Fashion = [
   }
 ]
 
+export const GroceryData = [
+  {
+    title: "Staples",
+    link: "/products?subCategory=Staples",
+    imageUrl: "https://i.pinimg.com/736x/ad/2d/bd/ad2dbdb55138c6d11ba7508a949ae53e.jpg"
+  },
+  {
+    title: "Snakes & Beverage",
+    link: "/products?subCategory=Snakes & Beverage",
+    imageUrl: "https://image.cnbcfm.com/api/v1/image/103459147-20150309-8442-1118.jpg?v=1493209780"
+  },
+  {
+    title: "Personal & Baby care",
+    link: "/products?subCategory=Personal & Baby care",
+    imageUrl: "https://reliefline.net/wp-content/uploads/2019/08/baby-care-kit-1.jpg"
+  },
+  {
+    title: "Packeged Food",
+    link: "/products?subCategory=Packeged Food",
+    imageUrl: "https://media.gettyimages.com/id/458413277/photo/american-grocery-collection.jpg?s=612x612&w=gi&k=20&c=3hHyE2O-xsPENzm0GQ2C3jzqABEBPc66Z0ZDfggFmg4="
+  },
+  {
+    title: "Household Care",
+    link: "/products?subCategory=Household Care",
+    imageUrl: "https://home2grocery.wordpress.com/wp-content/uploads/2016/12/grocery1.jpg"
+  },
+  
+]
+
+export const ElectronicsData = [
+  {
+    title: "Laptops",
+    link: "/products?subCategory=Laptops",
+    imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRs2wABAAfzzuswZgPGUEAoxez5tQlcCHQa7wo1Q1Ctc9LNZl-VrukZgPfG7vqJxDRFe6c&usqp=CAU"
+  },
+  {
+    title: "Headphones & Speaker",
+    link: "/products?subCategory=Headphones & Speaker",
+    imageUrl: "https://www.hindustantimes.com/ht-img/img/2023/10/06/550x309/Amazon_sale_2023_soundsbars_wireless_headphones_1696563407124_1696563428942.jpg"
+  },
+  {
+    title: "Personal care appliance",
+    link: "/products?subCategory=Personal care appliance",
+    imageUrl: "https://5.imimg.com/data5/SELLER/Default/2022/8/VG/KY/IP/101324992/jd8vhh8f-2022-01-28-16-50-10-407139-copy-500x500.png"
+  },
+  {
+    title: "Computer Accessories",
+    link: "/products?subCategory=Computer Accessories",
+    imageUrl: "https://5.imimg.com/data5/SELLER/Default/2023/11/363895594/QU/RK/IU/62569222/hp-laptop.png"
+  },
+  {
+    title: "Cases, covers & more",
+    link: "/products?subCategory=Cases, covers & more",
+    imageUrl: "https://media.istockphoto.com/id/1310474222/photo/pile-of-multicolored-plastic-back-covers-for-mobile-phone-choice-of-smart-phone-protector.jpg?s=612x612&w=0&k=20&c=VfV0-KeZC-6NKJh-x69OScAy7X389AA5otrIvNU0dZU="
+  },
+  {
+    title: "Mobile Accessories",
+    link: "/products?subCategory=Mobile Accessories",
+    imageUrl: "https://www.gizchina.com/wp-content/uploads/images/2023/03/mobile-phone-accessories.jpg"
+  },
+  {
+    title: "Storage",
+    link: "/products?subCategory=Storgae",
+    imageUrl: "https://www.cleverfiles.com/howto/wp-content/uploads/2018/04/storage-devices.jpg"
+  },
+  {
+    title: "Powerbank",
+    link: "/products?subCategory=Powerbank",
+    imageUrl: "https://idsb.tmgrup.com.tr/ly/uploads/images/2021/07/13/128589.jpg"
+  },
+  {
+    title: "Smart home automation",
+    link: "/products?subCategory=Smart home automation",
+    imageUrl: "https://d29rw3zaldax51.cloudfront.net/assets/images/automation-pdp-bundle/new-update-home-automail-m.jpg"
+  },
+  {
+    title: "Mobile & Tablets",
+    link: "/products?subCategory=Mobile & Tablets",
+    imageUrl: "https://pbs.twimg.com/media/DXHwdPvVoAEoG4K.jpg"
+  },
+  {
+    title: "Watch",
+    link: "/products?subCategory=Watch",
+    imageUrl: "https://www.titan.co.in/dw/image/v2/BKDD_PRD/on/demandware.static/-/Sites-titan-master-catalog/default/dw34d84041/images/Titan/Catalog/1698KM02_1.jpg?sw=800&sh=800"
+  },
+  {
+    title: "Camera",
+    link: "/products?subCategory=Camera",
+    imageUrl: "https://imgeng.jagran.com/images/2023/sep/best%20nikon%20cameras%20for%20photography%20ci1694172900406.jpg"
+  },
+
+]
 
 
 // product Data
