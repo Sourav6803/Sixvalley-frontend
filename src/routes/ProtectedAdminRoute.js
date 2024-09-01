@@ -16,7 +16,7 @@ import Loader from "../pages/Loader";
 
 
 const ProtectedAdminRoute = ({ children }) => {
-  const { isLoading, isAdmin } = useSelector((state) => state.admin);
+  const { isLoading, isAdmin,  } = useSelector((state) => state.admin);
 
   if (isLoading === true) {
     return (

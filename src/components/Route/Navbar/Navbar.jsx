@@ -215,6 +215,9 @@ const Navbar = () => {
         else if(category?.name.trim() === "Furniture"){
             navigate(`/products/category/${category?.name}`)
         }
+        else if(category?.name.trim() === "Paintings & Crafts"){
+            navigate(`/products/category/${category?.name}`)
+        }
     };
 
     return (

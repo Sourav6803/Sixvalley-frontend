@@ -37,13 +37,13 @@ const Banner = () => {
     const navigate = useNavigate();
 
     const handleBannerClick = (banner) => {
-        console.log(banner.resourceValue)
+       
         switch (banner.resourceType) {
             case 'Product':
                 navigate(`/product/${banner.resourceValue}`);
                 break;
             case 'Category':
-                navigate(`/category/${banner.resourceValue}`);
+                navigate(`/products/category/${banner.resourceValue}`);
                 break;
             case 'Shop':
                 navigate(`/shop/${banner.resourceValue}`);

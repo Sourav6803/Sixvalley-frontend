@@ -54,6 +54,8 @@ export const loadAdmin = () => async (dispatch) => {
         
         withCredentials: true,
       });
+
+      console.log("admin:", data)
       
       dispatch({
         type: "LoadAdminSuccess",

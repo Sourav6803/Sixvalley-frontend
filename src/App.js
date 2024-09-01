@@ -54,6 +54,8 @@ import FashionPage from './pages/FashionPage.jsx';
 import HomeAppliences from './pages/HomeAppliences.jsx';
 import GroceryPage from './pages/GroceryPage.jsx';
 import ElectronicsPage from './pages/ElectronicsPage.jsx';
+import FurniturePage from './pages/FurniturePage.jsx';
+import CraftsPaintings from './pages/CraftsPaintings.jsx';
 
 
 
@@ -287,6 +289,8 @@ const App = ({ data }) => {
           <Route path='/products/category/Home Appliances' element={<HomeAppliences />} />
           <Route path='/products/category/Grocery' element={<GroceryPage />} />
           <Route path='/products/category/Electronics' element={<ElectronicsPage />} />
+          <Route path='/products/category/Furniture' element={<FurniturePage />} />
+          <Route path='/products/category/Paintings & Crafts' element={<CraftsPaintings />} />
 
           <Route path='/productsss' element={<ProductSubcategoryPage />} />
           <Route path='/product/birthday-gift' element={<Birthday />} />

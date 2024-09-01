@@ -231,7 +231,7 @@ const Banner = () => {
                                         >
                                             <option value="" disabled>Select a {resourceType}</option>
                                             {filterResourceValue?.map(resource => (
-                                                <option key={resource._id} value={resource.name}>
+                                                <option key={resource._id} value={resourceType === "Product" ? resource?._id : resource?.name}>
                                                     {resource?.name || resource?.brandName}
                                                 </option>
                                             ))}

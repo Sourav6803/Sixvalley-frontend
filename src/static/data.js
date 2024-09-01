@@ -488,6 +488,68 @@ export const ElectronicsData = [
 
 ]
 
+export const FurnitureData = [
+  {
+    title: "Bed Room Furniture",
+    link: "/products?subCategory=Bed Room Furniture",
+    imageUrl: "https://jumanji.livspace-cdn.com/magazine/wp-content/uploads/sites/2/2022/08/28101027/cupboard-design-with-mirrors-for-bedroom.jpg"
+  },
+  {
+    title: "Living Room Furniture",
+    link: "/products?subCategory=Living Room Furniture",
+    imageUrl: "https://hemmingandwills.co.uk/cdn/shop/articles/featured_image_-_living_room_furniture_layout_1600x@2x.jpg?v=1692692232"
+  },
+  {
+    title: "Study & Office Furniture",
+    link: "/products?subCategory=Study & Office Furniture",
+    imageUrl: "https://shop.gkwretail.com/cdn/shop/products/StudyTableStudyingWritingTableforHomeOffice_Bamboo_-1.jpg?v=1648379532"
+  },
+  {
+    title: "Dining & Kitchen",
+    link: "/products?subCategory=Dining & Kitchen",
+    imageUrl: "https://i.pinimg.com/736x/5f/18/7e/5f187e85bdf1b403c6475b1882e23739.jpg"
+  },
+  {
+    title: "Out Door Furniture",
+    link: "/products?subCategory=Out Door Furniture",
+    imageUrl: "https://hips.hearstapps.com/hmg-prod/images/house-beautiful-outdoor-furniture-1630034394.jpeg"
+  },
+  {
+    title: "Storage Furniture",
+    link: "/products?subCategory=Storage Furniture",
+    imageUrl: "https://www.nilkamalfurniture.com/cdn/shop/products/pebblely_48.jpg?v=1680787251&width=1080"
+  },
+  {
+    title: "Kids Room",
+    link: "/products?subCategory=Kids Room",
+    imageUrl: "https://5.imimg.com/data5/SELLER/Default/2024/1/376542683/RM/FP/HY/2103967/100929-970-500x500.jpg"
+  },
+
+]
+
+
+export const CraftPaintingsData = [
+  {
+    title: "Paintings",
+    link: "/products?subCategory=Paintings",
+    imageUrl: "https://img.artpal.com/116422/4-23-4-22-8-4-13m.jpg"
+  },
+  {
+    title: "Craft's",
+    link: "/products?subCategory=Craft's",
+    imageUrl: "https://therealschool.in/blog/wp-content/uploads/2021/04/Paper-crafting-fun-activity-for-kids.jpg"
+  },
+  {
+    title: "Mixed Media Art",
+    link: "/products?subCategory=Mixed Media Art",
+    imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqiU8d52ot5ZzciQh_4RIVhjn01DKZyMaQag&s"
+  },
+ 
+  
+
+]
+
+
 
 // product Data
 export const productData = [
