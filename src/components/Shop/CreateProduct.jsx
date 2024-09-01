@@ -19,6 +19,7 @@ import axios from "axios";
 import { server } from "../../server";
 import { htmlToText } from 'html-to-text';
 import ImageModal from "../../utils/ImageModal";
+import { FaQuestionCircle } from "react-icons/fa";
 
 
 const CreateProduct = () => {
@@ -331,7 +332,7 @@ const CreateProduct = () => {
 
 
     const handleSubSubCategoryChange = useCallback((e) => {
-        setSubSubCategory(e.target.value)
+        setSubSubCategory(e)
         setDropdownOpen({ ...dropdownOpen, subSubCategory: false });
     }, [dropdownOpen])
 
@@ -671,31 +672,26 @@ const CreateProduct = () => {
                             ))}
                         </select> */}
 
-                        <div className="relative w-full">
+                        <div className="relative w-full mt-2">
                             <div
                                 className="border h-[35px] rounded-[5px] flex items-center justify-between px-2 cursor-pointer text-slate-500"
                                 onClick={() => toggleDropdown('subSubCategory')}
                             >
-                                <span>{subSubCategory || 'Choose a Sub Sub-category'}</span>
+                                <span className="text-sm sm:text-base truncate">{subSubCategory || 'Choose a Sub Sub-category'}</span>
                                 <span className="ml-2">&#9662;</span>
                             </div>
 
                             {dropdownOpen.subSubCategory && (
                                 <div className="absolute w-full mt-2 border rounded-[5px] bg-white z-10">
-                                    <div
-                                        className="px-2 py-1 cursor-pointer hover:bg-gray-100 text-slate-500"
-                                        onClick={() => handleSubSubCategoryChange({ name: '', image: '' })}
-                                    >
-                                        Choose a Sub Sub-category
-                                    </div>
+
                                     {filteredSubSubCategories?.map((category) => (
                                         <div
                                             key={category._id}
                                             className="flex items-center gap-2 px-2 py-1 cursor-pointer hover:bg-gray-100 text-gray-600"
-                                            onClick={() => handleSubSubCategoryChange(category)}
+                                            onClick={() => handleSubSubCategoryChange(category?.name)}
                                         >
                                             <img src={category.image.url} alt={category.name} className="w-6 h-6 rounded-full" />
-                                            <span>{category.name}</span>
+                                            <span>{category?.name}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -755,8 +751,16 @@ const CreateProduct = () => {
                         </select>
                     </div>
 
-                    <div className="">
-                        <label className="pb-2 text-slate-700 font-medium text-md">Search Tags</label>
+                    <div className="relative">
+                        <div className="flex items-center justify-between">
+                            <label className=" text-slate-700 font-medium text-md">Search Tags</label>
+                            <FaQuestionCircle data-tooltip-target="tooltip-default" />
+                            <div id="tooltip-default" role="tooltip" className="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                            Tooltip content
+                            <div className="tooltip-arrow" data-popper-arrow></div>
+                        </div>
+                        </div>
+                        
                         <input
                             type="text"
                             name="tags"
