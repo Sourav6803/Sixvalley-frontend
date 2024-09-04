@@ -32,6 +32,8 @@ export const loadSeller = () => async (dispatch) => {
     const { data } = await axios.get(`${server}/shop/getSeller`, {
       withCredentials: true,
     });
+
+    console.log("selelr from redux:",data)
     dispatch({
       type: "LoadSellerSuccess",
       payload: data.seller,
@@ -55,7 +57,7 @@ export const loadAdmin = () => async (dispatch) => {
         withCredentials: true,
       });
 
-      console.log("admin:", data)
+      
       
       dispatch({
         type: "LoadAdminSuccess",

@@ -554,55 +554,63 @@ const CreateProduct = () => {
 
 
     return (
-        <div className="w-full px-1 md:px-3 bg-gray-200">
-            {/* create product form */}
+        <div>
+            {
+                isLoading || loading ? (
+                    <div className="h-screen flex items-center justify-center ">
+                        <Loader />
+                    </div>
+                )
+                    : (
+                        <div className="w-full px-1 md:px-3 bg-gray-200">
+                            {/* create product form */}
 
-            <div className='flex items-center gap-2'>
-                <img src={ProductPng} alt='layout' className='h-5' />
-                <h3 className="text-[20px] text-slate-600 font-Poppins font-semibold">Add New Product</h3>
-            </div>
+                            <div className='flex items-center gap-2'>
+                                <img src={ProductPng} alt='layout' className='h-5' />
+                                <h3 className="text-[20px] text-slate-600 font-Poppins font-semibold">Add New Product</h3>
+                            </div>
 
-            {/* first div */}
+                            {/* first div */}
 
-            <div className="w-full mt-2 bg-white p-3  rounded-md h-[60vh]">
-                <div>
-                    <label className="pb-2">
-                        Product Name <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                        type="text"
-                        name="name"
-                        value={name}
-                        className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder="Enter your product name..."
-                    />
-                </div>
+                            <div className="w-full mt-2 bg-white p-3  rounded-md h-[60vh]">
+                                <div>
+                                    <label className="pb-2">
+                                        Product Name <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        value={name}
+                                        className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                        onChange={(e) => setName(e.target.value)}
+                                        placeholder="Enter your product name..."
+                                    />
+                                </div>
 
-                <div className="mt-3 ">
-                    <label className="pb-2">
-                        Description <span className="text-red-500">*</span>
-                    </label>
+                                <div className="mt-3 ">
+                                    <label className="pb-2">
+                                        Description <span className="text-red-500">*</span>
+                                    </label>
 
-                    <ReactQuill theme="snow" className="  md:h-[25vh] h-[20vh]" value={description} onChange={handleDescriptionChange} />
-                </div>
-            </div>
+                                    <ReactQuill theme="snow" className="  md:h-[25vh] h-[20vh]" value={description} onChange={handleDescriptionChange} />
+                                </div>
+                            </div>
 
-            {/* General setup */}
+                            {/* General setup */}
 
-            <div className="w-full mt-2 bg-white p-3  rounded-md hover:shadow-md">
-                <div className='flex items-center gap-2 mt-2 rounded-md bg-slate-200 p-3'>
-                    <FaUser className="" size={25} />
-                    <h3 className="text-[20px] text-slate-600 font-Poppins font-medium">General Setup</h3>
-                </div>
+                            <div className="w-full mt-2 bg-white p-3  rounded-md hover:shadow-md">
+                                <div className='flex items-center gap-2 mt-2 rounded-md bg-slate-200 p-3'>
+                                    <FaUser className="" size={25} />
+                                    <h3 className="text-[20px] text-slate-600 font-Poppins font-medium">General Setup</h3>
+                                </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-3 sm:grid-cols-2 lg:grid-cols-4 mt-3  gap-3">
-                    <div>
-                        <label className="pb-2 text-slate-700 font-medium text-md ">
-                            Category <span className="text-red-500">*</span>
-                        </label>
+                                <div className="grid grid-cols-2 md:grid-cols-3 sm:grid-cols-2 lg:grid-cols-4 mt-3  gap-3">
+                                    <div>
+                                        <label className="pb-2 text-slate-700 font-medium text-md ">
+                                            Category <span className="text-red-500">*</span>
+                                        </label>
 
-                        {/* <select className="w-full text-slate-500 mt-2 border h-[35px] rounded-[5px]" value={mainCategory} onChange={handleCategoryChange} >
+                                        {/* <select className="w-full text-slate-500 mt-2 border h-[35px] rounded-[5px]" value={mainCategory} onChange={handleCategoryChange} >
                             <option value="Choose a category" className="text-slate-500">Choose a category</option>
                             {allCategory &&
                                 allCategory.map((i) => (
@@ -612,58 +620,58 @@ const CreateProduct = () => {
                                 ))}
                         </select> */}
 
-                        <div className="relative w-full mt-2">
-                            <div
-                                className="border h-[35px] rounded-[5px] flex items-center justify-between px-2 cursor-pointer text-slate-500"
-                                onClick={() => toggleDropdown('mainCategory')}
-                            >
-                                <span>{mainCategory || 'Choose a category'}</span>
-                                <span className="ml-2">&#9662;</span>
-                            </div>
+                                        <div className="relative w-full mt-2">
+                                            <div
+                                                className="border h-[35px] rounded-[5px] flex items-center justify-between px-2 cursor-pointer text-slate-500"
+                                                onClick={() => toggleDropdown('mainCategory')}
+                                            >
+                                                <span>{mainCategory || 'Choose a category'}</span>
+                                                <span className="ml-2">&#9662;</span>
+                                            </div>
 
-                            {dropdownOpen.mainCategory && (
-                                <div className="absolute w-full mt-2 border rounded-[5px] bg-white z-10">
-                                    <div
-                                        className="px-2 py-1 cursor-pointer hover:bg-gray-100 text-slate-500"
-                                    // onClick={() => handleCategoryChange({ name: 'Choose a category', image: '' })}
-                                    >
-                                        Choose a category
-                                    </div>
-                                    {allCategory && allCategory?.map((category) => (
+                                            {dropdownOpen.mainCategory && (
+                                                <div className="absolute w-full mt-2 border rounded-[5px] bg-white z-10">
+                                                    <div
+                                                        className="px-2 py-1 cursor-pointer hover:bg-gray-100 text-slate-500"
+                                                    // onClick={() => handleCategoryChange({ name: 'Choose a category', image: '' })}
+                                                    >
+                                                        Choose a category
+                                                    </div>
+                                                    {allCategory && allCategory?.map((category) => (
 
-                                        <div
-                                            key={category._id}
-                                            className="flex items-center gap-2 px-2 py-1 cursor-pointer hover:bg-gray-100 text-gray-600"
-                                            onClick={() => handleCategoryChange(category?.name)}
-                                        >
+                                                        <div
+                                                            key={category._id}
+                                                            className="flex items-center gap-2 px-2 py-1 cursor-pointer hover:bg-gray-100 text-gray-600"
+                                                            onClick={() => handleCategoryChange(category?.name)}
+                                                        >
 
-                                            <img src={category?.image?.url} alt={category?.name} className="w-6 h-6 rounded-full" />
-                                            <span>{category?.name}</span>
+                                                            <img src={category?.image?.url} alt={category?.name} className="w-6 h-6 rounded-full" />
+                                                            <span>{category?.name}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
 
 
-                    </div>
+                                    </div>
 
-                    <div>
-                        <label className="pb-2 text-slate-700 font-medium text-md">Sub Category</label>
+                                    <div>
+                                        <label className="pb-2 text-slate-700 font-medium text-md">Sub Category</label>
 
-                        <select className="w-full text-slate-500 mt-2 border h-[35px] rounded-[5px]" value={subCategory} onChange={handleSubCategoryChange}>
-                            <option >Choose a Sub category</option>
-                            {filteredSubCategories?.map(category => (
-                                <option key={category._id} value={category.name}>
-                                    {category.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                                        <select className="w-full text-slate-500 mt-2 border h-[35px] rounded-[5px]" value={subCategory} onChange={handleSubCategoryChange}>
+                                            <option >Choose a Sub category</option>
+                                            {filteredSubCategories?.map(category => (
+                                                <option key={category._id} value={category.name}>
+                                                    {category.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
 
-                    <div>
-                        <label className="pb-2 text-slate-700 font-medium text-md">Sub Sub-Category</label>
-                        {/* <select className="w-full text-slate-500 mt-2 border h-[35px] rounded-[5px]" value={subSubCategory} onChange={handleSubSubCategoryChange}>
+                                    <div>
+                                        <label className="pb-2 text-slate-700 font-medium text-md">Sub Sub-Category</label>
+                                        {/* <select className="w-full text-slate-500 mt-2 border h-[35px] rounded-[5px]" value={subSubCategory} onChange={handleSubSubCategoryChange}>
                             <option value="" >Choose a Sub Sub-category</option>
                             {filteredSubSubCategories?.map(category => (
                                 <option key={category._id} value={category.name}>
@@ -672,123 +680,123 @@ const CreateProduct = () => {
                             ))}
                         </select> */}
 
-                        <div className="relative w-full mt-2">
-                            <div
-                                className="border h-[35px] rounded-[5px] flex items-center justify-between px-2 cursor-pointer text-slate-500"
-                                onClick={() => toggleDropdown('subSubCategory')}
-                            >
-                                <span className="text-sm sm:text-base truncate">{subSubCategory || 'Choose a Sub Sub-category'}</span>
-                                <span className="ml-2">&#9662;</span>
-                            </div>
+                                        <div className="relative w-full mt-2">
+                                            <div
+                                                className="border h-[35px] rounded-[5px] flex items-center justify-between px-2 cursor-pointer text-slate-500"
+                                                onClick={() => toggleDropdown('subSubCategory')}
+                                            >
+                                                <span className="text-sm sm:text-base truncate">{subSubCategory || 'Choose a Sub Sub-category'}</span>
+                                                <span className="ml-2">&#9662;</span>
+                                            </div>
 
-                            {dropdownOpen.subSubCategory && (
-                                <div className="absolute w-full mt-2 border rounded-[5px] bg-white z-10">
+                                            {dropdownOpen.subSubCategory && (
+                                                <div className="absolute w-full mt-2 border rounded-[5px] bg-white z-10">
 
-                                    {filteredSubSubCategories?.map((category) => (
-                                        <div
-                                            key={category._id}
-                                            className="flex items-center gap-2 px-2 py-1 cursor-pointer hover:bg-gray-100 text-gray-600"
-                                            onClick={() => handleSubSubCategoryChange(category?.name)}
-                                        >
-                                            <img src={category.image.url} alt={category.name} className="w-6 h-6 rounded-full" />
-                                            <span>{category?.name}</span>
+                                                    {filteredSubSubCategories?.map((category) => (
+                                                        <div
+                                                            key={category._id}
+                                                            className="flex items-center gap-2 px-2 py-1 cursor-pointer hover:bg-gray-100 text-gray-600"
+                                                            onClick={() => handleSubSubCategoryChange(category?.name)}
+                                                        >
+                                                            <img src={category.image.url} alt={category.name} className="w-6 h-6 rounded-full" />
+                                                            <span>{category?.name}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
-                                    ))}
+                                    </div>
+
+                                    <div >
+                                        <label className="pb-2 text-slate-700 font-medium text-md">Brand</label>
+                                        <select className="w-full text-slate-500 mt-2 border h-[35px] rounded-[5px]" value={brand} onChange={(e) => setBrand(e.target.value)} >
+                                            <option value="Choose a category">Select Brand</option>
+                                            {allBrand &&
+                                                allBrand.map((i) => (
+                                                    <option className="text-gray-600" value={i.brandName} key={i._id}>
+                                                        {i.brandName}
+                                                    </option>
+                                                ))}
+                                        </select>
+                                    </div>
+
+                                    <div  >
+                                        <label className="pb-2 text-slate-700 font-medium text-md" for="type">Product Type</label>
+                                        <select id="type" className="w-full text-slate-500 mt-2 border h-[35px] rounded-[5px]" value={productType} onChange={(e) => setProductType(e.target.value)}>
+                                            <option value="" >Choose an type</option>
+                                            <option value="Physical" >Physical</option>
+                                            <option value="Digital" >Digital</option>
+                                        </select>
+                                    </div>
+
+                                    <div className="">
+                                        <label className="flex items-center justify-between mx-2  text-slate-700 font-medium text-md">
+                                            <div className=""> SKU</div>
+                                            <div className="text-blue-500 cursor-pointer text-sm hover:text-blue-600" onClick={generateSKU}>Generate sku</div>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="sku"
+                                            value={sku}
+                                            className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                            // onChange={(e) => setS(e.target.value)}
+                                            placeholder="Ex: 254677"
+                                        />
+                                    </div>
+
+                                    <div className="">
+                                        <label className="pb-2 text-slate-700 font-medium text-md">Unit</label>
+                                        <select id="type" className="w-full text-slate-500 mt-2 border h-[35px] rounded-[5px]" value={unit} onChange={(e) => setUnit(e.target.value)}>
+                                            <option value="" >Choose an Unit</option>
+                                            <option value="kg" >Kg</option>
+                                            <option value="gm" >Gm</option>
+                                            <option value="pc" >pc</option>
+                                            <option value="inch" >Inch</option>
+                                            <option value="m" >m</option>
+                                            <option value="cm" >cm</option>
+                                            <option value="ltrs" >ltrs</option>
+                                            <option value="pairs" >Pairs</option>
+                                        </select>
+                                    </div>
+
+                                    <div className="relative">
+                                        <div className="flex items-center justify-between">
+                                            <label className=" text-slate-700 font-medium text-md">Search Tags</label>
+                                            <FaQuestionCircle data-tooltip-target="tooltip-default" />
+                                            <div id="tooltip-default" role="tooltip" className="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                                                Tooltip content
+                                                <div className="tooltip-arrow" data-popper-arrow></div>
+                                            </div>
+                                        </div>
+
+                                        <input
+                                            type="text"
+                                            name="tags"
+                                            value={tags}
+                                            className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                            onChange={(e) => setTags(e.target.value)}
+                                            placeholder="Enter your product tags..."
+                                        />
+                                    </div>
+
+                                    <div className="">
+
+                                        <label className="pb-2 text-slate-700 font-medium text-md">Customize (Optional)</label>
+                                        <div className="border border-gray-300 rounded-[3px] mt-2">
+                                            <select
+                                                className="ml-2 border-none text-slate-700  rounded-[3px] h-[35px] px-2"
+                                                value={customize}
+                                                onChange={(e) => setCustomize(e.target.value)}
+                                            >
+                                                <option value="false">No</option>
+                                                <option value="true">Yes</option>
+                                            </select>
+                                        </div>
+                                    </div>
                                 </div>
-                            )}
-                        </div>
-                    </div>
-
-                    <div >
-                        <label className="pb-2 text-slate-700 font-medium text-md">Brand</label>
-                        <select className="w-full text-slate-500 mt-2 border h-[35px] rounded-[5px]" value={brand} onChange={(e) => setBrand(e.target.value)} >
-                            <option value="Choose a category">Select Brand</option>
-                            {allBrand &&
-                                allBrand.map((i) => (
-                                    <option className="text-gray-600" value={i.brandName} key={i._id}>
-                                        {i.brandName}
-                                    </option>
-                                ))}
-                        </select>
-                    </div>
-
-                    <div  >
-                        <label className="pb-2 text-slate-700 font-medium text-md" for="type">Product Type</label>
-                        <select id="type" className="w-full text-slate-500 mt-2 border h-[35px] rounded-[5px]" value={productType} onChange={(e) => setProductType(e.target.value)}>
-                            <option value="" >Choose an type</option>
-                            <option value="Physical" >Physical</option>
-                            <option value="Digital" >Digital</option>
-                        </select>
-                    </div>
-
-                    <div className="">
-                        <label className="flex items-center justify-between mx-2  text-slate-700 font-medium text-md">
-                            <div className=""> SKU</div>
-                            <div className="text-blue-500 cursor-pointer text-sm hover:text-blue-600" onClick={generateSKU}>Generate sku</div>
-                        </label>
-                        <input
-                            type="text"
-                            name="sku"
-                            value={sku}
-                            className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                            // onChange={(e) => setS(e.target.value)}
-                            placeholder="Ex: 254677"
-                        />
-                    </div>
-
-                    <div className="">
-                        <label className="pb-2 text-slate-700 font-medium text-md">Unit</label>
-                        <select id="type" className="w-full text-slate-500 mt-2 border h-[35px] rounded-[5px]" value={unit} onChange={(e) => setUnit(e.target.value)}>
-                            <option value="" >Choose an Unit</option>
-                            <option value="kg" >Kg</option>
-                            <option value="gm" >Gm</option>
-                            <option value="pc" >pc</option>
-                            <option value="inch" >Inch</option>
-                            <option value="m" >m</option>
-                            <option value="cm" >cm</option>
-                            <option value="ltrs" >ltrs</option>
-                            <option value="pairs" >Pairs</option>
-                        </select>
-                    </div>
-
-                    <div className="relative">
-                        <div className="flex items-center justify-between">
-                            <label className=" text-slate-700 font-medium text-md">Search Tags</label>
-                            <FaQuestionCircle data-tooltip-target="tooltip-default" />
-                            <div id="tooltip-default" role="tooltip" className="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
-                            Tooltip content
-                            <div className="tooltip-arrow" data-popper-arrow></div>
-                        </div>
-                        </div>
-                        
-                        <input
-                            type="text"
-                            name="tags"
-                            value={tags}
-                            className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                            onChange={(e) => setTags(e.target.value)}
-                            placeholder="Enter your product tags..."
-                        />
-                    </div>
-
-                    <div className="">
-
-                        <label className="pb-2 text-slate-700 font-medium text-md">Customize (Optional)</label>
-                        <div className="border border-gray-300 rounded-[3px] mt-2">
-                            <select
-                                className="ml-2 border-none text-slate-700  rounded-[3px] h-[35px] px-2"
-                                value={customize}
-                                onChange={(e) => setCustomize(e.target.value)}
-                            >
-                                <option value="false">No</option>
-                                <option value="true">Yes</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
 
 
-                {/* <button
+                                {/* <button
                     type="button"
                     onClick={generateBulletPoints}
                     className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -808,10 +816,10 @@ const CreateProduct = () => {
                 )} */}
 
 
-            </div>
+                            </div>
 
-            {/* Key points */}
-            {/* <div className="w-full mt-2 bg-white p-3  rounded-md hover:shadow-md">
+                            {/* Key points */}
+                            {/* <div className="w-full mt-2 bg-white p-3  rounded-md hover:shadow-md">
                 <div>
                     <label className="pb-2">
                         Key Points: <span className="text-red-500">*</span>
@@ -830,179 +838,179 @@ const CreateProduct = () => {
             </div> */}
 
 
-            {/* Pricing & Others */}
+                            {/* Pricing & Others */}
 
-            <div className="w-full mt-2 bg-white p-3  rounded-md hover:shadow-md">
-                <div className='flex items-center gap-2 mt-2 rounded-md bg-slate-200 p-3'>
-                    <FaUser className="" size={25} />
-                    <h3 className="text-[20px] text-slate-600 font-Poppins font-medium">Pricing & Others</h3>
-                </div>
+                            <div className="w-full mt-2 bg-white p-3  rounded-md hover:shadow-md">
+                                <div className='flex items-center gap-2 mt-2 rounded-md bg-slate-200 p-3'>
+                                    <FaUser className="" size={25} />
+                                    <h3 className="text-[20px] text-slate-600 font-Poppins font-medium">Pricing & Others</h3>
+                                </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-3 sm:grid-cols-2 lg:grid-cols-4 mt-3  gap-3">
-                    <div>
-                        <label className="pb-2 text-slate-700 font-medium text-md">
-                            Original Price
-                            <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            type="number"
-                            name="price"
-                            value={originalPrice}
-                            min={0}
-                            className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                            onChange={(e) => setOriginalPrice(e.target.value)}
-                            placeholder="Enter your product price..."
-                        />
-                    </div>
+                                <div className="grid grid-cols-2 md:grid-cols-3 sm:grid-cols-2 lg:grid-cols-4 mt-3  gap-3">
+                                    <div>
+                                        <label className="pb-2 text-slate-700 font-medium text-md">
+                                            Original Price
+                                            <span className="text-red-500">*</span>
+                                        </label>
+                                        <input
+                                            type="number"
+                                            name="price"
+                                            value={originalPrice}
+                                            min={0}
+                                            className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                            onChange={(e) => setOriginalPrice(e.target.value)}
+                                            placeholder="Enter your product price..."
+                                        />
+                                    </div>
 
-                    <div>
-                        <label className="pb-2 text-slate-700 font-medium text-md">
-                            Discount Type <span className="text-red-500">*</span>
-                        </label>
-                        <select id="type" className="w-full mt-2 border h-[35px] text-slate-600 rounded-[5px]" value={discountType} onChange={(e) => setDiscountType(e.target.value)}>
-                            <option className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] text-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" value="" >Choose an type</option>
-                            <option value="Flat" >Flat</option>
-                            <option value="Percent" >Percent</option>
-                        </select>
-                    </div>
+                                    <div>
+                                        <label className="pb-2 text-slate-700 font-medium text-md">
+                                            Discount Type <span className="text-red-500">*</span>
+                                        </label>
+                                        <select id="type" className="w-full mt-2 border h-[35px] text-slate-600 rounded-[5px]" value={discountType} onChange={(e) => setDiscountType(e.target.value)}>
+                                            <option className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] text-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" value="" >Choose an type</option>
+                                            <option value="Flat" >Flat</option>
+                                            <option value="Percent" >Percent</option>
+                                        </select>
+                                    </div>
 
-                    <div>
-                        <label className="pb-2 text-slate-700 font-medium text-md">
-                            Discount Amount ({discountType === "Flat" ? "₹" : "%"}) <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            type="number"
-                            name="price"
-                            min={0}
-                            value={discountPrice}
-                            className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                            onChange={(e) => setDiscountPrice(e.target.value)}
-                            placeholder="Enter your product price with discount..."
-                        />
-                    </div>
+                                    <div>
+                                        <label className="pb-2 text-slate-700 font-medium text-md">
+                                            Discount Amount ({discountType === "Flat" ? "₹" : "%"}) <span className="text-red-500">*</span>
+                                        </label>
+                                        <input
+                                            type="number"
+                                            name="price"
+                                            min={0}
+                                            value={discountPrice}
+                                            className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                            onChange={(e) => setDiscountPrice(e.target.value)}
+                                            placeholder="Enter your product price with discount..."
+                                        />
+                                    </div>
 
-                    <div>
-                        <label className="pb-2 text-slate-700 font-medium text-md">
-                            Price After Discount
-                        </label>
-                        <input
-                            type="number"
-                            name="price"
-                            min={0}
-                            value={afterDiscountPrice}
-                            className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                            readOnly
-                            placeholder="Ex: 300"
-                        />
-                    </div>
+                                    <div>
+                                        <label className="pb-2 text-slate-700 font-medium text-md">
+                                            Price After Discount
+                                        </label>
+                                        <input
+                                            type="number"
+                                            name="price"
+                                            min={0}
+                                            value={afterDiscountPrice}
+                                            className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                            readOnly
+                                            placeholder="Ex: 300"
+                                        />
+                                    </div>
 
-                    <div>
-                        <label className="pb-2 text-slate-700 font-medium text-md">
-                            Product Stock <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            type="number"
-                            name="price"
-                            min={0}
-                            value={stock}
-                            className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                            onChange={(e) => setStock(e.target.value)}
-                            placeholder="ex: 10"
-                        />
-                    </div>
+                                    <div>
+                                        <label className="pb-2 text-slate-700 font-medium text-md">
+                                            Product Stock <span className="text-red-500">*</span>
+                                        </label>
+                                        <input
+                                            type="number"
+                                            name="price"
+                                            min={0}
+                                            value={stock}
+                                            className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                            onChange={(e) => setStock(e.target.value)}
+                                            placeholder="ex: 10"
+                                        />
+                                    </div>
 
-                    <div>
-                        <label className="pb-2 text-slate-700 font-medium text-md">
-                            Tax amount (%) <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            type="number"
-                            name="price"
-                            value={taxAmount}
-                            min={0}
-                            className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                            onChange={(e) => setTaxAmount(e.target.value)}
-                            placeholder="Enter your product tax amount"
-                        />
-                    </div>
+                                    <div>
+                                        <label className="pb-2 text-slate-700 font-medium text-md">
+                                            Tax amount (%) <span className="text-red-500">*</span>
+                                        </label>
+                                        <input
+                                            type="number"
+                                            name="price"
+                                            value={taxAmount}
+                                            min={0}
+                                            className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                            onChange={(e) => setTaxAmount(e.target.value)}
+                                            placeholder="Enter your product tax amount"
+                                        />
+                                    </div>
 
-                    <div>
-                        <label className="pb-2 text-slate-700 font-medium text-md">
-                            Shipping Cost <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            type="number"
-                            name="price"
-                            min={0}
-                            value={shippingCost}
-                            className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                            onChange={(e) => setShippingCost(e.target.value)}
-                            placeholder="Enter your shipping cost..."
-                        />
-                    </div>
+                                    <div>
+                                        <label className="pb-2 text-slate-700 font-medium text-md">
+                                            Shipping Cost <span className="text-red-500">*</span>
+                                        </label>
+                                        <input
+                                            type="number"
+                                            name="price"
+                                            min={0}
+                                            value={shippingCost}
+                                            className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                            onChange={(e) => setShippingCost(e.target.value)}
+                                            placeholder="Enter your shipping cost..."
+                                        />
+                                    </div>
 
-                </div>
-            </div>
+                                </div>
+                            </div>
 
-            {/* Other details setup */}
+                            {/* Other details setup */}
 
-            <div className="w-full mt-2 bg-white p-3 rounded-md hover:shadow-md">
-                <div className='flex items-center gap-2 mt-2 rounded-md bg-slate-200 p-3'>
-                    <FaUser className="" size={25} />
-                    <h3 className="text-[20px] text-slate-600 font-Poppins font-medium">Other details setup</h3>
-                </div>
+                            <div className="w-full mt-2 bg-white p-3 rounded-md hover:shadow-md">
+                                <div className='flex items-center gap-2 mt-2 rounded-md bg-slate-200 p-3'>
+                                    <FaUser className="" size={25} />
+                                    <h3 className="text-[20px] text-slate-600 font-Poppins font-medium">Other details setup</h3>
+                                </div>
 
-                {otherDetails.map((detail, index) => (
-                    <div className="flex items-center gap-3 mt-3" key={index}>
-                        <div className="flex-1">
-                            <label className="pb-2 text-slate-700 font-medium text-md">
-                                Enter key <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                value={detail.key}
-                                onChange={(e) => handleInputChange(index, 'key', e.target.value)}
-                                className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                placeholder="Ex: Model"
-                            />
-                        </div>
+                                {otherDetails.map((detail, index) => (
+                                    <div className="flex items-center gap-3 mt-3" key={index}>
+                                        <div className="flex-1">
+                                            <label className="pb-2 text-slate-700 font-medium text-md">
+                                                Enter key <span className="text-red-500">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={detail.key}
+                                                onChange={(e) => handleInputChange(index, 'key', e.target.value)}
+                                                className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                placeholder="Ex: Model"
+                                            />
+                                        </div>
 
-                        <div className="flex-1">
-                            <label className="pb-2 text-slate-700 font-medium text-md">
-                                Value <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                value={detail.value}
-                                onChange={(e) => handleInputChange(index, 'value', e.target.value)}
-                                className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                placeholder="Ex: M2 pro"
-                            />
-                        </div>
+                                        <div className="flex-1">
+                                            <label className="pb-2 text-slate-700 font-medium text-md">
+                                                Value <span className="text-red-500">*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={detail.value}
+                                                onChange={(e) => handleInputChange(index, 'value', e.target.value)}
+                                                className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                placeholder="Ex: M2 pro"
+                                            />
+                                        </div>
 
 
-                        <button
-                            type="button"
-                            className="mt-7 bg-red-500 text-white rounded-md px-3 py-1 h-[35px]"
-                            onClick={() => handleRemoveField(index)}
-                        >
-                            Remove
-                        </button>
+                                        <button
+                                            type="button"
+                                            className="mt-7 bg-red-500 text-white rounded-md px-3 py-1 h-[35px]"
+                                            onClick={() => handleRemoveField(index)}
+                                        >
+                                            Remove
+                                        </button>
 
-                    </div>
-                ))}
+                                    </div>
+                                ))}
 
-                <div className="mt-3">
-                    <button
-                        type="button"
-                        className="bg-blue-500 text-white rounded-md px-3 py-2"
-                        onClick={handleAddField}
-                    >
-                        Add another detail
-                    </button>
-                </div>
+                                <div className="mt-3">
+                                    <button
+                                        type="button"
+                                        className="bg-blue-500 text-white rounded-md px-3 py-2"
+                                        onClick={handleAddField}
+                                    >
+                                        Add another detail
+                                    </button>
+                                </div>
 
-                {/* <div className="mt-3">
+                                {/* <div className="mt-3">
                     <button
                         type="button"
                         className="bg-green-500 text-white rounded-md px-3 py-2"
@@ -1011,335 +1019,338 @@ const CreateProduct = () => {
                         Submit
                     </button>
                 </div> */}
-            </div>
+                            </div>
 
-            {/* Product  variation setup */}
+                            {/* Product  variation setup */}
 
-            <div className="w-full mt-2 bg-white p-3 rounded-md hover:shadow-md">
-                <div className="flex items-center gap-2 mt-2 rounded-md bg-slate-200 p-3">
-                    <FaUser size={25} />
-                    <h3 className="text-[20px] text-slate-600 font-Poppins font-medium">Variation Setup</h3>
-                </div>
+                            <div className="w-full mt-2 bg-white p-3 rounded-md hover:shadow-md">
+                                <div className="flex items-center gap-2 mt-2 rounded-md bg-slate-200 p-3">
+                                    <FaUser size={25} />
+                                    <h3 className="text-[20px] text-slate-600 font-Poppins font-medium">Variation Setup</h3>
+                                </div>
 
-                <div className="items-center justify-around grid grid-cols-1 lg:grid-cols-2 gap-1 mt-2">
+                                <div className="items-center justify-around grid grid-cols-1 lg:grid-cols-2 gap-1 mt-2">
 
 
-                    <div className="mb-2">
-                        <label
-                            htmlFor="attribute"
-                            className="block text-lg font-medium text-gray-700"
-                        >
-                            Select Attributes :
-                        </label>
-                        <Select
-                            options={attributeOptions}
-                            value={selectedAttributes}
-                            onChange={handleAttributeChange}
-                            isMulti
-                        />
-                    </div>
+                                    <div className="mb-2">
+                                        <label
+                                            htmlFor="attribute"
+                                            className="block text-lg font-medium text-gray-700"
+                                        >
+                                            Select Attributes :
+                                        </label>
+                                        <Select
+                                            options={attributeOptions}
+                                            value={selectedAttributes}
+                                            onChange={handleAttributeChange}
+                                            isMulti
+                                        />
+                                    </div>
 
-                    {selectedAttributes.map((attribute) => (
-                        <div key={attribute.value} className="mb-2">
-                            <label
-                                className="block text-lg font-medium text-gray-700"
-                                htmlFor={attribute.value}
-                            >
-                                {attribute.label} :
-                            </label>
-                            <div className="flex items-center space-x-2">
-                                <input
-                                    type="text"
-                                    value={attributeValues[attribute.value] || ''}
-                                    onChange={(e) => handleAttributeValueChange(e, attribute.value)}
-                                    placeholder={`Enter ${attribute.label}`}
-                                    className="mt-1 block w-full px-4 py-1.5 border border-gray-300 rounded-md shadow-sm text-base focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition duration-300"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => handleAddAttributeValue(attribute.value)}
-                                    disabled={!attributeValues[attribute?.value]} // Disable until value is entered
-                                    className="mt-1 px-4 py-2 bg-blue-500 text-white rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                                >
-                                    Add
+                                    {selectedAttributes.map((attribute) => (
+                                        <div key={attribute.value} className="mb-2">
+                                            <label
+                                                className="block text-lg font-medium text-gray-700"
+                                                htmlFor={attribute.value}
+                                            >
+                                                {attribute.label} :
+                                            </label>
+                                            <div className="flex items-center space-x-2">
+                                                <input
+                                                    type="text"
+                                                    value={attributeValues[attribute.value] || ''}
+                                                    onChange={(e) => handleAttributeValueChange(e, attribute.value)}
+                                                    placeholder={`Enter ${attribute.label}`}
+                                                    className="mt-1 block w-full px-4 py-1.5 border border-gray-300 rounded-md shadow-sm text-base focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition duration-300"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleAddAttributeValue(attribute.value)}
+                                                    disabled={!attributeValues[attribute?.value]} // Disable until value is entered
+                                                    className="mt-1 px-4 py-2 bg-blue-500 text-white rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                                >
+                                                    Add
+                                                </button>
+                                            </div>
+
+                                            <div className="mt-2 flex flex-wrap gap-2">
+                                                {(attributeValues[attribute.value + 'List'] || []).map(
+                                                    (value, index) => (
+                                                        <span
+                                                            key={index}
+                                                            className="inline-flex items-center px-3 py-1 rounded-lg text-sm font-medium bg-gray-200 text-gray-700"
+                                                        >
+                                                            {value}
+                                                        </span>
+                                                    )
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {variations.length > 0 && (
+
+                                    <div className="border-2 md:w-[80vw] w-full rounded-md overflow-x-auto">
+                                        <table className="min-w-full divide-y divide-gray-200">
+                                            <thead className="bg-gray-50">
+                                                <tr>
+                                                    {selectedAttributes.map((attribute) => (
+                                                        <th
+                                                            key={attribute.value}
+                                                            className="px-3  py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                                        >
+                                                            {attribute.label}
+                                                        </th>
+                                                    ))}
+
+                                                    <th className="px-3 py-3  text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        originalPrice
+                                                    </th>
+                                                    <th className="px-3 py-3    text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        discountType
+                                                    </th>
+                                                    <th className="px-3 py-3   text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        discountAmount
+                                                    </th>
+                                                    <th className="px-3 py-3   text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        afterDiscountPrice
+                                                    </th>
+                                                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        SKU
+                                                    </th>
+                                                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        Stock
+                                                    </th>
+
+
+                                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
+
+                                                </tr>
+                                            </thead>
+
+                                            <tbody className="bg-white divide-y divide-gray-200">
+                                                {variations.map((variation, index) => {
+                                                    const lastIndex = variation.length - 1;
+                                                    isFilled =
+                                                        variation[lastIndex].originalPrice &&
+                                                        variation[lastIndex].discountType &&
+                                                        variation[lastIndex].discountAmount &&
+                                                        variation[lastIndex].afterDiscountPrice &&
+                                                        variation[lastIndex].sku &&
+                                                        variation[lastIndex].stock;
+                                                    return (
+                                                        <tr key={index}>
+                                                            {variation.slice(0, -1).map((value, idx) => (
+                                                                <td
+                                                                    key={idx}
+                                                                    className="px-3 py-4 whitespace-nowrap text-sm text-gray-500"
+                                                                >
+                                                                    {value}
+                                                                </td>
+                                                            ))}
+                                                            <td className="px-3 py-4  whitespace-nowrap text-sm text-gray-500">
+                                                                <input
+                                                                    type="number"
+                                                                    placeholder="Original Price.."
+                                                                    value={variation[lastIndex].originalPrice}
+                                                                    min={0}
+                                                                    onChange={(e) =>
+                                                                        handleVariationChange(
+                                                                            index,
+                                                                            'originalPrice',
+                                                                            e.target.value
+                                                                        )
+                                                                    }
+                                                                    className="border  w-[100px] rounded px-2 py-1"
+                                                                />
+                                                            </td>
+
+                                                            <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                <div>
+
+                                                                    <select
+                                                                        value={variation[lastIndex].discountType}
+                                                                        onChange={(e) =>
+                                                                            handleVariationChange(
+                                                                                index,
+                                                                                'discountType',
+                                                                                e.target.value
+                                                                            )
+                                                                        }
+                                                                        className=" appearance-none block  w-[130px] px-3 h-[30px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                                    >
+                                                                        <option value="" disabled>Discount type</option>
+                                                                        <option value="Flat">Flat</option>
+                                                                        <option value="Percent">Percentage</option>
+                                                                        {/* Add more options as needed */}
+                                                                    </select>
+                                                                </div>
+                                                            </td>
+
+                                                            <td className="px-3 py-4  whitespace-nowrap text-sm text-gray-500">
+                                                                <input
+                                                                    type="number"
+                                                                    placeholder="Discount amount.."
+                                                                    value={variation[lastIndex].discountAmount}
+                                                                    min={0}
+                                                                    onChange={(e) =>
+                                                                        handleVariationChange(
+                                                                            index,
+                                                                            'discountAmount',
+                                                                            e.target.value
+                                                                        )
+                                                                    }
+                                                                    className="border  w-[100px] rounded px-2 py-1"
+                                                                />
+                                                            </td>
+
+                                                            <td className="px-3 py-4  whitespace-nowrap text-sm text-gray-500">
+                                                                <input
+                                                                    type="number"
+                                                                    placeholder="Ex: 500"
+                                                                    value={variation[lastIndex].afterDiscountPrice}
+                                                                    readOnly
+                                                                    className="border  w-[100px] rounded px-2 py-1 bg-gray-100"
+                                                                />
+                                                            </td>
+
+                                                            <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                <input
+                                                                    type="text"
+                                                                    value={variation[lastIndex].sku}
+                                                                    placeholder="Enter sku.."
+                                                                    onChange={(e) =>
+                                                                        handleVariationChange(
+                                                                            index,
+                                                                            'sku',
+                                                                            e.target.value
+                                                                        )
+                                                                    }
+                                                                    className="border  w-[100px] rounded px-2 py-1"
+                                                                />
+                                                            </td>
+
+
+                                                            <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                <input
+                                                                    type="number"
+                                                                    placeholder="Enter stock..."
+                                                                    min={0}
+                                                                    value={variation[lastIndex].stock}
+                                                                    onChange={(e) =>
+                                                                        handleVariationChange(
+                                                                            index,
+                                                                            'stock',
+                                                                            e.target.value
+                                                                        )
+                                                                    }
+                                                                    className="border  w-[100px] rounded px-2 py-1"
+                                                                />
+                                                            </td>
+
+
+                                                            <td className="px-4  whitespace-nowrap text-gray-500">
+                                                                <div className="flex items-center gap-2  rounded-md p-2">
+                                                                    <input
+                                                                        type="file"
+                                                                        onChange={(e) => handleImageUpload(e, getVariationKey(variation))}
+                                                                        className="hidden"
+                                                                        ref={fileInputRef}
+                                                                    />
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => fileInputRef.current.click()}
+                                                                        className="bg-blue-500 text-white px-2 py-1 rounded"
+                                                                    >
+                                                                        Add Image
+                                                                    </button>
+                                                                    <div className="flex gap-2 overflow-x-auto">
+                                                                        {colorImages[getVariationKey(variation)]?.map((url, imgIndex) => (
+                                                                            <div key={imgIndex} className="relative w-[60px] h-[50px]" >
+                                                                                <img
+                                                                                    src={url}
+                                                                                    alt={`Color ${variation[selectedAttributes.length]}-${imgIndex}`}
+                                                                                    className="w-full h-full object-cover rounded-md cursor-pointer"
+                                                                                    onClick={(e) => handleImageClick(url)}
+                                                                                />
+
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => removeImage(getVariationKey(variation), imgIndex)}
+                                                                                    className="absolute  top-0 right-0 flex items-center j bg-red-600 text-white rounded-full px-[4px]"
+                                                                                >
+                                                                                    &times;
+                                                                                </button>
+
+
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+
+
+
+                                <div className="mt-5 flex justify-end space-x-3">
+                                    <button
+                                        type="button"
+                                        onClick={addMoreVariations}
+                                        disabled={!isFilled} // Disable if any field is empty
+                                        className={`px-4 py-2 bg-blue-700 text-white rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${!isFilled && 'cursor-not-allowed text-gray-400 bg-blue-300'} `}
+                                    >
+                                        Add More
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* product image */}
+
+                            <div className="w-full mt-2 bg-white p-3  rounded-md hover:shadow-md">
+                                <div className='flex items-center gap-2 mt-2 rounded-md bg-slate-200 p-3'>
+                                    <FaUser className="" size={25} />
+                                    <h3 className="text-[20px] text-slate-600 font-Poppins font-medium">Upload Images</h3>
+                                </div>
+
+                                <div>
+                                    <label className="pb-2">
+                                        Upload Images <span className="text-red-500">*</span>
+                                    </label>
+                                    <input type="file" name="" id="upload" className="hidden" multiple onChange={handleImageChange} />
+                                    <div className="w-full flex items-center flex-wrap">
+                                        <label htmlFor="upload">
+                                            <AiOutlinePlusCircle size={30} className="mt-3" color="#555" />
+                                        </label>
+                                        {images && images.map((i) => (
+                                            <img src={URL.createObjectURL(i)} key={i} alt="" className="h-[150px] w-[130px] object-cover m-2 border-2" />
+                                        ))}
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div className="w-full  flex items-center justify-center">
+                                <button className="mt-1 px-4 py-2 bg-blue-500 text-white rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 " onClick={handleSubmit} >
+                                    {isLoading || loading || imageUploadLoading ? (<Loader />) : "Submit"}
                                 </button>
                             </div>
 
-                            <div className="mt-2 flex flex-wrap gap-2">
-                                {(attributeValues[attribute.value + 'List'] || []).map(
-                                    (value, index) => (
-                                        <span
-                                            key={index}
-                                            className="inline-flex items-center px-3 py-1 rounded-lg text-sm font-medium bg-gray-200 text-gray-700"
-                                        >
-                                            {value}
-                                        </span>
-                                    )
-                                )}
-                            </div>
+
+                            {modalOpen && (
+                                <ImageModal open={open} onClose={() => setOpen(false)} image={selectedImage} />
+                            )}
                         </div>
-                    ))}
-                </div>
-
-                {variations.length > 0 && (
-
-                    <div className="border-2 md:w-[80vw] w-full rounded-md overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
-                                <tr>
-                                    {selectedAttributes.map((attribute) => (
-                                        <th
-                                            key={attribute.value}
-                                            className="px-3  py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                        >
-                                            {attribute.label}
-                                        </th>
-                                    ))}
-
-                                    <th className="px-3 py-3  text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        originalPrice
-                                    </th>
-                                    <th className="px-3 py-3    text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        discountType
-                                    </th>
-                                    <th className="px-3 py-3   text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        discountAmount
-                                    </th>
-                                    <th className="px-3 py-3   text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        afterDiscountPrice
-                                    </th>
-                                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        SKU
-                                    </th>
-                                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Stock
-                                    </th>
-
-
-                                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
-
-                                </tr>
-                            </thead>
-
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {variations.map((variation, index) => {
-                                    const lastIndex = variation.length - 1;
-                                    isFilled =
-                                        variation[lastIndex].originalPrice &&
-                                        variation[lastIndex].discountType &&
-                                        variation[lastIndex].discountAmount &&
-                                        variation[lastIndex].afterDiscountPrice &&
-                                        variation[lastIndex].sku &&
-                                        variation[lastIndex].stock;
-                                    return (
-                                        <tr key={index}>
-                                            {variation.slice(0, -1).map((value, idx) => (
-                                                <td
-                                                    key={idx}
-                                                    className="px-3 py-4 whitespace-nowrap text-sm text-gray-500"
-                                                >
-                                                    {value}
-                                                </td>
-                                            ))}
-                                            <td className="px-3 py-4  whitespace-nowrap text-sm text-gray-500">
-                                                <input
-                                                    type="number"
-                                                    placeholder="Original Price.."
-                                                    value={variation[lastIndex].originalPrice}
-                                                    min={0}
-                                                    onChange={(e) =>
-                                                        handleVariationChange(
-                                                            index,
-                                                            'originalPrice',
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                    className="border  w-[100px] rounded px-2 py-1"
-                                                />
-                                            </td>
-
-                                            <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                <div>
-
-                                                    <select
-                                                        value={variation[lastIndex].discountType}
-                                                        onChange={(e) =>
-                                                            handleVariationChange(
-                                                                index,
-                                                                'discountType',
-                                                                e.target.value
-                                                            )
-                                                        }
-                                                        className=" appearance-none block  w-[130px] px-3 h-[30px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                                    >
-                                                        <option value="" disabled>Discount type</option>
-                                                        <option value="Flat">Flat</option>
-                                                        <option value="Percent">Percentage</option>
-                                                        {/* Add more options as needed */}
-                                                    </select>
-                                                </div>
-                                            </td>
-
-                                            <td className="px-3 py-4  whitespace-nowrap text-sm text-gray-500">
-                                                <input
-                                                    type="number"
-                                                    placeholder="Discount amount.."
-                                                    value={variation[lastIndex].discountAmount}
-                                                    min={0}
-                                                    onChange={(e) =>
-                                                        handleVariationChange(
-                                                            index,
-                                                            'discountAmount',
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                    className="border  w-[100px] rounded px-2 py-1"
-                                                />
-                                            </td>
-
-                                            <td className="px-3 py-4  whitespace-nowrap text-sm text-gray-500">
-                                                <input
-                                                    type="number"
-                                                    placeholder="Ex: 500"
-                                                    value={variation[lastIndex].afterDiscountPrice}
-                                                    readOnly
-                                                    className="border  w-[100px] rounded px-2 py-1 bg-gray-100"
-                                                />
-                                            </td>
-
-                                            <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                <input
-                                                    type="text"
-                                                    value={variation[lastIndex].sku}
-                                                    placeholder="Enter sku.."
-                                                    onChange={(e) =>
-                                                        handleVariationChange(
-                                                            index,
-                                                            'sku',
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                    className="border  w-[100px] rounded px-2 py-1"
-                                                />
-                                            </td>
-
-
-                                            <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                <input
-                                                    type="number"
-                                                    placeholder="Enter stock..."
-                                                    min={0}
-                                                    value={variation[lastIndex].stock}
-                                                    onChange={(e) =>
-                                                        handleVariationChange(
-                                                            index,
-                                                            'stock',
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                    className="border  w-[100px] rounded px-2 py-1"
-                                                />
-                                            </td>
-
-
-                                            <td className="px-4  whitespace-nowrap text-gray-500">
-                                                <div className="flex items-center gap-2  rounded-md p-2">
-                                                    <input
-                                                        type="file"
-                                                        onChange={(e) => handleImageUpload(e, getVariationKey(variation))}
-                                                        className="hidden"
-                                                        ref={fileInputRef}
-                                                    />
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => fileInputRef.current.click()}
-                                                        className="bg-blue-500 text-white px-2 py-1 rounded"
-                                                    >
-                                                        Add Image
-                                                    </button>
-                                                    <div className="flex gap-2 overflow-x-auto">
-                                                        {colorImages[getVariationKey(variation)]?.map((url, imgIndex) => (
-                                                            <div key={imgIndex} className="relative w-[60px] h-[50px]" >
-                                                                <img
-                                                                    src={url}
-                                                                    alt={`Color ${variation[selectedAttributes.length]}-${imgIndex}`}
-                                                                    className="w-full h-full object-cover rounded-md cursor-pointer"
-                                                                    onClick={(e) => handleImageClick(url)}
-                                                                />
-
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => removeImage(getVariationKey(variation), imgIndex)}
-                                                                    className="absolute  top-0 right-0 flex items-center j bg-red-600 text-white rounded-full px-[4px]"
-                                                                >
-                                                                    &times;
-                                                                </button>
-
-
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            </td>
-
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
-
-
-
-                <div className="mt-5 flex justify-end space-x-3">
-                    <button
-                        type="button"
-                        onClick={addMoreVariations}
-                        disabled={!isFilled} // Disable if any field is empty
-                        className={`px-4 py-2 bg-blue-700 text-white rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${!isFilled && 'cursor-not-allowed text-gray-400 bg-blue-300'} `}
-                    >
-                        Add More
-                    </button>
-                </div>
-            </div>
-
-            {/* product image */}
-
-            <div className="w-full mt-2 bg-white p-3  rounded-md hover:shadow-md">
-                <div className='flex items-center gap-2 mt-2 rounded-md bg-slate-200 p-3'>
-                    <FaUser className="" size={25} />
-                    <h3 className="text-[20px] text-slate-600 font-Poppins font-medium">Upload Images</h3>
-                </div>
-
-                <div>
-                    <label className="pb-2">
-                        Upload Images <span className="text-red-500">*</span>
-                    </label>
-                    <input type="file" name="" id="upload" className="hidden" multiple onChange={handleImageChange} />
-                    <div className="w-full flex items-center flex-wrap">
-                        <label htmlFor="upload">
-                            <AiOutlinePlusCircle size={30} className="mt-3" color="#555" />
-                        </label>
-                        {images && images.map((i) => (
-                            <img src={URL.createObjectURL(i)} key={i} alt="" className="h-[150px] w-[130px] object-cover m-2 border-2" />
-                        ))}
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div className="w-full  flex items-center justify-center">
-                <button className="mt-1 px-4 py-2 bg-blue-500 text-white rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 " onClick={handleSubmit} >
-                    {isLoading || loading || imageUploadLoading ? (<Loader />) : "Submit"}
-                </button>
-            </div>
-
-
-            {modalOpen && (
-                <ImageModal open={open} onClose={() => setOpen(false)} image={selectedImage} />
-            )}
+                    )
+            }
         </div>
     );
 };

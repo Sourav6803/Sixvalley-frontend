@@ -51,7 +51,7 @@ const GroceryPage = () => {
     const [filterProduct, setFilterProduct] = useState([])
 
     const { allBanner } = useSelector(state => state.banner)
-    const mainbanner = allBanner?.filter(banner => banner?.bannerType === "Main Banner" && banner?.resourceType === 'Home Appliances')
+    const mainbanner = allBanner?.filter(banner => banner?.bannerType === "Main Banner" && banner?.resourceType === 'Grocery')
 
     const navigate = useNavigate();
 
@@ -79,12 +79,12 @@ const GroceryPage = () => {
     };
 
     useEffect(() => {
-        const filterData = allProducts?.filter((product) => product?.category.trim() === "Home Appliances")
+        const filterData = allProducts?.filter((product) => product?.category.trim() === "Grocery")
         setFilterProduct(filterData)
     }, [allProducts])
 
     useEffect(() => {
-        const filterData = allSubSubCategory && allSubSubCategory?.filter(cat => cat?.mainCategory === "Home Appliances")
+        const filterData = allSubSubCategory && allSubSubCategory?.filter(cat => cat?.mainCategory === "Grocery")
         setFilterSubCategory(filterData)
     }, [allSubSubCategory])
 
