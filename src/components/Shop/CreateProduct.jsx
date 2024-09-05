@@ -20,6 +20,7 @@ import { server } from "../../server";
 import { htmlToText } from 'html-to-text';
 import ImageModal from "../../utils/ImageModal";
 import { FaQuestionCircle } from "react-icons/fa";
+import SelectBrand from "./SelectBrand";
 
 
 const CreateProduct = () => {
@@ -75,6 +76,7 @@ const CreateProduct = () => {
     const [selectedImage, setSelectedImage] = useState(null);
 
     const [isOpen, setIsOpen] = useState(false);
+    const [filterBrand, setFilterBrand] = useState([])
 
     const [dropdownOpen, setDropdownOpen] = useState({
         mainCategory: false,
@@ -103,7 +105,6 @@ const CreateProduct = () => {
             setAfterDiscountPrice(originalPrice - Math.ceil((discountPrice / 100) * originalPrice))
         }
     }, [discountPrice, originalPrice, discountType])
-
 
     useEffect(() => {
         const data = allAttribute?.map((item) => ({
@@ -302,16 +303,16 @@ const CreateProduct = () => {
         });
     };
 
+    
     const handleCategoryChange = useCallback((e) => {
-
         const selectedMainCategory = e;
-
         setMainCategory(selectedMainCategory);
-        setDropdownOpen({ ...dropdownOpen, mainCategory: false });
+        setDropdownOpen({ ...dropdownOpen, mainCategory: false,  });
         const filteredSubCategories = allSubCategory?.filter(subCat => subCat.mainCategory === selectedMainCategory);
         setFilteredSubCategories(filteredSubCategories);
+        setFilterBrand(allBrand?.filter(brand => brand?.category === selectedMainCategory))
         setIsOpen(false); // Close dropdown after selection
-    }, [setMainCategory, allSubCategory, dropdownOpen]);
+    }, [setMainCategory, allSubCategory, dropdownOpen, allBrand]);
 
     const handleDescriptionChange = (html) => {
         // Convert HTML to plain text
@@ -412,8 +413,6 @@ const CreateProduct = () => {
 
         return Math.max(afterDiscountPrice, 0);
     };
-
-
 
 
     const handleSubmit = useCallback(async (e) => {
@@ -610,15 +609,7 @@ const CreateProduct = () => {
                                             Category <span className="text-red-500">*</span>
                                         </label>
 
-                                        {/* <select className="w-full text-slate-500 mt-2 border h-[35px] rounded-[5px]" value={mainCategory} onChange={handleCategoryChange} >
-                            <option value="Choose a category" className="text-slate-500">Choose a category</option>
-                            {allCategory &&
-                                allCategory.map((i) => (
-                                    <option className="text-gray-600 flex gap-2" value={i.name} key={i._id}>
-                                        {i.name}
-                                    </option>
-                                ))}
-                        </select> */}
+                                       
 
                                         <div className="relative w-full mt-2">
                                             <div
@@ -671,14 +662,7 @@ const CreateProduct = () => {
 
                                     <div>
                                         <label className="pb-2 text-slate-700 font-medium text-md">Sub Sub-Category</label>
-                                        {/* <select className="w-full text-slate-500 mt-2 border h-[35px] rounded-[5px]" value={subSubCategory} onChange={handleSubSubCategoryChange}>
-                            <option value="" >Choose a Sub Sub-category</option>
-                            {filteredSubSubCategories?.map(category => (
-                                <option key={category._id} value={category.name}>
-                                    {category.name}
-                                </option>
-                            ))}
-                        </select> */}
+                                      
 
                                         <div className="relative w-full mt-2">
                                             <div
@@ -707,18 +691,26 @@ const CreateProduct = () => {
                                         </div>
                                     </div>
 
-                                    <div >
+                                    {/* <div >
                                         <label className="pb-2 text-slate-700 font-medium text-md">Brand</label>
                                         <select className="w-full text-slate-500 mt-2 border h-[35px] rounded-[5px]" value={brand} onChange={(e) => setBrand(e.target.value)} >
                                             <option value="Choose a category">Select Brand</option>
-                                            {allBrand &&
-                                                allBrand.map((i) => (
+                                            {filterBrand &&
+                                                filterBrand.map((i) => (
                                                     <option className="text-gray-600" value={i.brandName} key={i._id}>
                                                         {i.brandName}
                                                     </option>
                                                 ))}
                                         </select>
-                                    </div>
+                                    </div> */}
+
+                                    <SelectBrand 
+                                        category={mainCategory}
+                                        allBrands={allBrand} // The list of all brands with categories
+                                        dropdownOpen={dropdownOpen}
+                                        toggleDropdown={toggleDropdown}
+                                        setDropdownOpen={setDropdownOpen}
+                                    />
 
                                     <div  >
                                         <label className="pb-2 text-slate-700 font-medium text-md" for="type">Product Type</label>

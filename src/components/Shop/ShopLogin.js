@@ -155,7 +155,7 @@ const ShopLogin = () => {
         <div className='min-h-screen bg-gray-50 flex flex-col justify-center py-6 sm:px-6 lg:px-8'>
             {
                 loading ? (
-                    <div className='flex h-screen items-center justify-center w-full'>
+                    <div className='flex h-screen items-center justify-center w-full bg-gray-900/10'>
                         <Loader />
                     </div>
                 ) : (

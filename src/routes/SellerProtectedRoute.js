@@ -11,7 +11,9 @@ const SellerProtectedRoute = ({ children }) => {
 
     if (isLoading === true || isSeller === undefined) {
         return (
-            <Loader />
+            <div className="flex items-center justify-center h-screen absolute inset-0 bg-gray-900/10">
+                <Loader />
+            </div>
         )
     } else {
         if (isSeller === undefined ) {

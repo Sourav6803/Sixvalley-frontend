@@ -60,6 +60,15 @@ const Menus = [
     ]
   },
   {
+    title: "Brands",
+    icon: <MdOutlineStarBorder />,
+    subMenu: true,
+    submenuItems: [
+      { title: "Add New", link: "/dashboard/brand" },
+      // { title: "List", link: "/admin/dashboard/all-brand" },
+    ]
+  },
+  {
     title: "Products",
     icon: <IoDiamondOutline />,
     subMenu: true,
@@ -147,9 +156,7 @@ const DashboardHeader = ({ navOpen, setNavOpen }) => {
 
   const [subMenuOpen, setSubMenuOpen] = useState(null);
 
-
-
-
+ 
   const toggleMenu = (index) => {
     if (subMenuOpen === index) {
       setSubMenuOpen(null);
@@ -163,7 +170,7 @@ const DashboardHeader = ({ navOpen, setNavOpen }) => {
   return (
 
     <>
-      <div className="w-full h-[80px] shadow sticky top-0 left-0 z-30 flex items-center justify-between px-4 bg-white">
+      <div  className="w-full h-[80px] shadow sticky top-0 left-0 z-30 flex items-center justify-between px-4 bg-white">
         <div className=" flex items-center gap-1">
           <div className=" 800px:hidden">
             <GiHamburgerMenu size={35} onClick={() => setNavOpen(true)} />
@@ -202,7 +209,7 @@ const DashboardHeader = ({ navOpen, setNavOpen }) => {
             </Link>
             <Link to={`/shop/${seller?._id}`}>
               <img
-                src={seller?.avatar || "placeholder.jpg"}
+                src={seller?.avatar?.url || "placeholder.jpg"}
                 alt="Seller Avatar"
                 className="w-[40px] h-[40px] rounded-full object-cover border-[3px] border-[#33a466]"
               />

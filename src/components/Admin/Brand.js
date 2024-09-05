@@ -8,14 +8,16 @@ import Loader from '../../pages/Loader';
 const Brand = () => {
 
   const { success, error } = useSelector((state) => state?.brand);
+  const { allCategory } = useSelector((state) => state?.category);
 
   const [brandName, setBrandName] = useState('');
   const [brandLogo, setBrandLogo] = useState();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDisabled, setIsDisabled] = useState(true);
+  const [mainCategory, setMainCategory] = useState("")
   const dispatch = useDispatch();
 
-  
+
   const handleChange = useCallback((e) => {
     const inputValue = e.target.value;
     setBrandName(inputValue.charAt(0).toUpperCase() + inputValue.slice(1));
@@ -25,7 +27,7 @@ const Brand = () => {
     const file = e.target.files[0];
     setBrandLogo(file);
   };
-  
+
   useEffect(() => {
     if (brandName && brandLogo) {
       setIsDisabled(false);
@@ -33,6 +35,10 @@ const Brand = () => {
       setIsDisabled(true);
     }
   }, [brandName, brandLogo]);
+  const handleCategoryChange = useCallback((e) => {
+    setMainCategory(e.target.value);
+  }, [setMainCategory]);
+
 
   const handleSubmit = useCallback((e) => {
     e.preventDefault();
@@ -58,14 +64,14 @@ const Brand = () => {
       setIsSubmitting(false);
       toast.error(error);
       setTimeout(() => {
-          window.location.reload();
+        window.location.reload();
       }, 1000);
     }
     if (success) {
       setIsSubmitting(false);
       toast.success("Category created successfully!");
       setTimeout(() => {
-          window.location.reload()
+        window.location.reload()
       }, 1000)
     }
   }, [dispatch, error, success,]);
@@ -85,7 +91,7 @@ const Brand = () => {
           <form>
             <div className="mb-4">
               <label className="block text-gray-700 font-bold mb-2" htmlFor="brandName">
-                Brand Name
+                Brand Name *
               </label>
               <input
                 type="text"
@@ -95,6 +101,22 @@ const Brand = () => {
                 value={brandName}
                 onChange={handleChange}
               />
+            </div>
+            <div className="flex mb-4 flex-col">
+              <label className="block text-lg font-medium text-gray-700" htmlFor="main_category_select"> Category *</label>
+              <select
+                id="main_category_select"
+                className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                value={mainCategory}
+                onChange={handleCategoryChange}
+              >
+                <option value="" disabled>Select a category</option>
+                {allCategory?.map(category => (
+                  <option key={category?.id} value={category?.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="mb-4">

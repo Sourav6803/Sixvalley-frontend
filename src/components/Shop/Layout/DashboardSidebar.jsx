@@ -69,6 +69,15 @@ const Menus = [
     ]
   },
   {
+    title: "Brands",
+    icon: <MdOutlineStarBorder />,
+    subMenu: true,
+    submenuItems: [
+      { title: "Add New", link: "/dashboard/brand" },
+      // { title: "List", link: "/admin/dashboard/all-brand" },
+    ]
+  },
+  {
     title: "Products",
     icon: <IoDiamondOutline />,
     subMenu: true,
@@ -183,7 +192,7 @@ const DashboardSideBar = ({ active }) => {
   return (
 
 
-    <section className={`bg-[#2a2589]  max-sm:hidden 1000px:block max-h-screen p-5 pt-8 sticky top-0 left-0 ${open ? "w-72" : "w-20"} duration-300 overflow-y-scroll overflow-x-hidden`}>
+    <section  className={`bg-[#2a2589]  max-sm:hidden 1000px:block max-h-screen p-5 pt-8 sticky top-0 left-0 ${open ? "w-72" : "w-20"} duration-300 overflow-y-scroll overflow-x-hidden`}>
       <BsArrowLeftShort className={`bg-white text-[#16162e] text-2xl rounded-full  absolute -right-3 top-5 border border-[#461b85] cursor-pointer ${!open && "rotate-180"}`} onClick={collapsed} />
 
       <div className={`flex items-center rounded-md bg-[#657082] mt-6 px-4 py-2  ${!open ? "px-2.5" : "px-4"}`}>

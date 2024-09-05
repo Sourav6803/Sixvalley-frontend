@@ -312,7 +312,7 @@ const App = ({ data }) => {
           <Route path='/shop/:id' element={<SellerProtectedRoute  ><ShopHomePage /></SellerProtectedRoute>} />
           <Route path='/dashboard' element={<SellerProtectedRoute  ><ShopDashboardPage /></SellerProtectedRoute>} />
           <Route path='/dashboard/product-view/:id' element={<SellerProtectedRoute  ><ShopProductView /></SellerProtectedRoute>} />
-
+          <Route path='/dashboard/brand' element={<SellerProtectedRoute ><BrandPage /></SellerProtectedRoute>} />
 
           <Route path='/dashboard-create-product' element={<SellerProtectedRoute ><ShopCreateProduct /></SellerProtectedRoute>} />
           <Route path='/dashboard-products' element={<SellerProtectedRoute ><ShopAllProducts /></SellerProtectedRoute>} />

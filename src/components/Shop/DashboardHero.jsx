@@ -238,10 +238,12 @@ const DashboardHero = () => {
             <h3 className="text-[17px] text-slate-600 pb-3">Monitor your business analytics and statistics.</h3>
           </div>
 
-          <div className="border text-white rounded-xl bg-[#2A52BE] min-w-fit p-3 flex items-center  justify-center">
-            <IoDiamondSharp size={20} className="mr-2" />
-            <p>Products</p>
-          </div>
+          <Link to={"/dashboard-products"}>
+            <div className="border text-white rounded-md bg-[#2A52BE] min-w-fit px-3 py-1 flex items-center  justify-center">
+              <IoDiamondSharp size={20} className="mr-2" />
+              <p>Products</p>
+            </div>
+          </Link>
         </div>
 
         {/* Business Analatics */}
