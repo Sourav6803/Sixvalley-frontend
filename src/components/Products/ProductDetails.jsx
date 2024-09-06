@@ -26,6 +26,7 @@ import '@smastrom/react-rating/style.css'
 import insurence from "../../Assests/insurance.png"
 
 
+
 const ProductDetails = ({ data }) => {
     const { wishlist } = useSelector(state => state?.wishlist)
     const { products } = useSelector(state => state?.products)
@@ -131,7 +132,7 @@ const ProductDetails = ({ data }) => {
         dispatch(addToWishlist(data));
     };
 
-    const addToCartHandler = (id) => {
+    const addToCartHandler = async (id) => {
         // Check if a variant is selected
         if (currentVariant) {
             // Create the cart item with the selected variant details
@@ -151,6 +152,12 @@ const ProductDetails = ({ data }) => {
                 } else {
                     dispatch(addTocart(cartData));
                     toast.success("Item added to cart successfully!");
+                    user?._id && data._id &&
+                        await axios.post(`${server}/activity/logActivity`, {
+                            userId: user?._id,
+                            type: 'add_to_cart',
+                            productId: data._id, // Make sure `data` holds the current product details
+                        });
                 }
             }
         } else {
@@ -165,6 +172,12 @@ const ProductDetails = ({ data }) => {
                     const cartData = { ...data, qty: count };
                     dispatch(addTocart(cartData));
                     toast.success("Item added to cart successfully!");
+                    user?._id && data?._id &&
+                        await axios.post(`${server}/activity/logActivity`, {
+                            userId: user._id,
+                            type: 'add_to_cart',
+                            productId: data._id, // Make sure `data` holds the current product details
+                        });
                 }
             }
         }
@@ -211,6 +224,26 @@ const ProductDetails = ({ data }) => {
 
     const date = new Date(new Date().getTime() + (10 * 24 * 60 * 60 * 1000))
 
+
+    useEffect(() => {
+        const logProductView = async () => {
+            if (data?._id && user?._id) {  // Check if product and user data exist
+                try {
+                    await axios.post(`${server}/activity/logActivity`, {
+                        userId: user?._id,
+                        type: 'view',
+                        productId: data?._id
+                    });
+                } catch (error) {
+                    console.error('Error logging product view:', error.message);
+                }
+            }
+        };
+
+        logProductView();
+    }, [data?._id, user?._id]);
+
+
     return (
         <div className='bg-white '>
 
@@ -230,24 +263,24 @@ const ProductDetails = ({ data }) => {
                                                         <Carousel showArrows={true} autoPlay infiniteLoop>
                                                             {
                                                                 currentVariant?.images?.length ? (
-                                                                currentVariant.images.map((img, index) => 
-                                                                <div key={index} className="relative h-[55vh] md:h-[80vh] w-full ">
-                                                                    <img
-                                                                        src={img.url}
-                                                                        alt={data?.title}
-                                                                        className="  h-full w-full object-cover"
-                                                                    />
-                                                                </div>)
-                                                            ) : (
-                                                                data.images.map((img, index) => 
-                                                                <div key={index} className="relative h-[55vh]  w-full">
-                                                                    <img
-                                                                        src={img.url}
-                                                                        alt={data?.title}
-                                                                        className=" object-cover h-full w-full"
-                                                                    />
-                                                                </div>)
-                                                            )}
+                                                                    currentVariant.images.map((img, index) =>
+                                                                        <div key={index} className="relative h-[55vh] md:h-[80vh] w-full ">
+                                                                            <img
+                                                                                src={img.url}
+                                                                                alt={data?.title}
+                                                                                className="  h-full w-full object-cover"
+                                                                            />
+                                                                        </div>)
+                                                                ) : (
+                                                                    data.images.map((img, index) =>
+                                                                        <div key={index} className="relative h-[55vh]  w-full">
+                                                                            <img
+                                                                                src={img.url}
+                                                                                alt={data?.title}
+                                                                                className=" object-cover h-full w-full"
+                                                                            />
+                                                                        </div>)
+                                                                )}
                                                         </Carousel>
 
 

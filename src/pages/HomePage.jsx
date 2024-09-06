@@ -23,15 +23,49 @@ import CookieConsent from 'react-cookie-consent';
 import axios from 'axios';
 import { server } from '../server';
 import Cookie from '../components/Cookie';
+import MensFashion from '../components/Route/MensFashion';
+import DealsForYou from '../components/Route/DealsForYou';
+import KitchenDining from '../components/Route/Kitchen&Dining';
+import RecentView from '../components/Route/RecentView';
+import WomensFashion from '../components/Route/WomensFashion';
 
 
 const HomePage = () => {
   const [data, setData] = useState([])
-  const { allProducts, isLoading } = useSelector((state) => state?.products)
+  const { allProducts } = useSelector((state) => state?.products)
+  const {user} = useSelector((state) => state?.user)
   const categoryData = "Canvas"
+  
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [recommendations, setRecommendations] = useState([]);
+
+  // useEffect(() => {
+  //   const fetchRecommendations = async () => {
+  //     setIsLoading(true); // Set loading state to true when starting the fetch
+  //     setError(null); // Reset error state before fetching
+
+  //     try {
+  //       const response = await axios.get(`${server}/activity/${user?._id}/view`);
+  //       const { data } = response; // Destructure response to get data
+        
+  //       setRecommendations(data);
+  //     } catch (err) {
+  //       console.error("Failed to fetch recommendations:", err);
+  //       setError('Failed to load recommendations.'); // Set error state if there's an issue
+  //     } finally {
+  //       setIsLoading(false); // Set loading state to false once fetching is done
+  //     }
+  //   };
+
+  //   if (user?._id) { // Ensure user ID is present before fetching
+  //     fetchRecommendations();
+  //   }
+  // }, [user?._id]);
 
 
-
+  
 
   useEffect(() => {
     if (categoryData === null) {
@@ -50,20 +84,24 @@ const HomePage = () => {
     <div>
       
       <Header activeHeading={1} />
-      {/* <TopBanner /> */}
+  
       <Hero />
       <Categories />
-      {/* <Cookie /> */}
-
+     
+      <RecentView />
       <BestDeals />
+      <WomensFashion />
       <SingleBanner />
 
       <Slider />
       <Events />
+      <KitchenDining />
+      <MensFashion />
       <FeaturedProduct />
       <MidSection />
       <TopDeals />
       <Trending />
+      <DealsForYou />
       <CartProduct />
       <NewArrival />
       <Slider data={data} />

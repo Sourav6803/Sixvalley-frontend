@@ -9,13 +9,14 @@ import { CgProfile } from "react-icons/cg"
 import DropDown from "./DropDown.jsx";
 import Navbar from '../Layout/Navbar.jsx'
 import { useSelector } from 'react-redux';
-import { backend_url } from '../../server';
+import { backend_url, server } from '../../server';
 import Cart from '../Cart/Cart';
 import Wishlist from '../Wishlist/Wishlist';
 import { RxCross1 } from 'react-icons/rx';
 import mainLogo from "../main_logo3.jpg"
 import Logo from "./Jamalpur BAZAR-logos__white.png"
 import { IoIosHeart } from "react-icons/io";
+import axios from 'axios';
 
 
 
@@ -46,6 +47,8 @@ const Header = ({ activeHeading }) => {
         setSearchData(filterProducts)
     }
 
+    
+
     window.addEventListener("scroll", () => {
         if (window.scrollY > 70) {
             setActive(true)
@@ -53,6 +56,25 @@ const Header = ({ activeHeading }) => {
             setActive(false)
         }
     })
+
+    const handleSearch = async (productId, searchName) => {
+       
+        
+        try {
+          await axios.post(`${server}/activity/logActivity`, {
+            userId: user?._id,
+            type: 'search',
+            searchTerm: searchName,
+            productId: productId
+          });
+        } catch (error) {
+          console.error('Error logging search activity:', error);
+        }
+    
+        // Perform the search logic (like API call to get products based on searchTerm)
+      };
+
+
     return (
         <>
             <div className={`${styles.section}  `}>
@@ -74,8 +96,8 @@ const Header = ({ activeHeading }) => {
                                     {searchData && searchData.map((i, index) => {
 
                                         return (
-                                            <Link to={`/product/${i?._id}`} key={index} >
-                                                <div key={index} className='w-full flex items-start py-3' >
+                                            <Link to={`/product/${i?._id}`}  key={index} >
+                                                <div key={index} className='w-full flex items-start py-3' onClick={()=>handleSearch(i?._id,i?.name)} >
                                                     <img src={`${i.images[0]}`} alt='img' className='w-[40px] h-[40px] mr-[10px]' />
                                                     <h1>{i?.name}</h1>
                                                 </div>

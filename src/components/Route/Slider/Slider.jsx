@@ -95,6 +95,8 @@ import Countdown from 'react-countdown';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import styles from '../../../styles/styles';
+import axios from 'axios';
+import { server } from '../../../server';
 
 const responsive = {
     desktop: {
@@ -112,8 +114,27 @@ const responsive = {
 };
 
 const Slider = () => {
+    const { user } = useSelector(state => state.user);
     const { allProducts } = useSelector(state => state.products);
     const timerURL = 'https://static-assets-web.flixcart.com/www/linchpin/fk-cp-zion/img/timer_a73398.svg';
+
+    const handleActivity = async (productId) => {
+       
+        
+        try {
+          await axios.post(`${server}/activity/logActivity`, {
+            userId: user?._id,
+            type: 'click',
+            productId: productId
+            
+          });
+        } catch (error) {
+          console.error('Error logging search activity:', error);
+        }
+    
+        // Perform the search logic (like API call to get products based on searchTerm)
+      };
+
 
     const renderer = ({ hours, minutes, seconds }) => {
         return (
@@ -154,7 +175,7 @@ const Slider = () => {
                     >
                         {allProducts.map((product, key) => (
                             <div className='text-center  rounded-md  px-2' key={key}>
-                                <Link to={`/product/${product?._id}`} className='block shadow-md rounded-md'>
+                                <Link to={`/product/${product?._id}`} onClick={()=>handleActivity(product?._id)}  className='block shadow-md rounded-md'>
                                     <img src={product?.images[0]?.url} alt={product.name} className='w-full h-[150px] object-contain' />
                                 </Link>
                                 <p className='font-semibold text-[14px] mt-2 '>{product?.name.slice(0, 17)}...</p>

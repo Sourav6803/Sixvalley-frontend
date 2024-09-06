@@ -23,7 +23,7 @@ const ProductsPage = () => {
     const [data, setData] = useState([])
     const [loader, setLoader] = useState(false)
     const [filterSubcategory, setFilterSubCategory] = useState([])
-    const [filterProduct, setFilterProduct] = useState([])
+   
     const { allSubSubCategory } = useSelector(state => state.subSubCategory)
 
     const navigate = useNavigate()
@@ -31,14 +31,14 @@ const ProductsPage = () => {
     const handleSubmit = (i) => {
         navigate(`/products?subCategory=${i}`)
     }
-    console.log("categoryData: ", categoryData)
+    
 
     useEffect(() => {
-        const filterData = allSubSubCategory && allSubSubCategory?.filter(cat => cat.subCategory.trim() === categoryData.trim())
+        const filterData = allSubSubCategory && allSubSubCategory?.filter(cat => cat?.subCategory?.trim() === categoryData?.trim())
         setFilterSubCategory(filterData)
     }, [allSubSubCategory, categoryData])
 
-    console.log("filterSubcategory :", filterSubcategory)
+ 
 
 
     const bannerData = [
@@ -80,6 +80,8 @@ const ProductsPage = () => {
     return (
         <div>
             <Header activeHeading={3} />
+
+            {isLoading && <div className='flex justify-center items-center h-screen'><Loader /></div>}
             <div className={` !m-0 !p-0 !w-full `}>
 
 
@@ -115,7 +117,7 @@ const ProductsPage = () => {
                     ) : null
                 }
             </div>
-            {isLoading && <div className='flex justify-center'><Loader /></div>}
+            
             <Footer />
         </div>
     )
