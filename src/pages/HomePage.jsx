@@ -94,6 +94,7 @@ const HomePage = () => {
       <BestDeals />
       <WomensFashion />
       <SingleBanner />
+      
 
       <Slider />
       <Events />

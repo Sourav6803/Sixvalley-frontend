@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { categoriesData } from "../../static/data"
 import { AiOutlineHeart, AiOutlineSearch, AiOutlineShoppingCart } from 'react-icons/ai';
 import { IoIosArrowForward, IoIosArrowDown, IoMdNotificationsOutline } from "react-icons/io";
-import { BiMenuAltLeft } from 'react-icons/bi';
+import { BiMenuAltLeft, BiMicrophone, BiSearch } from 'react-icons/bi';
 import { CgProfile } from "react-icons/cg"
 import DropDown from "./DropDown.jsx";
 import Navbar from '../Layout/Navbar.jsx'
@@ -47,7 +47,7 @@ const Header = ({ activeHeading }) => {
         setSearchData(filterProducts)
     }
 
-    
+
 
     window.addEventListener("scroll", () => {
         if (window.scrollY > 70) {
@@ -58,21 +58,21 @@ const Header = ({ activeHeading }) => {
     })
 
     const handleSearch = async (productId, searchName) => {
-       
-        
+
+
         try {
-          await axios.post(`${server}/activity/logActivity`, {
-            userId: user?._id,
-            type: 'search',
-            searchTerm: searchName,
-            productId: productId
-          });
+            await axios.post(`${server}/activity/logActivity`, {
+                userId: user?._id,
+                type: 'search',
+                searchTerm: searchName,
+                productId: productId
+            });
         } catch (error) {
-          console.error('Error logging search activity:', error);
+            console.error('Error logging search activity:', error);
         }
-    
+
         // Perform the search logic (like API call to get products based on searchTerm)
-      };
+    };
 
 
     return (
@@ -96,10 +96,10 @@ const Header = ({ activeHeading }) => {
                                     {searchData && searchData.map((i, index) => {
 
                                         return (
-                                            <Link to={`/product/${i?._id}`}  key={index} >
-                                                <div key={index} className='w-full flex items-start py-3' onClick={()=>handleSearch(i?._id,i?.name)} >
-                                                    <img src={`${i.images[0]}`} alt='img' className='w-[40px] h-[40px] mr-[10px]' />
-                                                    <h1>{i?.name}</h1>
+                                            <Link to={`/product/${i?._id}`} key={index} >
+                                                <div key={index} className='w-full flex items-start py-3' onClick={() => handleSearch(i?._id, i?.name)} >
+                                                    <img src={`${i.images[0].url}`} alt='img' className='w-[40px] h-[40px] mr-[10px]' />
+                                                    <h1>{i?.name.length > 20 ? i?.name.slice(0, 20) : i?.name}</h1>
                                                 </div>
 
                                             </Link>
@@ -160,7 +160,7 @@ const Header = ({ activeHeading }) => {
                         <div className={`${styles.noramlFlex}`}>
                             <div className='relative cursor-pointer mr-[15px]' onClick={() => setOpenCart(true)}>
                                 <AiOutlineShoppingCart size={30} color='rgb(255 255 255 / 83%' />
-                                {isAuthenticated && cart?.length >=1 && <span className='absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 top right p-0 m-0 text-white font-mono text-[12px] leading-tight text-center'>{cart && cart?.length}</span>}
+                                {isAuthenticated && cart?.length >= 1 && <span className='absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 top right p-0 m-0 text-white font-mono text-[12px] leading-tight text-center'>{cart && cart?.length}</span>}
                             </div>
                         </div>
 
@@ -217,6 +217,7 @@ const Header = ({ activeHeading }) => {
                     </div>
 
                     <div className=' flex items-center justify-center gap-2' >
+
                         <div>
                             <div className='relative ' onClick={() => setOpenWishlist(true)}>
                                 <IoIosHeart size={30} className='text-white ' color='red' />
@@ -237,6 +238,11 @@ const Header = ({ activeHeading }) => {
                         </div>
                     </div>
 
+
+
+
+
+
                     {/* cart popup */}
                     {openCart ? <Cart setOpenCart={setOpenCart} /> : null}
 
@@ -244,9 +250,11 @@ const Header = ({ activeHeading }) => {
 
                     {openWishlist ? <Wishlist setOpenWishlist={setOpenWishlist} /> : null}
 
-                    
+
 
                 </div>
+
+
 
                 {/* header sidebar */}
                 {
@@ -285,7 +293,7 @@ const Header = ({ activeHeading }) => {
                                                         <Link to={`/product/${i?._id}`} >
                                                             <div key={index} className='w-full flex items-start py-3'>
                                                                 <img src={i?.images[0]?.url} alt='img' className='w-[50px]  mr-2' />
-                                                                <h5>{i?.name}</h5>
+                                                                <h5>{i?.name.length > 15 ? i?.name.slice(0, 15) + "..." : i?.name}</h5>
                                                             </div>
 
                                                         </Link>
@@ -332,13 +340,58 @@ const Header = ({ activeHeading }) => {
                     )
                 }
 
-                
+
+            </div>
+
+
+            <div className="max-w-md mx-auto rounded-lg overflow-hidden md:max-w-xl shadow-lg md:hidden">
+                <div className="md:flex">
+                    <div className="w-full p-1">
+                        <div className="relative flex items-center justify-between bg-white rounded-lg shadow-sm border-2">
+                            {/* Search Icon */}
+                            <span className="absolute left-3 text-gray-500">
+                                <BiSearch />
+                            </span>
+
+                            {/* Input field */}
+                            <input
+                                type="text"
+                                className="bg-white h-8 w-full pl-10 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 hover:cursor-pointer"
+                                placeholder="Search here..."
+                                value={searchTearm}
+                                onChange={handleSearchChange}
+                            />
+
+                            {/* Microphone Icon */}
+                            <span className="absolute right-3 text-gray-500">
+                                <BiMicrophone />
+                            </span>
+                        </div>
+
+                        {/* Search Results */}
+                        {
+                            searchTearm && searchData?.length > 0 ? (
+                                <div className="absolute bg-slate-100 shadow max-h-60 w-full z-10 left-0 p-3 overflow-y-auto">
+                                    {searchData.map((i, index) => (
+                                        <Link to={`/product/${i?._id}`} key={index}>
+                                            <div className="w-full flex items-start py-3 ">
+                                                <img src={i?.images[0]?.url} alt="img" className="w-[40px] h-[40px] mr-2" />
+                                                <h5>{i?.name.length > 40 ? i?.name.slice(0, 40) + "..." : i?.name}</h5>
+                                            </div>
+                                        </Link>
+                                    ))}
+                                </div>
+                            ) : null
+                        }
+                    </div>
+                </div>
             </div>
 
 
 
-            
-           
+
+
+
 
         </>
     )
