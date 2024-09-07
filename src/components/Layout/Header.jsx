@@ -74,6 +74,39 @@ const Header = ({ activeHeading }) => {
         // Perform the search logic (like API call to get products based on searchTerm)
     };
 
+    const [isListening, setIsListening] = useState(false);
+
+    // Speech Recognition Setup
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+
+    // Start listening for voice input
+    const startListening = () => {
+        setIsListening(true);
+        recognition.start();
+    };
+
+    // Stop listening and handle the result
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        handleSearchChange({ target: { value: transcript } }); // Set the voice input as the search term
+        setIsListening(false);
+    };
+
+    // Handle errors
+    recognition.onerror = (event) => {
+        console.error("Speech recognition error:", event.error);
+        setIsListening(false);
+    };
+
+    // Stop listening on end
+    recognition.onend = () => {
+        setIsListening(false);
+    };
 
     return (
         <>
@@ -329,7 +362,7 @@ const Header = ({ activeHeading }) => {
                                             <>
                                                 <div className='flex items-center justify-center border border-blue-500 rounded-xl p-3 '>
                                                     <Link to="/login" className='text-[18px] pr-[10px] text-[#000000b7] '>Login /</Link>
-                                                    <Link to="/sign-up" className='text-[18px]  text-[#000000b7] '>Sign Up</Link>
+
                                                 </div>
                                             </>
                                         )
@@ -344,48 +377,74 @@ const Header = ({ activeHeading }) => {
             </div>
 
 
-            <div className="max-w-md mx-auto rounded-lg overflow-hidden md:max-w-xl shadow-lg md:hidden">
-                <div className="md:flex">
-                    <div className="w-full p-1">
-                        <div className="relative flex items-center justify-between bg-white rounded-lg shadow-sm border-2">
-                            {/* Search Icon */}
-                            <span className="absolute left-3 text-gray-500">
-                                <BiSearch />
-                            </span>
 
-                            {/* Input field */}
-                            <input
-                                type="text"
-                                className="bg-white h-8 w-full pl-10 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 hover:cursor-pointer"
-                                placeholder="Search here..."
-                                value={searchTearm}
-                                onChange={handleSearchChange}
-                            />
+            <div className="w-full fixed top-[60px] left-0 bg-white z-40 shadow-md px-4 py-2">
+                <div className="relative flex items-center justify-between bg-white rounded-lg shadow-sm border-2">
+                    {/* Search Icon */}
+                    <span className="absolute left-3 text-gray-500">
+                        <BiSearch />
+                    </span>
 
-                            {/* Microphone Icon */}
-                            <span className="absolute right-3 text-gray-500">
-                                <BiMicrophone />
-                            </span>
-                        </div>
+                    {/* Input field */}
+                    <input
+                        type="text"
+                        className="bg-white h-10 w-full pl-10 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 hover:cursor-pointer"
+                        placeholder="Search here..."
+                        value={searchTearm}
+                        onChange={handleSearchChange}
+                    />
 
-                        {/* Search Results */}
-                        {
-                            searchTearm && searchData?.length > 0 ? (
-                                <div className="absolute bg-slate-100 shadow max-h-60 w-full z-10 left-0 p-3 overflow-y-auto">
-                                    {searchData.map((i, index) => (
-                                        <Link to={`/product/${i?._id}`} key={index}>
-                                            <div className="w-full flex items-start py-3 ">
-                                                <img src={i?.images[0]?.url} alt="img" className="w-[40px] h-[40px] mr-2" />
-                                                <h5>{i?.name.length > 40 ? i?.name.slice(0, 40) + "..." : i?.name}</h5>
-                                            </div>
-                                        </Link>
-                                    ))}
-                                </div>
-                            ) : null
-                        }
-                    </div>
+                    {/* Microphone Icon */}
+                    <span className={`absolute right-3 text-gray-500 ${isListening ? 'animate-pulse' : ''}`} onClick={startListening}>
+                        <BiMicrophone />
+                    </span>
+
+
                 </div>
+
+                {/* Listening Animation */}
+                {isListening && (
+                    <div className="flex items-center justify-center mt-2 ">
+                        <div className="flex items-center space-x-1">
+                            <span className="text-blue-600">Listening</span>
+                            <span className="dot-animate"></span>
+                            <span className="dot-animate"></span>
+                            <span className="dot-animate"></span>
+                        </div>
+                    </div>
+                )}
+
+                {/* Search Results */}
+                {searchTearm && searchData?.length > 0 && (
+                    <div className="absolute bg-slate-100 shadow max-h-60 w-full z-50 left-0 top-[100%] p-3 overflow-y-auto">
+                        {searchData.map((i, index) => (
+                            <Link to={`/product/${i?._id}`} key={index}>
+                                <div className="w-full flex items-start py-3">
+                                    <img src={i?.images[0]?.url} alt="img" className="w-[40px] h-[40px] mr-2" />
+                                    <h5>{i?.name.length > 40 ? i?.name.slice(0, 40) + "..." : i?.name}</h5>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                )}
             </div>
+
+            {/* CSS for dot animation */}
+            <style jsx>{`
+  .dot-animate {
+    width: 6px;
+    height: 6px;
+    background-color: blue;
+    border-radius: 50%;
+    animation: dot-blink 1s infinite;
+  }
+
+  @keyframes dot-blink {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+  }
+`}</style>
+
 
 
 
@@ -394,7 +453,14 @@ const Header = ({ activeHeading }) => {
 
 
         </>
+
     )
+
 }
 
+
+
 export default Header
+
+
+
