@@ -56,6 +56,11 @@ import GroceryPage from './pages/GroceryPage.jsx';
 import ElectronicsPage from './pages/ElectronicsPage.jsx';
 import FurniturePage from './pages/FurniturePage.jsx';
 import CraftsPaintings from './pages/CraftsPaintings.jsx';
+import UserAllOrder from './pages/UserAllOrder.jsx';
+import Usercard from './components/Profile/Usercard.jsx';
+import UserCardPage from './pages/UserCardPage.jsx';
+import UserAddressPage from './pages/UserAddressPage.jsx';
+import ContactUsPage from './pages/ContactUsPage.jsx';
 
 
 
@@ -303,6 +308,10 @@ const App = ({ data }) => {
           <Route path='/checkout' element={<ProtectedRoute ><CheckoutPage /></ProtectedRoute>} />
           <Route path="/order/success" element={<OrderSuccessPage />} />
           <Route path="/inbox" element={<ProtectedRoute ><UserInbox /></ProtectedRoute>} />
+          <Route path="/user/order" element={<ProtectedRoute ><UserAllOrder /></ProtectedRoute>} />
+          <Route path="/user/card" element={<ProtectedRoute ><UserCardPage /></ProtectedRoute>} />
+          <Route path="/user/address" element={<ProtectedRoute ><UserAddressPage /></ProtectedRoute>} />
+          <Route path="/contact-us" element={<ContactUsPage />} />
           <Route path='/user/order/:id' element={<ProtectedRoute ><OrderDetailsPage /></ProtectedRoute>} />
           <Route path='/user/track/order/:id' element={<ProtectedRoute ><TrackOrderPage /></ProtectedRoute>} />
 

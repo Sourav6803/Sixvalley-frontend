@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { server } from '../../server';
 import { useDispatch, useSelector } from 'react-redux';
 import { AiOutlineArrowRight, AiOutlineCamera, AiOutlineDelete } from 'react-icons/ai';
-import {  MdTrackChanges } from 'react-icons/md'
+import { MdTrackChanges } from 'react-icons/md'
 import styles from '../../styles/styles';
 import { Link } from 'react-router-dom'
 import { DataGrid } from "@material-ui/data-grid";
@@ -35,7 +35,7 @@ const ProfileContent = ({ active }) => {
       toast.success(successMessage);
       dispatch({ type: "clearMessages" });
     }
-  }, [error, successMessage, user]);
+  }, [error, successMessage, user, dispatch]);
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -104,6 +104,7 @@ const ProfileContent = ({ active }) => {
                     onChange={(e) => setName(e.target.value)}
                   />
                 </div>
+
                 <div className=" w-[100%] 800px:w-[50%]">
                   <label className="block pb-2">Email Address</label>
                   <input
@@ -139,8 +140,9 @@ const ProfileContent = ({ active }) => {
                   />
                 </div>
               </div>
+
               <input
-                className={`w-[250px] h-[40px] border border-[#3a24db] text-center text-[#3a24db] rounded-[3px] mt-8 cursor-pointer`}
+                className={`w-[250px]  h-[40px] border border-[#3a24db] text-center text-[#3a24db] rounded-[3px] mt-8 cursor-pointer`}
                 required
                 value="Update"
                 type="submit"
@@ -205,16 +207,17 @@ const ProfileContent = ({ active }) => {
   )
 }
 
-const AllOrders = () => {
+export const AllOrders = () => {
 
   const { orders } = useSelector(state => state.order)
   const { user } = useSelector(state => state.user)
 
   const dispatch = useDispatch()
   useEffect(() => {
-    dispatch(getAllOrdersOfUser(user._id))
-  }, [])
+    dispatch(getAllOrdersOfUser(user?._id))
+  }, [dispatch, user?._id])
 
+ 
 
   const columns = [
     { field: "id", headerName: "Order ID", minWidth: 150, flex: 0.7 },
@@ -453,7 +456,7 @@ const TrackOrder = () => {
 }
 
 
-const ChangePassword = () => {
+export const ChangePassword = () => {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -529,7 +532,8 @@ const ChangePassword = () => {
     </div>
   );
 };
-const Address = () => {
+
+export const Address = () => {
   const [open, setOpen] = useState(false);
   const [country, setCountry] = useState("");
   const [city, setCity] = useState("");
@@ -584,10 +588,10 @@ const Address = () => {
   };
 
   return (
-    <div className="w-full 800px:flex block pb-3">
+    <div className="w-full h-full  800px:flex block pb-3 ">
       {open && (
         <div className="fixed w-full h-screen bg-[#0000004b] top-0 left-0 flex items-center justify-center ">
-          <div className="w-[85%] h-[80vh] bg-white rounded shadow relative overflow-y-scroll">
+          <div className="w-full h-full bg-white rounded shadow relative overflow-y-scroll">
             <div className="w-full flex justify-end p-3">
               <RxCross1
                 size={30}
@@ -723,27 +727,33 @@ const Address = () => {
           </div>
         </div>
       )}
-      <div className="flex w-full items-center justify-between">
-        <h1 className="text-[25px] font-[600] text-[#000000ba] pb-2 ml-1">
-          My Addresses
-        </h1>
-        <div
-          className={`${styles.button} !rounded-md`}
-          onClick={() => setOpen(true)}
-        >
-          <span className="text-[#fff]">Add New</span>
+      <div className="flex w-full items-center justify-between ml-3">
+
+
+        <div class="flex items-center border-b pb-2 mb-4">
+
+          <button onClick={() => setOpen(true)} className="text-blue-600 font-medium hover:underline">+ Add a new address</button>
         </div>
+
+
       </div>
-      <br />
+
+      <div class="mb-2 ml-3 text-sm text-gray-500">
+        {user?.addresses?.length} Saved Addresses
+      </div>
+
+
       {user &&
         user.addresses.map((item, index) => (
           <div
-            className="w-full bg-white h-min 800px:h-[70px] rounded-[4px] flex items-center px-3 shadow justify-between pr-10 mb-5"
+            className="w-full h-min 800px:h-[70px] rounded-[4px] flex items-center shadow p-2 justify-between  mb-5"
             key={index}
           >
+            {/*             
             <div className="flex items-center">
-              <h5 className="pl-5 font-[600]">{item.addressType}</h5>
+              <h5 className="pl-5  bg-slate-400 text-[12px]">{item.addressType}</h5>
             </div>
+
             <div className="pl-8 flex items-center">
               <h6 className="text-[12px] 800px:text-[unset]">
                 {item.address1} {item.address2}
@@ -760,7 +770,31 @@ const Address = () => {
                 className="cursor-pointer"
                 onClick={() => handleDelete(item)}
               />
+            </div> */}
+
+            <div className="bg-white w-full p-4 shadow-md rounded-md">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="font-bold text-lg">{user?.name} <span className="bg-gray-200 text-xs px-2 py-1 rounded ml-2">{item?.addressType}</span></h2>
+                  <p className="text-sm text-gray-600">
+                     {item?.address1}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {item?.address2}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {item?.zipCode}
+                  </p>
+                  <p className="text-sm mt-2">{item?.phoneNumber}</p>
+                </div>
+                <button className="text-gray-500 hover:text-gray-700">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
             </div>
+
           </div>
         ))}
 

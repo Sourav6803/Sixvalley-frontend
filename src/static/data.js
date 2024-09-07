@@ -2,17 +2,19 @@
 
 import { FiInbox, FiUsers } from "react-icons/fi";
 
-import { BiSolidOffer } from "react-icons/bi";
+import { BiCard, BiMapPin, BiSolidOffer, BiUser } from "react-icons/bi";
 // import mainLogo from "../../main_logo3.jpg";
 
 import { IoIosNotificationsOutline } from "react-icons/io";
+import { GiShoppingBag } from "react-icons/gi";
+import { IoIosContact } from "react-icons/io";
 
 
 import {
   MdOutlineDashboard, MdOutlineEventNote, MdOutlineStarBorder, MdOutlineStackedBarChart
 } from "react-icons/md";
 import { IoCartOutline, IoHomeOutline, IoDiamondOutline } from "react-icons/io5";
-import { FaUsers, FaMicrophone, FaUserAstronaut } from "react-icons/fa";
+import { FaUsers, FaMicrophone, FaUserAstronaut, FaCcMastercard } from "react-icons/fa";
 import { CiWallet, CiBank, CiDeliveryTruck } from "react-icons/ci";
 import { FiBarChart } from "react-icons/fi";
 import { LuBarChart3 } from "react-icons/lu";
@@ -20,8 +22,9 @@ import { LuBarChart3 } from "react-icons/lu";
 import { BsHousesFill } from "react-icons/bs";
 import { SlOrganization, SlNotebook } from "react-icons/sl";
 import { TiMessages } from "react-icons/ti";
-import { RiCustomerService2Fill } from "react-icons/ri";
-import { AiOutlineQrcode } from "react-icons/ai";
+import { RiCustomerService2Fill, RiCustomerServiceFill } from "react-icons/ri";
+import { AiOutlineOrderedList, AiOutlineQrcode } from "react-icons/ai";
+import { FaQuestionCircle } from "react-icons/fa";
 
 export const navItems = [
   {
@@ -1295,3 +1298,49 @@ export const colorNames = [
   "navajowhite",
   "navy"
 ];
+
+export const ProfileMenu = [
+  {
+    title: "Home",
+    icon: <MdOutlineDashboard />,
+    link: "/"
+  },
+  {
+    title: "Profile",
+    icon: <BiUser/>,
+    link: "/profile",
+    active: 1
+  },
+  {
+    title: "Order",
+    icon: <GiShoppingBag />,
+    link: "/user/order",
+    active: 2
+  },
+  {
+    title: "Saved Card",
+    icon: <FaCcMastercard/>,
+    link: "/user/card",
+  },
+  {
+    title: "Saved Addresses",
+    icon: <BiMapPin/>,
+    link: "/user/address"
+  },
+  {
+    title: "FAQs",
+    icon: <FaQuestionCircle />,
+    link: "/faq"
+  },
+  
+  {
+    title: "Contact Us",
+    icon: <IoIosContact />,
+    link: "/contact-us"
+  },
+  {
+    title: "Help & Support",
+    icon: <RiCustomerServiceFill />,
+    link: "/"
+  },
+]
