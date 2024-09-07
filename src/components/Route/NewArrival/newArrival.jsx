@@ -28,7 +28,7 @@ const NewArrival = () => {
     const allProductsData = allProducts ? [...allProducts] : [];
     const sortedData = allProductsData?.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt) );
 
-    const firstFive = sortedData && sortedData?.slice(0, 5);
+    const firstFive = sortedData && sortedData?.slice(0, 6);
     setData(firstFive);
   }, [allProducts]);
 
@@ -41,7 +41,7 @@ const NewArrival = () => {
         <div className={`${styles.heading}`}>
           <h1>New Arrivals</h1>
         </div>
-        <div className="grid grid-cols-1 gap-[5px] md:grid-cols-2 md:gap-[25px] lg:grid-cols-4 lg:gap-[25px] xl:grid-cols-5 xl:gap-[30px] mb-12 border-0">
+        <div className="grid grid-cols-2 gap-[5px] md:grid-cols-2 md:gap-[25px] lg:grid-cols-4 lg:gap-[25px] xl:grid-cols-5 xl:gap-[30px] mb-1 border-0">
           {
             data && data.length !== 0 && (
               <>

@@ -11,13 +11,16 @@ const DealsOfTheDay = () => {
 
 
     useEffect(() => {
-        const firstFour = allProducts && allProducts?.slice(3, 7)
+        const firstFour = allProducts && allProducts?.slice(3, 6)
         setData(firstFour)
     }, [allProducts])
 
 
     return (
         <div className={`mt-1  p-2 bg-white`} >
+            {
+                isLoading && <div className="flex justify-center"><Loader /></div>
+            }
             <div className={`${styles.section} `}>
                 <div className="flex items-center justify-between py-3">
                     <h1 className='font-semibold text-[18px]'>Deals of the Day</h1>
@@ -28,9 +31,7 @@ const DealsOfTheDay = () => {
                         data && data?.map((i, index) => <NewProductCard data={i} key={index} />)
                     }
                 </div>
-                {
-                    isLoading && <div className="flex justify-center"><Loader /></div>
-                }
+
             </div>
         </div>
     )

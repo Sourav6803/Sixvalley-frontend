@@ -83,6 +83,7 @@ const NewProductCard = ({ data, isEvent }) => {
 
     return (
         <div className="flex items-center justify-between max-w-md h-[140px] bg-white rounded-lg shadow-lg dark:bg-gray-800">
+
             <div className="w-1/3 bg-cover flex items-center justify-center">
                 <Link to={`${isEvent ? `/product/${data._id}?isEvent=true` : `/product/${data._id}`}`}>
                     <img src={`${data.images && data.images[0]?.url}`} alt={data.name} className="w-full h-[100px] border-2 object-cover rounded-md" />

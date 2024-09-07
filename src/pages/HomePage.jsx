@@ -28,6 +28,7 @@ import DealsForYou from '../components/Route/DealsForYou';
 import KitchenDining from '../components/Route/Kitchen&Dining';
 import RecentView from '../components/Route/RecentView';
 import WomensFashion from '../components/Route/WomensFashion';
+import HarDinUtsav from '../components/Route/HarDinUtsav';
 
 
 const HomePage = () => {
@@ -87,6 +88,7 @@ const HomePage = () => {
   
       <Hero />
       <Categories />
+      <HarDinUtsav />
      
       <RecentView />
       <BestDeals />
@@ -106,6 +108,7 @@ const HomePage = () => {
       <NewArrival />
       <Slider data={data} />
       <Sponsored />
+     
       <Callegraphic />
       <Blog />
       <Footer />

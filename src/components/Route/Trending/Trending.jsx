@@ -49,7 +49,7 @@ const Trending = () => {
       <hr />
       {
         allProducts && <Carousel responsive={responsive}
-          swipeable={false}
+          swipeable={true}
           draggable={false}
           centerMode={true}
           infinite={true}
@@ -66,7 +66,7 @@ const Trending = () => {
             allProducts && data?.map((product, key) => (
               <div className='text-center ' style={{ textAlign: "center", padding: "25px 15px" }} key={key}>
 
-                <Link to={`/product/${product?._id}`}><img key={key} src={product?.images[0]} alt='' style={{ width: "auto", height: "100px" }} /></Link>
+                <Link to={`/product/${product?._id}`}><img key={key} src={product?.images[0].url} alt='' style={{ width: "auto", height: "100px" }} /></Link>
                 <p className='font-semibold text-[14px]'>{product?.name.slice(0, 17)}...</p>
                 <p className='text-green-800 text-[12px]'>You will get {product.discountPercentage}% Off</p>
                 <p className='text-slate-600 text-[12px]'>{product?.tags}</p>
