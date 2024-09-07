@@ -378,7 +378,7 @@ const Header = ({ activeHeading }) => {
 
 
 
-            <div className="w-full fixed top-[60px] left-0 bg-white z-40 shadow-md px-4 py-2">
+            <div className="w-full  top-[60px] left-0 bg-white z-40 shadow-md px-2 py-2">
                 <div className="relative flex items-center justify-between bg-white rounded-lg shadow-sm border-2">
                     {/* Search Icon */}
                     <span className="absolute left-3 text-gray-500">
@@ -388,7 +388,7 @@ const Header = ({ activeHeading }) => {
                     {/* Input field */}
                     <input
                         type="text"
-                        className="bg-white h-10 w-full pl-10 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 hover:cursor-pointer"
+                        className="bg-white h-8 w-full pl-10 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 hover:cursor-pointer"
                         placeholder="Search here..."
                         value={searchTearm}
                         onChange={handleSearchChange}
@@ -399,20 +399,20 @@ const Header = ({ activeHeading }) => {
                         <BiMicrophone />
                     </span>
 
-
+                    
                 </div>
 
                 {/* Listening Animation */}
                 {isListening && (
-                    <div className="flex items-center justify-center mt-2 ">
-                        <div className="flex items-center space-x-1">
-                            <span className="text-blue-600">Listening</span>
-                            <span className="dot-animate"></span>
-                            <span className="dot-animate"></span>
-                            <span className="dot-animate"></span>
+                        <div className="flex items-center justify-center mt-2 ">
+                            <div className="flex items-center space-x-1">
+                                <span className="text-blue-600">Listening</span>
+                                <span className="dot-animate"></span>
+                                <span className="dot-animate"></span>
+                                <span className="dot-animate"></span>
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
 
                 {/* Search Results */}
                 {searchTearm && searchData?.length > 0 && (
