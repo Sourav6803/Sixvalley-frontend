@@ -17,6 +17,7 @@ import mainLogo from "../main_logo3.jpg"
 import Logo from "./Jamalpur BAZAR-logos__white.png"
 import { IoIosHeart } from "react-icons/io";
 import axios from 'axios';
+import { FaFacebook, FaInstagram, FaTwitter } from 'react-icons/fa';
 
 
 
@@ -110,37 +111,53 @@ const Header = ({ activeHeading }) => {
 
     return (
         <>
-            <div className={`${styles.section}  `}>
+            <div className={`${styles.section} `}>
                 <div className='hidden 800px:h-[50px] 800px:my-[20px] 800px:flex items-center justify-between '>
-                    <div>
+                    <div className='bg-blue-600'>
                         <Link to="/">
-                            <img src={mainLogo} alt='dd' />
+                            <img
+                                src={Logo}
+                                alt='dd'
+                                className=" items-start cursor-pointer "
+                                height={35}
+                                width={50} />
                         </Link>
                     </div>
 
                     {/* search box */}
                     <div className='w-[50%] relative'>
-                        <input className='h-[40px] w-full px-2 border-[#3957db] border-[2px] rounded-md' type='text' placeholder='Search product..' value={searchTearm} onChange={handleSearchChange} />
-                        <AiOutlineSearch size={30} className='absolute right-2 top-1.5 cursor-pointer' />
+                        <AiOutlineSearch size={30} className='absolute left-2 top-1.5 cursor-pointer' />
+                        <input className='h-[40px] w-full px-10 border-[#3957db] border-[2px] rounded-md' type='text' placeholder='Search product..' value={searchTearm} onChange={handleSearchChange} />
+                        <span className={`absolute right-3 top-1.5 cursor-pointer text-gray-500 ${isListening ? 'animate-pulse' : ''}`} onClick={startListening}>
+                            <BiMicrophone size={25} />
+                        </span>
 
-                        {
-                            searchData && searchData.length !== 0 ? (
-                                <div className='absolute min-h-[30vh] bg-slate-50 shadow-sm-2 z-[9] p-4'>
-                                    {searchData && searchData.map((i, index) => {
-
-                                        return (
-                                            <Link to={`/product/${i?._id}`} key={index} >
-                                                <div key={index} className='w-full flex items-start py-3' onClick={() => handleSearch(i?._id, i?.name)} >
-                                                    <img src={`${i.images[0].url}`} alt='img' className='w-[40px] h-[40px] mr-[10px]' />
-                                                    <h1>{i?.name.length > 20 ? i?.name.slice(0, 20) : i?.name}</h1>
-                                                </div>
-
-                                            </Link>
-                                        )
-                                    })}
+                        {/* Listening Animation */}
+                        {isListening && (
+                            <div className="flex items-center justify-center mt-2">
+                                <div className="flex items-center space-x-1">
+                                    <span className="text-blue-600">Listening</span>
+                                    <span className="dot-animate"></span>
+                                    <span className="dot-animate"></span>
+                                    <span className="dot-animate"></span>
                                 </div>
-                            ) : null
-                        }
+                            </div>
+                        )}
+
+
+                        {/* Search Results */}
+                        {searchTearm && searchData?.length > 0 && (
+                            <div className="absolute bg-slate-100 shadow max-h-60 w-full z-10 left-0 p-3 overflow-y-auto">
+                                {searchData.map((i, index) => (
+                                    <Link to={`/product/${i?._id}`} key={index}>
+                                        <div className="w-full flex items-start py-3 " onClick={() => handleSearch(i?._id, i?.name)}>
+                                            <img src={i?.images[0]?.url} alt="img" className="w-[40px] h-[40px] mr-2" />
+                                            <h5>{i?.name.length > 40 ? i?.name.slice(0, 40) + "..." : i?.name}</h5>
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     <div className={`${styles.button}`}>
@@ -232,7 +249,7 @@ const Header = ({ activeHeading }) => {
 
             {/* Mobile header */}
 
-            <div className={` ${active === true ? "shadow-sm fixed top-0 left-0 z-10" : null} w-full h-[60px] bg-blue-400  z-50 top-0 left-0 shadow-sm 800px:hidden`}  >
+            <div className={` ${active === true ? "shadow-sm fixed top-0 left-0 z-10" : null} w-full h-[60px] bg-blue-600  z-50 top-0 left-0 shadow-sm 800px:hidden`}  >
                 <div className='w-full flex items-center justify-between ' >
                     <div className="mt-2  flex items-center  justify-center" >
                         <BiMenuAltLeft size={40} className="ml-2 text-white " onClick={() => setOpen(true)} />
@@ -294,68 +311,75 @@ const Header = ({ activeHeading }) => {
                     open && (
                         <div className={` fixed w-full bg-[#0000005f] z-20 h-full top-0  `} >
                             <div className='fixed w-[60%] bg-[#fff] h-screen top-0 left-0 z-10 overflow-y-scroll '>
-                                <div className='w-full justify-between flex pr-3 '>
-                                    <div>
-                                        <div className='relative mr-[15px] ' onClick={() => setOpenWishlist(true)}>
-                                            <IoIosHeart size={25} className='mt-5 ml-3 ' color='red' />
-                                            {isAuthenticated && wishlist?.length > 0 && <span className='absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 top right p-0 m-0 text-white font-mono text-[12px] leading-tight text-center'>{wishlist && wishlist?.length}</span>}
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        {
+                                <div className='w-full justify-between flex pr-3 bg-blue-500 mb-2'>
+            
+                                    <div >
+                                        {/* {
                                             user && <p className='mt-5 text-[16px]'>Welcome, {user?.name}</p>
-                                        }
+                                        } */}
+
+                                        <Link to="/">
+                                            <img
+                                                src={Logo}
+                                                alt=""
+                                                className=" items-start cursor-pointer "
+                                                height={35}
+                                                width={50}
+
+                                            />
+
+                                        </Link>
                                     </div>
 
-                                    <RxCross1 size={25} className='mt-5 ml-4 border-2 rounded-md border-blue-500 hover:border-red-500 cursor-pointer' onClick={() => setOpen(false)} />
-                                </div>
-
-                                <div className='my-8 w-[92%] m-auto h-[40px] relative' >
-                                    <input placeholder='Search Product'
-                                        className='h-[40px] w-full px-2 border-[#3957db] border-[2px] rounded-md '
-                                        value={searchTearm}
-                                        onChange={handleSearchChange}
-                                    />
-
-                                    {
-                                        searchData && searchData?.length !== 0 ? (
-                                            <div className='absolute  bg-slate-50 shadow w-full z-10 left-0 p-3'>
-                                                {searchData && searchData?.map((i, index) => {
-                                                    return (
-                                                        <Link to={`/product/${i?._id}`} >
-                                                            <div key={index} className='w-full flex items-start py-3'>
-                                                                <img src={i?.images[0]?.url} alt='img' className='w-[50px]  mr-2' />
-                                                                <h5>{i?.name.length > 15 ? i?.name.slice(0, 15) + "..." : i?.name}</h5>
-                                                            </div>
-
-                                                        </Link>
-                                                    )
-                                                })}
-                                            </div>
-                                        ) : null
-                                    }
+                                    <RxCross1 size={30} className='mt-3 text-white ml-4 border-2 rounded-md border-white hover:border-red-500 cursor-pointer' onClick={() => setOpen(false)} />
                                 </div>
 
                                 <Navbar active={activeHeading} />
 
-                                <div className={`${styles.button} ml-4 !rounded-[4px]`}>
-                                    <Link to={`${isSeller ? "/dashboard" : '/shop-login'}`}>
-                                        <h1 className='text-[#fff] flex items-center'>
-                                            {isSeller ? "Dashboard" : "Become Seller"}  <IoIosArrowForward className='ml-1' />
-                                        </h1>
-                                    </Link>
+                                
+
+
+
+                                {/* <div className='mt-5 ml-4'>
+                                    <h2 className='text-xl font-semibold mb-2'>Categories</h2>
+                                    <ul>
+                                        <li><Link to="/category/electronics">Electronics</Link></li>
+                                        <li><Link to="/category/fashion">Fashion</Link></li>
+                                        <li><Link to="/category/home">Home</Link></li>
+                                        <li><Link to="/category/sports">Sports</Link></li>
+                                        <li><Link to="/category/beauty">Beauty</Link></li>
+                                    </ul>
+                                </div> */}
+
+                                <div className='mt-5 ml-4 mb-2'>
+                                    <h2 className='text-xl font-semibold mb-2'>Contact Us</h2>
+                                    <ul>
+                                        <li><Link to="/contact">Contact Page</Link></li>
+                                        <li><a href="mailto:support@example.com">Email Support</a></li>
+                                    </ul>
                                 </div>
-                                <br />
-                                <br />
 
+                                <div className='mt-5 ml-4'>
+                                    <h2 className='text-xl font-semibold mb-2'>Follow Us</h2>
+                                    <div className='flex gap-4'>
+                                        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+                                            <FaFacebook size={30} />
+                                        </a>
+                                        <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+                                            <FaTwitter size={30} />
+                                        </a>
+                                        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+                                            <FaInstagram size={30} />
+                                        </a>
+                                    </div>
+                                </div>
 
-                                <div className='flex w-full justify-center'>
+                                <div className='flex w-full items-center ml-4 mt-3'>
                                     {
                                         isAuthenticated ? (
                                             <div>
                                                 <Link to="/profile">
-                                                    <img src={`${user?.avatar?.url}`} alt='' className='w-[110px] h-[110px] rounded-full border-[3px] border-[#33a466] ' />
+                                                    <img src={`${user?.avatar?.url}`} alt='' className='w-[80px] h-[80px] rounded-full border-[3px] border-[#33a466] ' />
                                                 </Link>
                                             </div>
                                         ) : (
@@ -368,6 +392,14 @@ const Header = ({ activeHeading }) => {
                                         )
                                     }
                                 </div>
+
+                                <div className={`${styles.button} ml-4 !rounded-[4px]`}>
+                                    <Link to={`${isSeller ? "/dashboard" : '/shop-login'}`}>
+                                        <h1 className='text-[#fff] flex items-center'>
+                                            {isSeller ? "Dashboard" : "Become Seller"}  <IoIosArrowForward className='ml-1' />
+                                        </h1>
+                                    </Link>
+                                </div>
                             </div>
                         </div>
                     )
@@ -377,80 +409,77 @@ const Header = ({ activeHeading }) => {
             </div>
 
 
+            <div className={`max-w-md mx-auto rounded-lg overflow-hidden md:max-w-xl shadow-lg md:hidden`}>
+                <div className="md:flex">
+                    <div className="w-full p-1">
+                        <div className="relative flex items-center justify-between bg-white rounded-lg shadow-sm border-2">
+                            {/* Search Icon */}
+                            <span className="absolute left-3 text-gray-500">
+                                <BiSearch />
+                            </span>
 
-            <div className="w-full  top-[60px] left-0 bg-white z-40 shadow-md px-2 py-2">
-                <div className="relative flex items-center justify-between bg-white rounded-lg shadow-sm border-2">
-                    {/* Search Icon */}
-                    <span className="absolute left-3 text-gray-500">
-                        <BiSearch />
-                    </span>
+                            {/* Input field */}
+                            <input
+                                type="text"
+                                className="bg-white h-8 w-full pl-10 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 hover:cursor-pointer"
+                                placeholder="Search here..."
+                                value={searchTearm}
+                                onChange={handleSearchChange}
+                            />
 
-                    {/* Input field */}
-                    <input
-                        type="text"
-                        className="bg-white h-8 w-full pl-10 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 hover:cursor-pointer"
-                        placeholder="Search here..."
-                        value={searchTearm}
-                        onChange={handleSearchChange}
-                    />
-
-                    {/* Microphone Icon */}
-                    <span className={`absolute right-3 text-gray-500 ${isListening ? 'animate-pulse' : ''}`} onClick={startListening}>
-                        <BiMicrophone />
-                    </span>
-
-                    
-                </div>
-
-                {/* Listening Animation */}
-                {isListening && (
-                        <div className="flex items-center justify-center mt-2 ">
-                            <div className="flex items-center space-x-1">
-                                <span className="text-blue-600">Listening</span>
-                                <span className="dot-animate"></span>
-                                <span className="dot-animate"></span>
-                                <span className="dot-animate"></span>
-                            </div>
+                            {/* Microphone Icon with animation */}
+                            <span className={`absolute right-3 text-gray-500 ${isListening ? 'animate-pulse' : ''}`} onClick={startListening}>
+                                <BiMicrophone />
+                            </span>
                         </div>
-                    )}
 
-                {/* Search Results */}
-                {searchTearm && searchData?.length > 0 && (
-                    <div className="absolute bg-slate-100 shadow max-h-60 w-full z-50 left-0 top-[100%] p-3 overflow-y-auto">
-                        {searchData.map((i, index) => (
-                            <Link to={`/product/${i?._id}`} key={index}>
-                                <div className="w-full flex items-start py-3">
-                                    <img src={i?.images[0]?.url} alt="img" className="w-[40px] h-[40px] mr-2" />
-                                    <h5>{i?.name.length > 40 ? i?.name.slice(0, 40) + "..." : i?.name}</h5>
+                        {/* Listening Animation */}
+                        {isListening && (
+                            <div className="flex items-center justify-center mt-2">
+                                <div className="flex items-center space-x-1">
+                                    <span className="text-blue-600">Listening</span>
+                                    <span className="dot-animate"></span>
+                                    <span className="dot-animate"></span>
+                                    <span className="dot-animate"></span>
                                 </div>
-                            </Link>
-                        ))}
+                            </div>
+                        )}
+
+                        {/* Search Results */}
+                        {searchTearm && searchData?.length > 0 && (
+                            <div className="absolute bg-slate-100 shadow max-h-60 w-full z-10 left-0 p-3 overflow-y-auto">
+                                {searchData.map((i, index) => (
+                                    <Link to={`/product/${i?._id}`} key={index}>
+                                        <div className="w-full flex items-start py-3 " onClick={() => handleSearch(i?._id, i?.name)}>
+                                            <img src={i?.images[0]?.url} alt="img" className="w-[40px] h-[40px] mr-2" />
+                                            <h5>{i?.name.length > 40 ? i?.name.slice(0, 40) + "..." : i?.name}</h5>
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
+                        )}
+
                     </div>
-                )}
+                </div>
             </div>
 
             {/* CSS for dot animation */}
-            <style jsx>{`
-  .dot-animate {
-    width: 6px;
-    height: 6px;
-    background-color: blue;
-    border-radius: 50%;
-    animation: dot-blink 1s infinite;
-  }
+            <style jsx>
+                {`
+                .dot-animate {
+                    width: 6px;
+                    height: 6px;
+                    background-color: blue;
+                    border-radius: 50%;
+                    animation: dot-blink 1s infinite;
+                }
 
-  @keyframes dot-blink {
-    0%, 100% { opacity: 0; }
-    50% { opacity: 1; }
-  }
-`}</style>
-
-
-
-
-
-
-
+                @keyframes dot-blink {
+                    0%, 100% { opacity: 0; }
+                    50% { opacity: 1; }
+                }
+                `}
+            </style>
 
         </>
 
