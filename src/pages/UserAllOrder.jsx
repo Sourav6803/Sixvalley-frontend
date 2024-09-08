@@ -11,7 +11,7 @@ const UserAllOrder = () => {
     return (
         <div>
             <Header />
-            <div className={` flex bg-[#f5f5f5] pt-3 `}>
+            <div className={` flex  pt-3 `}>
 
                 <AllOrder  />
                 {/* <AllOrders /> */}

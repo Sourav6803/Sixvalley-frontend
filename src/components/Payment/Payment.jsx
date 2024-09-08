@@ -51,12 +51,18 @@ const Payment = () => {
       });
   };
 
+  console.log("orderData :", orderData)
+
   const order = {
     cart: orderData?.cart,
     shippingAddress: orderData?.shippingAddress,
     user: user && user,
-    totalPrice: orderData?.totalPrice,
-    couponCode: orderData?.couponCode
+    totalPrice: orderData?.totalCartPrice,
+    couponCode: orderData?.couponCode,
+    couponAmount: orderData?.couponAmount,
+    platformFee: 5,
+    taxAmount: 10,
+    deliveryCharge: orderData?.deliverCharge
   };
 
   const onApprove = async (data, actions) => {
@@ -499,7 +505,7 @@ const CartData = ({ orderData }) => {
 
       <div className="flex justify-between items-center my-4">
         <p className="text-gray-900 font-medium">Total Amount</p>
-        <p className="text-gray-900 font-medium">₹{orderData.totalPrice }</p>
+        <p className="text-gray-900 font-medium">₹{orderData?.totalCartPrice }</p>
       </div>
 
       <div className="flex justify-between items-center mb-4">

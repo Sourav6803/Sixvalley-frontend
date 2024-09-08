@@ -8,7 +8,7 @@ const ProfilePage = () => {
   return (
     <div>
         <Header />
-        <div className={`w-full flex bg-[#f5f5f5] py-2 `}>
+        <div className={`w-full h-full flex bg-[#f5f5f5] py-2 `}>
             <ProfileContent active={active} />
         </div>
     </div>

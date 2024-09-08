@@ -15,6 +15,27 @@ const AllOrder = () => {
     dispatch(getAllOrdersOfUser(user?._id))
   }, [dispatch, user?._id])
 
+  function formatMongoDate(date) {
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    
+    // Adding the appropriate suffix to the day
+    const daySuffix = (day) => {
+      if (day > 3 && day < 21) return 'th'; // For 11th, 12th, 13th, etc.
+      switch (day % 10) {
+        case 1: return 'st';
+        case 2: return 'nd';
+        case 3: return 'rd';
+        default: return 'th';
+      }
+    };
+  
+    return `${day}${daySuffix(day)} ${month}, ${year}`;
+  }
+
 
   return (
     <div className="p-2 w-full">
@@ -57,20 +78,21 @@ const AllOrder = () => {
             className="bg-white p-4 shadow-md rounded-md flex items-start space-x-4"
             onClick={()=>navigate(`/user/order/${order?._id}`)}
           >
+          {console.log("order:", order)}
          
             {
               order?.cart.map((item) => (
                 <div key={item?._id} className='flex items-center justify-between gap-3'>
-               
+               {/* {console.log("item:", item)} */}
                   <img
                     src={item?.images[0]?.url}
-                    alt={"jj"}
+                    alt={""}
                     className="w-20 h-20 object-cover rounded-md"
                   />
                   
                   <div className="flex-1">
-                    <p className="text-sm text-gray-500">{order?.status}</p>
-                    <p className="font-semibold text-gray-700">{item?.name ? item.name : item?.data.name}</p>
+                    <p className={`text-sm text-gray-500 ${order?.status === "Delivered" && "bg-green-100 text-slate-700 w-fit px-2 rounded md "}`}>{order?.status} { order?.status === "Delivered" && formatMongoDate(new Date(order?.deliveredAt))}</p>
+                    <p className="font-normal pt-2 text-gray-600 text-sm">{item?.name?.length > 80 ? item?.name?.slice(0,80)+"..." : item?.data?.name}</p>
                     
                   </div>
 
@@ -80,6 +102,14 @@ const AllOrder = () => {
           </div>
         ))}
       </div>
+
+      {
+        orders?.length === 0 && (
+          <div>
+            You have no orders
+          </div>
+        )
+      }
 
     </div>
   )

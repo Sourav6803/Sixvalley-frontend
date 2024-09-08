@@ -14,17 +14,29 @@ import axios from 'axios';
 import { Country, State } from "country-state-city";
 import { RxCross1 } from "react-icons/rx"
 import { getAllOrdersOfUser } from '../../redux/actions/order';
+import Loader from '../../pages/Loader';
 
 
 const ProfileContent = ({ active }) => {
   const { user, error, successMessage } = useSelector((state) => state.user);
-  const [name, setName] = useState(user && user.name)
-  const [email, setEmail] = useState(user && user.email)
-  const [phoneNumber, setPhoneNumber] = useState(user && user.phoneNumber)
-  const [password, setPassword] = useState("")
+  const [name, setName] = useState(user && user?.name)
+  const [email, setEmail] = useState(user && user?.email)
+  const [phoneNumber, setPhoneNumber] = useState(user && user?.phoneNumber)
+
   const [avatar, setAvatar] = useState()
   const dispatch = useDispatch()
 
+  const [loading, setLoading] = useState(false); // To manage loading state
+  const [imageLoading, setImageLoading] = useState(false); // For image upload
+
+  // Synchronize form data when `user` state changes
+  useEffect(() => {
+    if (user) {
+      setName(user.name);
+      setEmail(user.email);
+      setPhoneNumber(user.phoneNumber);
+    }
+  }, [user]);
 
   useEffect(() => {
     if (error) {
@@ -38,31 +50,36 @@ const ProfileContent = ({ active }) => {
   }, [error, successMessage, user, dispatch]);
 
   const handleSubmit = (e) => {
-    e.preventDefault()
-    dispatch(updateUserInformation(name, email, phoneNumber, password))
-  }
+    e.preventDefault();
+    setLoading(true); // Start loading when profile data is being updated
+    dispatch(updateUserInformation(name, email, phoneNumber,)).finally(() => {
+      toast.success("Profile updated successfully")
+      setLoading(false); // Stop loading after the update completes
+    });
+  };
 
   const handleImage = async (e) => {
-    const file = e.target.file
-    setAvatar(file)
+    const file = e.target.files[0];
+    setAvatar(file);
+    const formData = new FormData();
+    formData.append("avatar", file);
 
-    const formData = new FormData()
-    formData.append("image", e.target.files[0])
-
+    setImageLoading(true); // Start loading for image upload
     await axios.put(`${server}/user/update-avatar`, formData, {
       headers: {
-        "Content-Type": "multipart/form-data"
+        "Content-Type": "multipart/form-data",
       },
-      withCredentials: true
+      withCredentials: true,
     }).then((response) => {
-      window.location.reload()
+      window.location.reload();
     }).catch((error) => {
-      toast.error(error)
-    })
-
-  }
+      toast.error(error);
+    }).finally(() => {
+      setImageLoading(false); // Stop loading after image upload completes
+    });
+  };
   return (
-    <div className='w-full'>
+    <div className='w-full '>
 
 
       {/* Profile section */}
@@ -70,24 +87,35 @@ const ProfileContent = ({ active }) => {
       {active === 1 && (
         <>
           <div className="flex justify-center w-full">
-            <div className="relative">
-              <img
-                src={`${user?.avatar?.url}`}
-                className="w-[150px] h-[150px] rounded-full object-cover border-[3px] border-[#3ad132]"
-                alt=""
-              />
-              <div className="w-[30px] h-[30px] bg-[#E3E9EE] rounded-full flex items-center justify-center cursor-pointer absolute bottom-[5px] right-[5px]">
-                <input
-                  type="file"
-                  id="image"
-                  className="hidden"
-                  onChange={handleImage}
-                />
-                <label htmlFor="image">
-                  <AiOutlineCamera />
-                </label>
-              </div>
-            </div>
+            {
+              imageLoading ? (
+                <div className="relative ">
+                  <Loader />
+                </div>
+              ) : (
+                <div className="relative">
+                  <img
+                    src={`${user?.avatar?.url}`}
+                    className="w-[150px] h-[150px] rounded-full object-cover border-[3px] border-[#3ad132]"
+                    alt=""
+                  />
+
+                  <div className="w-[30px] h-[30px] bg-[#E3E9EE] rounded-full flex items-center justify-center cursor-pointer absolute bottom-[5px] right-[5px]">
+                    <input
+                      type="file"
+                      id="image"
+                      className="hidden"
+                      onChange={handleImage}
+                    />
+                    <label htmlFor="image">
+                      <AiOutlineCamera />
+                    </label>
+                  </div>
+
+                </div>
+              )
+            }
+
           </div>
           <br />
           <br />
@@ -102,6 +130,7 @@ const ProfileContent = ({ active }) => {
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
+                    disabled={loading}
                   />
                 </div>
 
@@ -113,6 +142,7 @@ const ProfileContent = ({ active }) => {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    disabled={loading}
                   />
                 </div>
               </div>
@@ -126,27 +156,20 @@ const ProfileContent = ({ active }) => {
                     required
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
+                    disabled={loading}
                   />
                 </div>
 
-                <div className=" w-[100%] 800px:w-[50%]">
-                  <label className="block pb-2">Enter your password</label>
-                  <input
-                    type="password"
-                    className={`${styles.input} !w-[95%] mb-4 800px:mb-0`}
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </div>
+
               </div>
 
-              <input
-                className={`w-[250px]  h-[40px] border border-[#3a24db] text-center text-[#3a24db] rounded-[3px] mt-8 cursor-pointer`}
-                required
-                value="Update"
+              <button
+                className={`w-[250px] h-[40px] border border-[#3a24db] text-center text-[#3a24db] rounded-[3px] mt-8 cursor-pointer hover:bg-[#3a24db] hover:text-white`}
                 type="submit"
-              />
+                disabled={loading}
+              >
+                {loading ? "Updating..." : "Update"}
+              </button>
             </form>
           </div>
         </>
@@ -217,7 +240,7 @@ export const AllOrders = () => {
     dispatch(getAllOrdersOfUser(user?._id))
   }, [dispatch, user?._id])
 
- 
+
 
   const columns = [
     { field: "id", headerName: "Order ID", minWidth: 150, flex: 0.7 },
@@ -380,7 +403,7 @@ const TrackOrder = () => {
   const dispatch = useDispatch()
   useEffect(() => {
     dispatch(getAllOrdersOfUser(user._id))
-  }, [])
+  }, [dispatch, user?._id])
 
 
   const columns = [
@@ -777,7 +800,7 @@ export const Address = () => {
                 <div>
                   <h2 className="font-bold text-lg">{user?.name} <span className="bg-gray-200 text-xs px-2 py-1 rounded ml-2">{item?.addressType}</span></h2>
                   <p className="text-sm text-gray-600">
-                     {item?.address1}
+                    {item?.address1}
                   </p>
                   <p className="text-sm text-gray-600">
                     {item?.address2}

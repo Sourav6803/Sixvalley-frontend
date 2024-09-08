@@ -23,9 +23,9 @@ const Checkout = () => {
   const [couponCode, setCouponCode] = useState("");
   const [couponCodeData, setCouponCodeData] = useState(null);
   const [discountPrice, setDiscountPrice] = useState(null);
-  const [couponAmount, setCouponAmount] = useState()
+  const [couponAmount, setCouponAmount] = useState(0)
 
-
+// console.log("cart :", cart)
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -38,7 +38,12 @@ const Checkout = () => {
   );
 
   // this is shipping cost variable
-  const shipping = subTotalPrice >= 499 ? 0 : 40
+  const shipping = cart?.reduce(
+    (acc, item) => acc +   item?.shippingCost,
+    0
+  );
+
+  
 
   const totalOriginalPrice = cart?.reduce(
     (acc, item) => acc + item?.qty * item?.originalPrice,
@@ -55,15 +60,11 @@ const Checkout = () => {
     0
   );
 
-  let fixedDeliveryCharge = 40
 
-  if (totalPrice > 499) {
-    fixedDeliveryCharge = 0
-  }
+  const deliverCharge = shipping
 
-  const deliverCharge = totalPrice > 499 ? 0 : 40
-
-  const totalCartPrice = totalPrice + fixedDeliveryCharge
+  const totalCartPrice = totalPrice + shipping - couponAmount
+  console.log("totalCartPrice :", totalCartPrice)
 
   const paymentSubmit = () => {
     if (address1 === "" || address2 === "" || zipCode === null || country === "" || city === "") {
@@ -73,7 +74,7 @@ const Checkout = () => {
         address1, address2, zipCode, country, city
       };
 
-      const orderData = { cart, totalOriginalPrice, totalDiscountPrice, totalPrice, couponAmount, subTotalPrice, deliverCharge, shipping, discountPrice, shippingAddress, user, couponCode }
+      const orderData = { cart, totalOriginalPrice, totalDiscountPrice, totalPrice, couponAmount, subTotalPrice, deliverCharge, shipping, discountPrice, shippingAddress, user, couponCode, totalCartPrice }
 
       // update local storage with the updated orders array
       localStorage.setItem("latestOrder", JSON.stringify(orderData));
@@ -118,7 +119,7 @@ const Checkout = () => {
             totalOriginalPrice={totalOriginalPrice}
             totalDiscountPrice={totalDiscountPrice}
             totalCartPrice={totalCartPrice}
-            fixedDeliveryCharge={fixedDeliveryCharge}
+            fixedDeliveryCharge={shipping}
             user={user}
             setCouponAmount={setCouponAmount}
             setDiscountPrice={setDiscountPrice}
@@ -260,6 +261,7 @@ const CartData = ({
   const [allCoupons, setAllCoupons] = useState([]);
   const [loadingCouponCode, setLoadingCouponCode] = useState(null);
   const [appliedCouponCode, setAppliedCouponCode] = useState(null); // Track applied coupon
+  
 
   const [activeTab, setActiveTab] = useState(0);
 
@@ -442,129 +444,10 @@ const CartData = ({
         )}
 
 
-        {/* <div className="bg-white p-4 border rounded-md">
-          {allCoupons && allCoupons.map((coupon, index) => {
-            const eligibleItems = cart.filter(
-              item => coupon.couponCategory === "All" || item.category === coupon.couponCategory
-            );
-
-            const eligiblePrice = eligibleItems.reduce(
-              (acc, item) => acc + item.qty * item.afterDiscountPrice,
-              0
-            );
-
-            const isEligible = eligiblePrice >= coupon.minPurchase;
-            const isApplied = appliedCouponCode === coupon.couponCode; // Check if this coupon is applied
-
-            return (
-              <div key={index} className="mb-4">
-                <h3 className="text-sm font-semibold text-gray-500">Extra ₹{coupon?.discountAmount} Off on orders above ₹{coupon?.minPurchase}</h3>
-                <h3 className="text-sm font-semibold text-gray-600">
-                  Best price ₹{totalCartPrice - coupon?.discountAmount} with coupon{' '}
-                  <span className="font-bold">{coupon.couponCode}</span>.
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Expires on {formatDate(coupon?.expireDate)}
-                </p>
-                {coupon.couponType === 'First Order' && (
-                  <p className="text-sm text-green-700 italic">First time only</p>
-                )}
-
-                {coupon?.couponCategory !== "All" && (
-                  <p className="text-sm text-green-700 italic">This coupon only valid for {coupon?.couponCategory}</p>
-                )}
-
-                <div className="flex justify-between items-center mt-2">
-                  <div className="bg-green-100 border border-dashed border-gray-700 px-2 py-1 font-bold rounded-md">
-                    {coupon.couponCode}
-                  </div>
-
-                  <div
-                    className={`border px-2 py-0.5 rounded-md text-blue-600 cursor-pointer ${!isEligible || (loadingCouponCode && !isApplied) ? 'cursor-not-allowed opacity-50' : 'border-blue-600'}`}
-                    onClick={() => {
-                      if (isApplied) {
-                        removeCoupon();
-                      } else if (isEligible && !loadingCouponCode) {
-                        claimCoupon(coupon.couponCode);
-                      }
-                    }}
-
-                    disabled={!isEligible || (loadingCouponCode && !isApplied)}
-                  >
-                    {isApplied ? 'Remove' : (loadingCouponCode === coupon.couponCode ? 'Applying...' : 'Apply')}
-                  </div>
+        
 
 
-                </div>
-                <hr className="mx-auto mt-2" />
-              </div>
-            );
-          })}
-        </div> */}
-
-
-        <div className="bg-green-100 p-4 border rounded-md">
-          {allCoupons && allCoupons
-            .filter(coupon => {
-              const eligibleItems = cart.filter(
-                item => coupon.couponCategory === "All" || item.category === coupon.couponCategory
-              );
-
-              const eligiblePrice = eligibleItems.reduce(
-                (acc, item) => acc + item.qty * item.afterDiscountPrice,
-                0
-              );
-
-              return eligiblePrice >= coupon.minPurchase; // Filter out non-eligible coupons
-            })
-            .map((coupon, index) => {
-              const isApplied = appliedCouponCode === coupon.couponCode; // Check if this coupon is applied
-
-              return (
-                <div key={index} className="mb-4">
-                  <h3 className="text-sm font-semibold text-gray-500">
-                    Extra ₹{coupon?.discountAmount} Off on orders above ₹{coupon?.minPurchase}
-                  </h3>
-                  <h3 className="text-sm font-semibold text-gray-600">
-                    Best price ₹{totalCartPrice - coupon?.discountAmount} with coupon{' '}
-                    <span className="font-bold">{coupon.couponCode}</span>.
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    Expires on {formatDate(coupon?.expireDate)}
-                  </p>
-                  {coupon.couponType === 'First Order' && (
-                    <p className="text-sm text-green-700 italic">First time only</p>
-                  )}
-
-                  {coupon?.couponCategory !== "All" && (
-                    <p className="text-sm text-green-700 italic">This coupon only valid for {coupon?.couponCategory}</p>
-                  )}
-
-                  <div className="flex justify-between items-center mt-2">
-                    <div className="bg-green-100 border border-dashed border-gray-700 px-2 py-1 font-bold rounded-md">
-                      {coupon.couponCode}
-                    </div>
-
-                    <div
-                      className={`border px-2 py-0.5 rounded-md text-blue-600 cursor-pointer ${loadingCouponCode && !isApplied ? 'cursor-not-allowed opacity-50' : 'border-blue-600'}`}
-                      onClick={() => {
-                        if (isApplied) {
-                          removeCoupon();
-                        } else if (!loadingCouponCode) {
-                          claimCoupon(coupon.couponCode);
-                        }
-                      }}
-
-                      disabled={loadingCouponCode && !isApplied}
-                    >
-                      {isApplied ? 'Remove' : (loadingCouponCode === coupon.couponCode ? 'Applying...' : 'Apply')}
-                    </div>
-                  </div>
-                 
-                </div>
-              );
-            })}
-        </div>
+      
 
 
       </div>
@@ -629,3 +512,65 @@ export default Checkout;
 
 
 
+  {/* <div className="bg-green-100 p-4 border rounded-md">
+          {allCoupons && allCoupons
+            .filter(coupon => {
+              const eligibleItems = cart.filter(
+                item => coupon.couponCategory === "All" || item.category === coupon.couponCategory
+              );
+
+              const eligiblePrice = eligibleItems.reduce(
+                (acc, item) => acc + item.qty * item.afterDiscountPrice,
+                0
+              );
+
+              return eligiblePrice >= coupon.minPurchase; // Filter out non-eligible coupons
+            })
+            .map((coupon, index) => {
+              const isApplied = appliedCouponCode === coupon.couponCode; // Check if this coupon is applied
+
+              return (
+                <div key={index} className="mb-4">
+                  <h3 className="text-sm font-semibold text-gray-500">
+                    Extra ₹{coupon?.discountAmount} Off on orders above ₹{coupon?.minPurchase}
+                  </h3>
+                  <h3 className="text-sm font-semibold text-gray-600">
+                    Best price ₹{totalCartPrice - coupon?.discountAmount} with coupon{' '}
+                    <span className="font-bold">{coupon.couponCode}</span>.
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    Expires on {formatDate(coupon?.expireDate)}
+                  </p>
+                  {coupon.couponType === 'First Order' && (
+                    <p className="text-sm text-green-700 italic">First time only</p>
+                  )}
+
+                  {coupon?.couponCategory !== "All" && (
+                    <p className="text-sm text-green-700 italic">This coupon only valid for {coupon?.couponCategory}</p>
+                  )}
+
+                  <div className="flex justify-between items-center mt-2">
+                    <div className="bg-green-100 border border-dashed border-gray-700 px-2 py-1 font-bold rounded-md">
+                      {coupon.couponCode}
+                    </div>
+
+                    <div
+                      className={`border px-2 py-0.5 rounded-md text-blue-600 cursor-pointer ${loadingCouponCode && !isApplied ? 'cursor-not-allowed opacity-50' : 'border-blue-600'}`}
+                      onClick={() => {
+                        if (isApplied) {
+                          removeCoupon();
+                        } else if (!loadingCouponCode) {
+                          claimCoupon(coupon.couponCode);
+                        }
+                      }}
+
+                      disabled={loadingCouponCode && !isApplied}
+                    >
+                      {isApplied ? 'Remove' : (loadingCouponCode === coupon.couponCode ? 'Applying...' : 'Apply')}
+                    </div>
+                  </div>
+                 
+                </div>
+              );
+            })}
+        </div> */}

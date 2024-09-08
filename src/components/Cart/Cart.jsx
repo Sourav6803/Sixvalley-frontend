@@ -23,6 +23,11 @@ const Cart = ({ setOpenCart }) => {
         dispatch(removeFromCart(data));
     };
 
+    const shipping = cart?.reduce(
+        (acc, item) => acc +   item?.shippingCost,
+        0
+      );
+
     const totalOriginalPrice = cart?.reduce(
         (acc, item) => acc + item?.qty * item?.originalPrice,
         0
@@ -38,13 +43,10 @@ const Cart = ({ setOpenCart }) => {
         0
     );
 
-    let fixedDeliveryCharge = 40
+    let fixedDeliveryCharge = shipping
 
-    if (totalPrice > 499) {
-        fixedDeliveryCharge = 0
-    }
 
-    const totalCartPrice = totalPrice + fixedDeliveryCharge
+    const totalCartPrice = totalPrice + fixedDeliveryCharge 
 
     const quantityChangeHandler = (data) => {
         setLoading(true)
@@ -130,16 +132,16 @@ const Cart = ({ setOpenCart }) => {
                                         <p className="text-green-700 font-medium">-₹{totalDiscountPrice}</p>
                                     </div>
 
-                                    <div className="px-1  flex items-center justify-between">
+                                    {/* <div className="px-1  flex items-center justify-between">
                                         <p className="text-slate-600 font-medium">Coupons for you</p>
                                         <p className="text-slate-600 font-medium">-₹{20}</p>
-                                    </div>
+                                    </div> */}
 
                                     <div className="px-1  flex items-center justify-between">
                                         <p className="text-slate-600 font-medium whitespace-nowrap">Delivery charges</p>
                                         <h1 className="text-slate-600 font-medium flex items-center justify-center gap-1 ">
-                                            <span className="line-through" > ₹{cart?.length * 40}</span>
-                                            {fixedDeliveryCharge === 0 ? (<p className="text-green-700 text-sm whitespace-nowrap">Free delivery</p>) : 40}
+                                            {/* <span className="line-through" > ₹{cart?.length * 40}</span> */}
+                                            {fixedDeliveryCharge === 0 ? (<p className="text-green-700 text-sm whitespace-nowrap">Free delivery</p>) : "₹"+ fixedDeliveryCharge}
                                         </h1>
                                     </div>
 
@@ -210,6 +212,7 @@ const CartSingle = ({ data, quantityChangeHandler, removeFromCartHandler }) => {
         quantityChangeHandler(updateCartData);
     };
 
+    console.log(data)
 
 
     return (
@@ -221,7 +224,7 @@ const CartSingle = ({ data, quantityChangeHandler, removeFromCartHandler }) => {
                     className="w-[70px] h-min ml-2 mr-2 rounded-[5px]"
                 />
                 <div className="pl-[5px]">
-                    <h1>{data?.data?.name?.length >= 21 ? data?.data?.name?.slice(0, 20) + "... " : data?.data?.name} </h1>
+                    <h1>{data?.name?.length >= 21 ? data?.name?.slice(0, 20) + "... " : data?.name} </h1>
                     <h4 className="font-[400] text-[15px] text-[#00000082]">
                         ₹{data?.afterDiscountPrice} * {value}
                     </h4>

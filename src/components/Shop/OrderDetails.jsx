@@ -20,7 +20,7 @@ const OrderDetails = () => {
 
     useEffect(() => {
         dispatch(getAllOrdersOfShop(seller._id));
-    }, [dispatch]);
+    }, [dispatch, seller?._id]);
 
     const data = orders && orders.find((item) => item._id === id);
 
@@ -64,8 +64,8 @@ const OrderDetails = () => {
 
 
     return (
-        <div className={`py-4 min-h-screen ${styles.section}`}>
-            <div className="w-full flex items-center justify-between">
+        <div className={`p-2 min-h-screen  !w-full ${styles.section}`}>
+            <div className="w-full flex items-center justify-between ">
                 <div className="flex items-center">
                     <BsFillBagFill size={30} color="crimson" />
                     <h1 className="pl-2 text-[25px]">Order Details</h1>
@@ -139,7 +139,7 @@ const OrderDetails = () => {
             </div>
             <br />
             <br />
-            <h4 className="pt-3 text-[20px] font-[600]">Order Status:</h4>
+            <h4 className="pt-3 text-[20px] font-[600] ">Order Status:</h4>
             {data?.status !== "Processing refund" && data?.status !== "Refund Success" && (
                 <select
                     value={status}
@@ -149,18 +149,20 @@ const OrderDetails = () => {
                     {[
                         "Processing",
                         "Transferred to delivery partner",
-                        "Shipping",
+                        "Shipped",
                         "Received",
                         "On the way",
+                        "Out for delivery",
                         "Delivered",
                     ]
                         .slice(
                             [
                                 "Processing",
                                 "Transferred to delivery partner",
-                                "Shipping",
+                                "Shipped",
                                 "Received",
                                 "On the way",
+                                "Out for delivery",
                                 "Delivered",
                             ].indexOf(data?.status)
                         )

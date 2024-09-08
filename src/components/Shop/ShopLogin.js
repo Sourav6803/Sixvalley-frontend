@@ -24,7 +24,7 @@ const ShopLogin = () => {
         setLoading(true)
 
         await axios.post(`${server}/shop/login-shop`, {
-            email, password
+            shopEmail: email, password:password
         }, { withCredentials: true }).then(res => {
             toast.success("Login success")
             setLoading(false)
