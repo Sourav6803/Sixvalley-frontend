@@ -11,6 +11,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 const RecentView = () => {
     const { user } = useSelector((state) => state?.user)
+    const { allProducts } = useSelector((state) => state?.products)
 
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -53,6 +54,8 @@ const RecentView = () => {
             return acc;
         }, []);
 
+
+
     return (
         <div className="py-1">
             <div className="mb-2 p-2">
@@ -62,8 +65,41 @@ const RecentView = () => {
             {/* Horizontal scrollable section */}
             <div className="flex gap-1 overflow-x-auto whitespace-nowrap p-1">
                 {
-                    filterRecomendation.length && filterRecomendation.map((product) => (
-                        <div key={product?._id} className="rounded-lg flex flex-col items-center min-w-[150px] p-1" onClick={(e)=>navigate(`/product/${product?.product?._id}`)}>
+                    filterRecomendation.length > 0 ? filterRecomendation.map((product) => (
+                        <div key={product?._id} className="rounded-lg flex flex-col items-center min-w-[150px] p-1" onClick={(e) => navigate(`/product/${product?.product?._id}`)}>
+                            {/* Fixed image size */}
+                            <img
+                                src={product?.product?.images[0].url}
+                                alt={product?.product?.category}
+                                className="w-[150px] h-[150px] object-cover mb-2"
+                            />
+                            <h3 className="text-sm font-semibold">{product?.product?.category}</h3>
+                            <p className="text-gray-500">{product?.product?.subCategory}</p>
+                            <p className="text-gray-500">Starting ₹99</p>
+                        </div>
+                    )) :
+
+                        allProducts?.slice(10, 14).map((product) => (
+                            <div key={product?._id} className="rounded-lg flex flex-col items-center min-w-[150px] p-1" onClick={(e) => navigate(`/product/${product?.product?._id}`)}>
+                                {/* Fixed image size */}
+                                <img
+                                    src={product?.product?.images[0].url}
+                                    alt={product?.product?.category}
+                                    className="w-[150px] h-[150px] object-cover mb-2"
+                                />
+                                <h3 className="text-sm font-semibold">{product?.product?.category}</h3>
+                                <p className="text-gray-500">{product?.product?.subCategory}</p>
+                                <p className="text-gray-500">Starting ₹99</p>
+                            </div>
+                        ))
+
+                }
+            </div>
+
+            <div className="flex gap-1 overflow-x-auto whitespace-nowrap p-1">
+                {
+                    filterRecomendation.length === 0 && filterRecomendation.map((product) => (
+                        <div key={product?._id} className="rounded-lg flex flex-col items-center min-w-[150px] p-1" onClick={(e) => navigate(`/product/${product?.product?._id}`)}>
                             {/* Fixed image size */}
                             <img
                                 src={product?.product?.images[0].url}
@@ -77,6 +113,7 @@ const RecentView = () => {
                     ))
                 }
             </div>
+
         </div>
 
 

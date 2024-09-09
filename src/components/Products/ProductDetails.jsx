@@ -43,6 +43,8 @@ const ProductDetails = ({ data }) => {
     const [allCoupons, setAllCoupons] = useState([]);
     const [loadingCouponCode, setLoadingCouponCode] = useState(null);
 
+    console.log(currentVariant)
+
 
     const formatDate = (isoDate) => {
         const date = new Date(isoDate);
@@ -138,8 +140,10 @@ const ProductDetails = ({ data }) => {
             // Create the cart item with the selected variant details
             const cartData = {
                 ...currentVariant,
-                data, // Include current variant details
+                ...data, // Include current variant details
                 qty: count, // Include quantity
+                shippingCost: data?.shippingCost,
+                name: data?.name
             };
 
             // Check if the item already exists in the cart

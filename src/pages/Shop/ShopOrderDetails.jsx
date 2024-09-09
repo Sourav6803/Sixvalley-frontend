@@ -7,7 +7,7 @@ const ShopOrderDetails = () => {
     const [navOpen, setNavOpen] = useState(false);
     return (
         <div>
-            <DashboardHeader navOpen = {navOpen} setNavOpen= {setNavOpen}/>
+            <DashboardHeader navOpen={navOpen} setNavOpen={setNavOpen} />
             <OrderDetails />
             <Footer />
         </div>

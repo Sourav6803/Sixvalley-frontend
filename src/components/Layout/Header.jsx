@@ -9,16 +9,16 @@ import { CgProfile } from "react-icons/cg"
 import DropDown from "./DropDown.jsx";
 import Navbar from '../Layout/Navbar.jsx'
 import { useSelector } from 'react-redux';
-import { backend_url, server } from '../../server';
+import { server } from '../../server';
 import Cart from '../Cart/Cart';
 import Wishlist from '../Wishlist/Wishlist';
 import { RxCross1 } from 'react-icons/rx';
-import mainLogo from "../main_logo3.jpg"
+
 import Logo from "./Jamalpur BAZAR-logos__white.png"
 import { IoIosHeart } from "react-icons/io";
 import axios from 'axios';
 import { FaChevronRight, FaFacebook, FaInstagram, FaTwitter } from 'react-icons/fa';
-import { BsChevronDown } from 'react-icons/bs';
+
 import { toast } from 'react-toastify';
 
 
@@ -38,6 +38,7 @@ const Header = ({ activeHeading }) => {
     const [openWishlist, setOpenWishlist] = useState(false)
     const [open, setOpen] = useState(false)
     const { cart } = useSelector(state => state.cart)
+    const [searchOpen, setSearchOpen] = useState(false)
 
     const admin = user?.role === "Admin"
 
@@ -91,6 +92,7 @@ const Header = ({ activeHeading }) => {
     };
 
     const [isListening, setIsListening] = useState(false);
+   
 
     // Speech Recognition Setup
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -134,6 +136,25 @@ const Header = ({ activeHeading }) => {
             setSubMenuOpen(index);
         }
     };
+
+    const handleClose = (e) => {
+        if (e.target.id === "screen") {
+            setOpen(false);
+        }
+    };
+
+    const handleCartClose = (e) => {
+        if (e.target.id === "screen") {
+            setOpenCart(false);
+        }
+    };
+
+    const handleWishlistClose = (e) => {
+        if (e.target.id === "screen") {
+            setOpenWishlist(false);
+        }
+    };
+
 
     return (
         <>
@@ -278,37 +299,43 @@ const Header = ({ activeHeading }) => {
             <div className={` ${active === true ? "shadow-sm fixed top-0 left-0 z-10" : null} w-full h-[60px] bg-blue-600  z-50 top-0 left-0 shadow-sm 800px:hidden`}  >
                 <div className='w-full flex items-center justify-between ' >
                     <div className="mt-2  flex items-center  justify-center" >
-                        <BiMenuAltLeft size={40} className="ml-2 text-white " onClick={() => setOpen(true)} />
+                        <BiMenuAltLeft size={40} className="ml-1 text-white " onClick={() => setOpen(true)} />
                         <Link to="/">
                             <img
                                 src={Logo}
                                 alt=""
                                 className=" items-start cursor-pointer "
-                                height={35}
-                                width={50}
+                                height={30}
+                                width={40}
 
                             />
 
                         </Link>
                     </div>
 
-                    <div className=' flex items-center justify-center gap-2' >
+                    <div className=' flex items-center justify-center ' >
+
+                        <div>
+                            <div className='relative ' onClick={() => setSearchOpen(!searchOpen)} >
+                                <BiSearch size={30} className='text-white ' color='white' />
+                            </div>
+                        </div>
 
                         <div>
                             <div className='relative ' onClick={() => setOpenWishlist(true)}>
                                 <IoIosHeart size={30} className='text-white ' color='red' />
-                                {isAuthenticated && wishlist?.length > 0 && <span className='absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 top right p-0 m-0  font-mono text-[12px] leading-tight text-center'>{wishlist && wishlist?.length}</span>}
+                                {isAuthenticated && wishlist?.length > 0 && <span className='absolute right-0 top-0 rounded-full bg-[#ffffff] w-3 h-3 top right p-0 m-0  font-mono text-[10px] leading-tight text-center'>{wishlist && wishlist?.length}</span>}
                             </div>
                         </div>
-                        <div className="relative cursor-pointer m-2">
+                        <div className="relative cursor-pointer ">
                             <IoMdNotificationsOutline size={30} className="text-white  cursor-pointer  " />
-                            <span className="absolute top-0 right-0 bg-white rounded-full w-4 h-4 text-[12px] flex items-center justify-center  ">
+                            <span className="absolute top-0 right-1 bg-white rounded-full w-3 h-3 text-[10px] flex items-center justify-center  ">
                                 5
                             </span>
                         </div>
                         <div className="relative mr-[20px]" onClick={() => setOpenCart(true)}>
                             <AiOutlineShoppingCart size={30} color='' className='text-white' />
-                            {isAuthenticated && cart?.length >= 1 && <span className="absolute right-0 top-0 rounded-full bg-white w-4 h-4 top right p-0 m-0  font-mono text-[12px]  leading-tight text-center">
+                            {isAuthenticated && cart?.length >= 1 && <span className="absolute right-1 top-0 rounded-full bg-white w-3 h-3 top  p-0 m-0  font-mono text-[10px]  leading-tight text-center">
                                 {cart && cart?.length}
                             </span>}
                         </div>
@@ -320,11 +347,11 @@ const Header = ({ activeHeading }) => {
 
 
                     {/* cart popup */}
-                    {openCart ? <Cart setOpenCart={setOpenCart} /> : null}
+                    {openCart ? <Cart setOpenCart={setOpenCart} handleCartClose={handleCartClose} /> : null}
 
                     {/* wishlist popup */}
 
-                    {openWishlist ? <Wishlist setOpenWishlist={setOpenWishlist} /> : null}
+                    {openWishlist ? <Wishlist setOpenWishlist={setOpenWishlist} handleWishlistClose={handleWishlistClose} /> : null}
 
 
 
@@ -335,7 +362,7 @@ const Header = ({ activeHeading }) => {
                 {/* header sidebar */}
                 {
                     open && (
-                        <div className={` fixed w-full bg-[#0000005f] z-20 h-full top-0  `} >
+                        <div id='screen' onClick={handleClose} className={` fixed w-full bg-[#0000005f] z-20 h-full top-0  `} >
                             <div className='fixed w-[60%] bg-[#fff] h-screen top-0 left-0 z-10 overflow-y-scroll '>
                                 <div className='w-full justify-between flex pr-3 bg-blue-500 mb-2'>
 
@@ -444,59 +471,63 @@ const Header = ({ activeHeading }) => {
             </div>
 
 
-            <div className={`max-w-md mx-auto rounded-lg overflow-hidden md:max-w-xl shadow-lg md:hidden`}>
-                <div className="md:flex">
-                    <div className="w-full p-1">
-                        <div className="relative flex items-center justify-between bg-white rounded-lg shadow-sm border-2">
-                            {/* Search Icon */}
-                            <span className="absolute left-3 text-gray-500">
-                                <BiSearch />
-                            </span>
+            {
+                searchOpen &&
+                <div className={`max-w-md mx-auto rounded-lg overflow-hidden md:max-w-xl shadow-lg md:hidden`}>
+                    <div className="md:flex">
+                        <div className="w-full p-1">
+                            <div className="relative flex items-center justify-between bg-white rounded-lg shadow-sm border-2">
+                                {/* Search Icon */}
+                                <span className="absolute left-3 text-gray-500">
+                                    <BiSearch />
+                                </span>
 
-                            {/* Input field */}
-                            <input
-                                type="text"
-                                className="bg-white h-8 w-full pl-10 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 hover:cursor-pointer"
-                                placeholder="Search here..."
-                                value={searchTearm}
-                                onChange={handleSearchChange}
-                            />
+                                {/* Input field */}
+                                <input
+                                    type="text"
+                                    className="bg-white h-8 w-full pl-10 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 hover:cursor-pointer"
+                                    placeholder="Search here..."
+                                    value={searchTearm}
+                                    onChange={handleSearchChange}
+                                />
 
-                            {/* Microphone Icon with animation */}
-                            <span className={`absolute right-3 text-gray-500 ${isListening ? 'animate-pulse' : ''}`} onClick={startListening}>
-                                <BiMicrophone />
-                            </span>
-                        </div>
+                                {/* Microphone Icon with animation */}
+                                <span className={`absolute right-3 text-gray-500 ${isListening ? 'animate-pulse' : ''}`} onClick={startListening}>
+                                    <BiMicrophone />
+                                </span>
+                            </div>
 
-                        {/* Listening Animation */}
-                        {isListening && (
-                            <div className="flex items-center justify-center mt-2">
-                                <div className="flex items-center space-x-1">
-                                    <span className="text-blue-600">Listening</span>
-                                    <span className="dot-animate"></span>
-                                    <span className="dot-animate"></span>
-                                    <span className="dot-animate"></span>
+                            {/* Listening Animation */}
+                            {isListening && (
+                                <div className="flex items-center justify-center mt-2">
+                                    <div className="flex items-center space-x-1">
+                                        <span className="text-blue-600">Listening</span>
+                                        <span className="dot-animate"></span>
+                                        <span className="dot-animate"></span>
+                                        <span className="dot-animate"></span>
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
 
-                        {/* Search Results */}
-                        {searchTearm && searchData?.length > 0 && (
-                            <div className="absolute bg-slate-100 shadow max-h-60 w-full z-10 left-0 p-3 overflow-y-auto">
-                                {searchData.map((i, index) => (
-                                    <Link to={`/product/${i?._id}`} key={index}>
-                                        <div className="w-full flex items-start py-3 " onClick={() => handleSearch(i?._id, i?.name)}>
-                                            <img src={i?.images[0]?.url} alt="img" className="w-[40px] h-[40px] mr-2" />
-                                            <h5>{i?.name.length > 40 ? i?.name.slice(0, 40) + "..." : i?.name}</h5>
-                                        </div>
-                                    </Link>
-                                ))}
-                            </div>
-                        )}
+                            {/* Search Results */}
+                            {searchTearm && searchData?.length > 0 && (
+                                <div className="absolute bg-slate-100 shadow max-h-60 w-full z-10 left-0 p-3 overflow-y-auto">
+                                    {searchData.map((i, index) => (
+                                        <Link to={`/product/${i?._id}`} key={index}>
+                                            <div className="w-full flex items-start py-3 " onClick={() => handleSearch(i?._id, i?.name)}>
+                                                <img src={i?.images[0]?.url} alt="img" className="w-[40px] h-[40px] mr-2" />
+                                                <h5>{i?.name.length > 40 ? i?.name.slice(0, 40) + "..." : i?.name}</h5>
+                                            </div>
+                                        </Link>
+                                    ))}
+                                </div>
+                            )}
 
+                        </div>
                     </div>
                 </div>
-            </div>
+
+            }
 
             {/* CSS for dot animation */}
             <style jsx>

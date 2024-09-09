@@ -579,6 +579,10 @@ export const Address = () => {
     },
   ];
 
+  const validateZipCode = (zip) => {
+    return /^\d{6}$/.test(zip); // Exactly 6 digits
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -602,19 +606,21 @@ export const Address = () => {
       setAddress2("");
       setZipCode(null);
       setAddressType("");
+      setTimeout(()=>{window.location.reload()},500)
     }
   };
 
   const handleDelete = (item) => {
     const id = item._id;
     dispatch(deleteUserAddress(id));
+    toast.success("Removed successfully")
   };
 
   return (
     <div className="w-full h-full  800px:flex block pb-3 ">
       {open && (
         <div className="fixed w-full h-screen bg-[#0000004b] top-0 left-0 flex items-center justify-center ">
-          <div className="w-full h-full bg-white rounded shadow relative overflow-y-scroll">
+          <div className="w-[90vw] h-full bg-white  rounded shadow relative overflow-y-scroll">
             <div className="w-full flex justify-end p-3">
               <RxCross1
                 size={30}
@@ -625,8 +631,8 @@ export const Address = () => {
             <h1 className="text-center text-[25px] font-Poppins">
               Add New Address
             </h1>
-            <div className="w-full 800px:w-[70%]  pb-3">
-              <form aria-required onSubmit={handleSubmit} className="w-full">
+            <div className="w-full 800px:w-[70%]   pb-3">
+              <form onSubmit={handleSubmit} className="w-full">
                 <div className="w-full block p-4">
                   <div className="w-full pb-2">
                     <label className="block pb-2">Country</label>
@@ -635,7 +641,7 @@ export const Address = () => {
                       id=""
                       value={country}
                       onChange={(e) => setCountry(e.target.value)}
-                      className="w-[95%] border h-[40px] rounded-[5px] bg-slate-300"
+                      className="w-[95%] border h-[40px] rounded-[5px] "
                     >
                       <option value="" className="block border pb-2 ">
                         choose your country
@@ -660,7 +666,7 @@ export const Address = () => {
                       id=""
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
-                      className="w-[95%] border h-[40px] rounded-[5px] bg-slate-300"
+                      className="w-[95%] border h-[40px] rounded-[5px] "
                     >
                       <option value="" className="block border pb-2">
                         choose your state
@@ -698,18 +704,27 @@ export const Address = () => {
                       onChange={(e) => setAddress2(e.target.value)}
                     />
                   </div>
+                  
 
-                  <div className="w-full pb-2">
-                    <label className="block pb-2">Zip Code</label>
+                  <div className="w-full">
+                    <label className="block mb-2 font-medium">Zip Code</label>
                     <input
-                      type="number"
-                      className={`${styles.input}`}
-                      required
-                      maxLength={6}
+                      type="text"
                       value={zipCode}
                       onChange={(e) => setZipCode(e.target.value)}
+                      className="w-full p-2 border rounded-lg bg-gray-100"
+                      required
+                      maxLength="6"
+                      placeholder="6-digit zip code"
                     />
+                    {!validateZipCode(zipCode) && zipCode?.length > 0 && (
+                      <span className="text-red-500 text-sm">
+                        Zip code must be exactly 6 digits
+                      </span>
+                    )}
                   </div>
+
+
 
                   <div className="w-full pb-2">
                     <label className="block pb-2">Address Type</label>
@@ -751,17 +766,12 @@ export const Address = () => {
         </div>
       )}
       <div className="flex w-full items-center justify-between ml-3">
-
-
-        <div class="flex items-center border-b pb-2 mb-4">
-
+        <div className="flex items-center border-b pb-2 mb-4">
           <button onClick={() => setOpen(true)} className="text-blue-600 font-medium hover:underline">+ Add a new address</button>
         </div>
-
-
       </div>
 
-      <div class="mb-2 ml-3 text-sm text-gray-500">
+      <div className="mb-2 ml-3 text-sm text-gray-500">
         {user?.addresses?.length} Saved Addresses
       </div>
 
@@ -772,28 +782,6 @@ export const Address = () => {
             className="w-full h-min 800px:h-[70px] rounded-[4px] flex items-center shadow p-2 justify-between  mb-5"
             key={index}
           >
-            {/*             
-            <div className="flex items-center">
-              <h5 className="pl-5  bg-slate-400 text-[12px]">{item.addressType}</h5>
-            </div>
-
-            <div className="pl-8 flex items-center">
-              <h6 className="text-[12px] 800px:text-[unset]">
-                {item.address1} {item.address2}
-              </h6>
-            </div>
-            <div className="pl-8 flex items-center">
-              <h6 className="text-[12px] 800px:text-[unset]">
-                {user && user.phoneNumber}
-              </h6>
-            </div>
-            <div className="min-w-[10%] flex items-center justify-between pl-8">
-              <AiOutlineDelete
-                size={25}
-                className="cursor-pointer"
-                onClick={() => handleDelete(item)}
-              />
-            </div> */}
 
             <div className="bg-white w-full p-4 shadow-md rounded-md">
               <div className="flex justify-between items-center">
@@ -810,7 +798,7 @@ export const Address = () => {
                   </p>
                   <p className="text-sm mt-2">{item?.phoneNumber}</p>
                 </div>
-                <button className="text-gray-500 hover:text-gray-700">
+                <button className="text-gray-500 hover:text-gray-700" onClick={()=>handleDelete(item)}>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                   </svg>
@@ -829,6 +817,8 @@ export const Address = () => {
     </div>
   )
 }
+
+
 
 
 

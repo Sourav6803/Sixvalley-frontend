@@ -1,30 +1,30 @@
-import React, { useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { getAllOrdersOfUser } from '../../redux/actions/order'
-import { useNavigate } from 'react-router-dom'
+
+
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { getAllOrdersOfUser } from '../../redux/actions/order';
+import { useNavigate } from 'react-router-dom';
+import Loader from "../../pages/Loader"
+
 
 const AllOrder = () => {
-  const { orders } = useSelector(state => state.order)
-  const { user } = useSelector(state => state.user)
-  const navigate = useNavigate()
+  const { orders, loading } = useSelector((state) => state.order);
+  const { user } = useSelector((state) => state.user);
+  const navigate = useNavigate();
+  const [search, setSearch] = useState('');
 
-  // console.log(orders)
-
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   useEffect(() => {
-    dispatch(getAllOrdersOfUser(user?._id))
-  }, [dispatch, user?._id])
+    dispatch(getAllOrdersOfUser(user?._id));
+  }, [dispatch, user?._id]);
 
   function formatMongoDate(date) {
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    
     const day = date.getDate();
     const month = months[date.getMonth()];
     const year = date.getFullYear();
-    
-    // Adding the appropriate suffix to the day
     const daySuffix = (day) => {
-      if (day > 3 && day < 21) return 'th'; // For 11th, 12th, 13th, etc.
+      if (day > 3 && day < 21) return 'th';
       switch (day % 10) {
         case 1: return 'st';
         case 2: return 'nd';
@@ -32,19 +32,19 @@ const AllOrder = () => {
         default: return 'th';
       }
     };
-  
     return `${day}${daySuffix(day)} ${month}, ${year}`;
   }
 
-
   return (
-    <div className="p-2 w-full">
+    <div className="p-4 w-full">
       {/* Search Bar */}
       <div className="flex items-center mb-4">
         <input
           type="text"
           placeholder="Search your order here"
           className="flex-1 border p-2 rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
         />
         <button className="ml-4 text-gray-600">
           <svg
@@ -64,55 +64,63 @@ const AllOrder = () => {
         </button>
       </div>
 
-      {/* Filters */}
-      <div className="flex justify-between items-center mb-4">
-        <p className="text-gray-700">Filters</p>
-        <button className="text-blue-600 hover:underline">Filters</button>
-      </div>
-
-      {/* Order List */}
-      <div className="space-y-4">
-        {orders && orders?.map((order) => (
-          <div
-            key={order?._id}
-            className="bg-white p-4 shadow-md rounded-md flex items-start space-x-4"
-            onClick={()=>navigate(`/user/order/${order?._id}`)}
-          >
-          {console.log("order:", order)}
-         
-            {
-              order?.cart.map((item) => (
-                <div key={item?._id} className='flex items-center justify-between gap-3'>
-               {/* {console.log("item:", item)} */}
-                  <img
-                    src={item?.images[0]?.url}
-                    alt={""}
-                    className="w-20 h-20 object-cover rounded-md"
-                  />
-                  
-                  <div className="flex-1">
-                    <p className={`text-sm text-gray-500 ${order?.status === "Delivered" && "bg-green-100 text-slate-700 w-fit px-2 rounded md "}`}>{order?.status} { order?.status === "Delivered" && formatMongoDate(new Date(order?.deliveredAt))}</p>
-                    <p className="font-normal pt-2 text-gray-600 text-sm">{item?.name?.length > 80 ? item?.name?.slice(0,80)+"..." : item?.data?.name}</p>
-                    
-                  </div>
-
+      {/* Loader */}
+      {loading ? (
+        <div className="flex justify-center items-center h-full">
+          <Loader />
+        </div>
+      ) : (
+        <div>
+          {/* Order List */}
+          <div className="space-y-4">
+            {orders && orders.length > 0 ? (
+              orders.map((order) => (
+                <div
+                  key={order?._id}
+                  className="bg-white p-4 shadow-md rounded-md space-y-4"
+                  onClick={() => navigate(`/user/order/${order?._id}`)}
+                >
+                  {order?.cart.map((item) => (
+                    <div key={item?._id} className="flex items-center justify-between gap-4">
+                      <img
+                        src={item?.images[0]?.url}
+                        alt={item?.name}
+                        className="w-16 h-18 object-cover rounded-md"
+                      />
+                      <div className="flex-1">
+                        <p
+                          className={`text-sm ${order?.status === 'Delivered'
+                              ? 'bg-green-100 text-green-700 px-2 py-1 rounded-md'
+                              : 'text-gray-500'
+                            }`}
+                        >
+                          {order?.status}{' '}
+                          {order?.status === 'Delivered' &&
+                            formatMongoDate(new Date(order?.deliveredAt))}
+                        </p>
+                        <p className="font-medium text-gray-700">
+                          {item?.name?.length > 80 ? item?.name.slice(0, 80) + '...' : item?.name}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ))
-            }
+            ) : (
+              <div className="flex flex-col items-center justify-center text-gray-600">
+                <img
+                  src="/assets/no-orders.png"
+                  alt="No orders"
+                  className="w-64 h-64 object-cover"
+                />
+                <p className="mt-4 text-lg">You have no orders yet!</p>
+              </div>
+            )}
           </div>
-        ))}
-      </div>
-
-      {
-        orders?.length === 0 && (
-          <div>
-            You have no orders
-          </div>
-        )
-      }
-
+        </div>
+      )}
     </div>
-  )
-}
+  );
+};
 
-export default AllOrder
+export default AllOrder;

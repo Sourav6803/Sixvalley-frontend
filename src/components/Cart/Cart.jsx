@@ -12,7 +12,7 @@ import emptyCart from "../../Assests/empty-cart.png"
 import insurence from "../../Assests/insurance.png"
 
 
-const Cart = ({ setOpenCart }) => {
+const Cart = ({ setOpenCart , handleCartClose}) => {
     const { cart } = useSelector((state) => state?.cart);
     const { user, isAuthenticated } = useSelector(state => state.user)
     const [loading, setLoading] = useState(false)
@@ -38,6 +38,7 @@ const Cart = ({ setOpenCart }) => {
         0
     );
 
+
     const totalDiscountPrice = cart?.reduce(
         (acc, item) => acc + item?.qty * (item?.originalPrice - item?.afterDiscountPrice),
         0
@@ -48,6 +49,10 @@ const Cart = ({ setOpenCart }) => {
 
     const totalCartPrice = totalPrice + fixedDeliveryCharge 
 
+    console.log("total price :", totalPrice)
+    console.log("shipping :", shipping)
+
+
     const quantityChangeHandler = (data) => {
         setLoading(true)
         dispatch(addTocart(data));
@@ -55,7 +60,7 @@ const Cart = ({ setOpenCart }) => {
     };
 
     return (
-        <div className="fixed top-0 left-0 w-full bg-[#0000004b] h-screen z-10">
+        <div id="screen" onClick={handleCartClose} className="fixed top-0 left-0 w-full bg-[#0000004b] h-screen z-10">
             {
                 !loading && <div className="fixed top-0 right-0 h-full w-[80%] 800px:w-[25%] bg-white flex flex-col overflow-y-scroll justify-between shadow-sm">
 

@@ -110,8 +110,8 @@ const HomePage = () => {
       <Slider data={data} />
       <Sponsored />
      
-      <Callegraphic />
-      <Blog />
+      {/* <Callegraphic />
+      <Blog /> */}
       <Footer />
     </div>
   )

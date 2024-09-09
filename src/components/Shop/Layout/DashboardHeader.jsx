@@ -36,7 +36,7 @@ const Menus = [
     spacing: true,
     subMenu: true,
     submenuItems: [
-      { title: "All", notication: 80, link: "#" },
+      { title: "All", notication: 80, link: "/dashboard-orders" },
       { title: "Confirmed", notication: 40, link: "#" },
       { title: "Packaging", notication: 17, link: "#" },
       { title: "Out For Delivery", notication: 10, link: "#" },
@@ -165,6 +165,12 @@ const DashboardHeader = ({ navOpen, setNavOpen }) => {
     }
   };
 
+  const handleClose = (e) => {
+    if (e.target.id === "screen") {
+      setNavOpen(false);
+    }
+};
+
 
 
   return (
@@ -222,7 +228,7 @@ const DashboardHeader = ({ navOpen, setNavOpen }) => {
 
       {
         navOpen && (
-          <div className="fixed w-full bg-[#0000005f] z-50 h-full top-0" >
+          <div className="fixed w-full bg-[#0000005f] z-50 h-full top-0" id="screen" onClick={handleClose} >
             <div className="fixed w-[60%] bg-[#150b31] h-screen top-0 left-0 z-10 overflow-y-scroll">
               <div className='w-full justify-between flex  bg-white items-center '>
                 <div className='relative ml-[5px]  '>
@@ -253,7 +259,7 @@ const DashboardHeader = ({ navOpen, setNavOpen }) => {
                       <ul className="">
                         {menu.submenuItems.map((subMenuItem, subIndex) => (
 
-                          <div className="flex items-center justify-between mx-2 hover:bg-[#657082] rounded-md duration-300 p-2">
+                          <div key={subIndex} className="flex items-center justify-between mx-2 hover:bg-[#657082] rounded-md duration-300 p-2">
                             <Link to={subMenuItem?.link}>
                             <li key={subIndex} className="text-gray-300 text-sm flex items-center cursor-pointer px-7">
                               {subMenuItem.title}

@@ -1,14 +1,8 @@
-// import { Button } from "@material-ui/core";
-import Button from '@mui/material/Button'
-import { DataGrid } from "@material-ui/data-grid";
-
 import React, { useCallback, useEffect, useState } from "react";
-import { AiOutlineDelete, AiOutlineEye, AiOutlineFundView, AiOutlinePlus } from "react-icons/ai";
+import {  AiOutlineEye, AiOutlinePlus } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { getAllProductsShop } from "../../redux/actions/product";
-import { deleteProduct } from "../../redux/actions/product";
-import Layout from "./icon/layout.png";
 import axios from "axios";
 import { server } from '../../server';
 import { toast } from 'react-toastify';
@@ -33,15 +27,9 @@ const AllProducts = () => {
     dispatch(getAllProductsShop(seller._id));
   }, [dispatch, seller?._id]);
 
-  // const handleDelete = (id) => {
-  //   dispatch(deleteProduct(id));
-  //   window.location.reload();
-  // };
-
   const { allCategory } = useSelector((state) => state?.category);
   const { allSubCategory } = useSelector((state) => state?.subCategory);
   const { allSubSubCategory } = useSelector((state) => state?.subSubCategory);
-  // console.log(allSubCategory)
 
 
   const [open, setOpen] = useState(false);
@@ -62,7 +50,6 @@ const AllProducts = () => {
   const [brand, setBrand] = useState("")
   const [productId, setProductId] = useState("")
   const [isActive, setIsActive] = useState("")
-  const [filteredSubCategories, setFilteredSubCategories] = useState([]);
 
   const [isActiveModalOpen, setIsActiveModalOpen] = useState(false)
   const [isActiveModalTwoOpen, setIsActiveModalTwoOpen] = useState(false)
@@ -148,23 +135,7 @@ const AllProducts = () => {
     }
   }, [allSubSubCategory]);
 
-  // useEffect(() => {
-  //   if (error) {
-  //     setIsSubmitting(false);
-  //     toast.error(error);
-  //     setTimeout(() => {
-  //       window.location.reload();
-  //     }, 2000);
-  //   }
-
-  //   if (success) {
-  //     setIsSubmitting(false);
-  //     toast.success("Sub sub-Category created successfully!");
-  //     setTimeout(() => {
-  //       window.location.reload()
-  //     }, 1000)
-  //   }
-  // }, [dispatch ]);
+  
 
 
   useEffect(() => {

@@ -61,9 +61,9 @@ const Banner = () => {
 
 
     return (
-        <div className='p-2 mt-[10px] bg-white'>
+        <div className='p-1 mt-[5px] bg-white'>
             <Carousel
-                swipeable={false}
+                swipeable={true}
                 draggable={false}
                 responsive={responsive}
                 infinite={true}
