@@ -37,13 +37,13 @@ const Menus = [
     subMenu: true,
     submenuItems: [
       { title: "All", notication: 80, link: "/dashboard-orders" },
-      { title: "Confirmed", notication: 40, link: "#" },
-      { title: "Packaging", notication: 17, link: "#" },
-      { title: "Out For Delivery", notication: 10, link: "#" },
-      { title: "Delivered", notication: 5, link: "#" },
-      { title: "Returned", notication: 8, link: "#" },
-      { title: "Failed to Deliver", notication: 8, link: "#" },
-      { title: "Cancelled", notication: 16, link: "#" },
+      { title: "Confirmed", notication: 40, link: "/dashboard/confirmed/order" },
+      { title: "Packaging", notication: 17, link: "/dashboard/packaging/order" },
+      { title: "Out For Delivery", notication: 10, link: "/dashboard/out-for-delivery/order" },
+      { title: "Delivered", notication: 5, link: "/dashboard/delivered/order" },
+      { title: "Returned", notication: 8, link: "/dashboard/returned/order" },
+      { title: "Failed to Deliver", notication: 8, link: "/dashboard/failedToDeliver/order" },
+      { title: "Cancelled", notication: 16, link: "/dashboard/cancled/order" },
     ]
   },
   {
@@ -75,7 +75,8 @@ const Menus = [
     spacing: true,
     submenuItems: [
       { title: "Product List", link: "/dashboard-products" },
-      { title: "Approved List", link: "#" },
+      { title: "Approved List", link: "/dashboard/approved/product" },
+      {title: "Pending List", link: "/dashboard/pending/product"},
       { title: "Add Product", link: "/dashboard-create-product" },
       { title: "Product Gallery", link: "#" },
     ]
@@ -121,6 +122,7 @@ const Menus = [
   {
     title: "Order Report",
     icon: <LuBarChart3 />,
+    link: "/dashboard/order-report"
   },
   {
     title: "Withdraw",
@@ -128,10 +130,12 @@ const Menus = [
     spacing: true,
     subHeader: true,
     subHeading: "BUSINESS SECTION",
+    link: "/dashboard-withdraw-money"
   },
   {
     title: "Bank Information",
     icon: <CiBank />,
+    link: "/dashboard/bank-information"
   },
   {
     title: "Shop Setting",

@@ -17,7 +17,17 @@ import {
   ShopAllCupon, ShopAllEvent, ShopAllOrders, ShopAllProducts, ShopCreateEvent, ShopCreateProduct, ShopDashboardPage,
   ShopPreviewPage, ShopOrderDetails, ShopAllRefunds, ShopSettingsPage, ShopWithDrawMoneyPage, ShopInboxPage, ShopAllCupoun,
   ShopBannerPage,
-  ShopProductView
+  ShopProductView,
+  ShopPackagingOrderPage,
+  OutForDeliveryPage,
+  DelivredOrderPage,
+  ReturnedOrderPage,
+  FailedToDeliveryPage,
+  ShopCancledOrderPage,
+  ApprovedProductPage,
+  PendingProductPage,
+  ShopBankInformationPage,
+  OrderReportPage
 } from './routes/ShopRoutes';
 import { getAllProducts } from './redux/actions/product';
 import { getAllEvents } from './redux/actions/event';
@@ -61,6 +71,7 @@ import Usercard from './components/Profile/Usercard.jsx';
 import UserCardPage from './pages/UserCardPage.jsx';
 import UserAddressPage from './pages/UserAddressPage.jsx';
 import ContactUsPage from './pages/ContactUsPage.jsx';
+import ShopConfirmedOrderPage from './pages/Shop/ShopConfirmedOrderPage.jsx';
 
 
 
@@ -325,6 +336,18 @@ const App = ({ data }) => {
 
           <Route path='/dashboard-create-product' element={<SellerProtectedRoute ><ShopCreateProduct /></SellerProtectedRoute>} />
           <Route path='/dashboard-products' element={<SellerProtectedRoute ><ShopAllProducts /></SellerProtectedRoute>} />
+          <Route path='/dashboard/confirmed/order' element={<SellerProtectedRoute ><ShopConfirmedOrderPage /></SellerProtectedRoute>} />
+          <Route path='/dashboard/packaging/order' element={<SellerProtectedRoute ><ShopPackagingOrderPage /></SellerProtectedRoute>} />
+          <Route path='/dashboard/out-for-delivery/order' element={<SellerProtectedRoute ><OutForDeliveryPage /></SellerProtectedRoute>} />
+          <Route path='/dashboard/delivered/order' element={<SellerProtectedRoute ><DelivredOrderPage /></SellerProtectedRoute>} />
+          <Route path='/dashboard/returned/order' element={<SellerProtectedRoute ><ReturnedOrderPage /></SellerProtectedRoute>} />
+          <Route path='/dashboard/failedToDeliver/order' element={<SellerProtectedRoute ><FailedToDeliveryPage /></SellerProtectedRoute>} />
+          <Route path='/dashboard/cancled/order' element={<SellerProtectedRoute ><ShopCancledOrderPage /></SellerProtectedRoute>} />
+          <Route path='/dashboard/approved/product' element={<SellerProtectedRoute ><ApprovedProductPage /></SellerProtectedRoute>} />
+          <Route path='/dashboard/pending/product' element={<SellerProtectedRoute ><PendingProductPage /></SellerProtectedRoute>} />
+          <Route path='/dashboard/bank-information' element={<SellerProtectedRoute ><ShopBankInformationPage /></SellerProtectedRoute>} />
+          <Route path='/dashboard/order-report' element={<SellerProtectedRoute ><OrderReportPage /></SellerProtectedRoute>} />
+
           <Route path='/dashboard/product-view/:id' element={<SellerProtectedRoute ><ShopAllProducts /></SellerProtectedRoute>} />
           <Route path='/dashboard-banner' element={<SellerProtectedRoute ><ShopBannerPage /></SellerProtectedRoute>} />
           <Route path='/dashboard-create-event' element={<SellerProtectedRoute ><ShopCreateEvent /></SellerProtectedRoute>} />
@@ -337,6 +360,7 @@ const App = ({ data }) => {
           <Route path='/order/:id' element={<SellerProtectedRoute ><ShopOrderDetails /></SellerProtectedRoute>} />
           <Route path="/dashboard-withdraw-money" element={<SellerProtectedRoute> <ShopWithDrawMoneyPage /> </SellerProtectedRoute>} />
           <Route path="/dashboard-messages" element={<SellerProtectedRoute> <ShopInboxPage /> </SellerProtectedRoute>} />
+
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<ProtectedAdminRoute> <AdminDashboardPage /> </ProtectedAdminRoute>} />
           <Route path="/admin-users" element={<ProtectedAdminRoute> <AdminDashboardUsers /> </ProtectedAdminRoute>} />

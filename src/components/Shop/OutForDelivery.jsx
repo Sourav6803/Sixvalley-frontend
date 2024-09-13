@@ -9,7 +9,7 @@ import Loader from '../../pages/Loader';
 import productImage from "./icon/package-box.png"
 
 
-const AllOrders = () => {
+const OutForDelivery = () => {
   const { orders, isLoading } = useSelector((state) => state.order);
   const { allUsers } = useSelector((state) => state.user);
   const { seller } = useSelector((state) => state.seller);
@@ -28,7 +28,10 @@ const AllOrders = () => {
     dispatch(getAllOrdersOfShop(seller?._id));
   }, [dispatch, seller?._id]);
 
-  
+
+  const otForDeliveryOrders = orders?.filter(order => order?.status === "Out for delivery")
+
+
 
   function formatMongoDate(date) {
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -72,18 +75,18 @@ const AllOrders = () => {
 
   useEffect(() => {
     if (searchTearm) {
-      const filterProduct = orders?.filter((order) =>
+      const filterProduct = otForDeliveryOrders?.filter((order) =>
         order.name.toLowerCase().includes(searchTearm.toLowerCase())
       );
       setSearchData(filterProduct);
     } else {
       setSearchData(null);
     }
-  }, [searchTearm, orders]);
+  }, [searchTearm, otForDeliveryOrders]);
 
   const handleSearch = (e) => {
     e.preventDefault();
-    const filterProduct = orders.filter((order) =>
+    const filterProduct = otForDeliveryOrders?.filter((order) =>
       order.name.toLowerCase().includes(searchTearm.toLowerCase())
     );
     setSearchData(filterProduct);
@@ -95,10 +98,10 @@ const AllOrders = () => {
   // Get the data for the current page
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentData = (searchData || orders)?.slice(indexOfFirstItem, indexOfLastItem);
+  const currentData = (searchData || otForDeliveryOrders)?.slice(indexOfFirstItem, indexOfLastItem);
 
   // Calculate total pages
-  const totalPages = Math.ceil((searchData || orders)?.length / itemsPerPage);
+  const totalPages = Math.ceil((searchData || otForDeliveryOrders)?.length / itemsPerPage);
 
   const handleNext = () => {
     if (currentPage < totalPages) {
@@ -334,7 +337,7 @@ const AllOrders = () => {
                               </tr>
                             )) : (
                               <tr>
-                                <td colSpan="5" className="text-center py-4 text-gray-500 dark:text-gray-400">No Order found</td>
+                                <td colSpan="5" className="text-center py-4 text-gray-500 dark:text-gray-400">No Out for delivery orders found</td>
                               </tr>
                             )}
                           </tbody>
@@ -343,7 +346,7 @@ const AllOrders = () => {
 
 
                         {
-                          currentData?.length > 9 && (
+                          otForDeliveryOrders?.length > 9 && (
                             <div className="flex  justify-end items-center my-2 mx-2 ">
                               {/* Previous Button */}
                               <button
@@ -358,7 +361,7 @@ const AllOrders = () => {
                               </button>
 
                               {/* Display current page and total pages */}
-                              <span className="text-gray-600 dark:text-gray-300 mx-2">
+                              <span className="text-gray-600 dark:text-gray-300">
                                 Page {currentPage} of {totalPages}
                               </span>
 
@@ -392,6 +395,6 @@ const AllOrders = () => {
   );
 };
 
-export default AllOrders;
+export default OutForDelivery;
 
 

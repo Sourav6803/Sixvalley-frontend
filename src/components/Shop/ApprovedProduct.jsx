@@ -14,9 +14,11 @@ import productImage from "./icon/package-box.png"
 import { Switch } from '@mui/material';
 
 
-const AllProducts = () => {
+const ApproveProducts = () => {
   const { products, isLoading } = useSelector((state) => state?.products);
   const { allBrand } = useSelector((state) => state.brand);
+
+  const approveProducts = products && products?.filter((product) => product.approved === "Approved")
 
   const { seller } = useSelector((state) => state.seller);
 
@@ -62,57 +64,45 @@ const AllProducts = () => {
     setAllSubCategories(allSubCategory);
   }, [allSubCategory]);
 
-  const handleFileInputChange = useCallback((e) => {
-    const file = e.target.files[0];
-    setImage(file);
-  }, []);
-
-
-  useEffect(() => {
-    if (name.length > 1 && priority && mainCategory && subCategory && image) {
-      setIsDisabled(false);
-    } else {
-      setIsDisabled(true);
-    }
-  }, [name, priority, mainCategory, subCategory, image]);
 
 
 
-  const handleSubmit = useCallback((e) => {
-    e.preventDefault();
 
-    if (!name || !priority || !mainCategory || !subCategory || !image) {
-      toast.error("Please fill in all required fields.");
-      return;
-    }
+  //   const handleSubmit = useCallback((e) => {
+  //     e.preventDefault();
 
-    setIsSubmitting(true);
+  //     if (!name || !priority || !mainCategory || !subCategory || !image) {
+  //       toast.error("Please fill in all required fields.");
+  //       return;
+  //     }
 
-    const newForm = new FormData();
-    newForm.append("name", name);
-    newForm.append("priority", priority);
-    newForm.append("mainCategory", mainCategory);
-    newForm.append("subCategory", subCategory);
-    if (image) {
-      newForm.append("image", image);
-    }
+  //     setIsSubmitting(true);
 
-    try {
-      dispatch(createSubSubCategory(newForm))
-      setIsSubmitting(false);
-      setName("");
-      setPriority();
-      setMainCategory("");
-      setSubCategory("")
-      setImage(null)
-    }
-    catch (err) {
-      setIsSubmitting(false);
-      toast.error(err.message || "Failed to create category.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [name, priority, mainCategory, subCategory, dispatch, image]);
+  //     const newForm = new FormData();
+  //     newForm.append("name", name);
+  //     newForm.append("priority", priority);
+  //     newForm.append("mainCategory", mainCategory);
+  //     newForm.append("subCategory", subCategory);
+  //     if (image) {
+  //       newForm.append("image", image);
+  //     }
+
+  //     try {
+  //       dispatch(createSubSubCategory(newForm))
+  //       setIsSubmitting(false);
+  //       setName("");
+  //       setPriority();
+  //       setMainCategory("");
+  //       setSubCategory("")
+  //       setImage(null)
+  //     }
+  //     catch (err) {
+  //       setIsSubmitting(false);
+  //       toast.error(err.message || "Failed to create category.");
+  //     } finally {
+  //       setIsSubmitting(false);
+  //     }
+  //   }, [name, priority, mainCategory, subCategory, dispatch, image]);
 
 
   const handleDelete = useCallback(async (id) => {
@@ -140,19 +130,19 @@ const AllProducts = () => {
 
   useEffect(() => {
     if (searchTearm) {
-      const filterProduct = products.filter((product) =>
+      const filterProduct = approveProducts?.filter((product) =>
         product.name.toLowerCase().includes(searchTearm.toLowerCase())
       );
       setSearchData(filterProduct);
     } else {
       setSearchData(null);
     }
-  }, [searchTearm, products]);
+  }, [searchTearm, approveProducts]);
 
   const handleSearch = (e) => {
     e.preventDefault();
-    const filterProduct = products.filter((product) =>
-      product.name.toLowerCase().includes(searchTearm.toLowerCase())
+    const filterProduct = approveProducts?.filter((product) =>
+      product?.name.toLowerCase().includes(searchTearm.toLowerCase())
     );
     setSearchData(filterProduct);
   };
@@ -163,10 +153,10 @@ const AllProducts = () => {
   // Get the data for the current page
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentData = (searchData || products)?.slice(indexOfFirstItem, indexOfLastItem);
+  const currentData = (searchData || approveProducts)?.slice(indexOfFirstItem, indexOfLastItem);
 
   // Calculate total pages
-  const totalPages = Math.ceil((searchData || products)?.length / itemsPerPage);
+  const totalPages = Math.ceil((searchData || approveProducts)?.length / itemsPerPage);
 
   const handleNext = () => {
     if (currentPage < totalPages) {
@@ -180,24 +170,27 @@ const AllProducts = () => {
     }
   };
 
+
   return (
     <>
       {isLoading === true ? (
         <div className='flex items-center justify-center'></div>
       ) : (
-        <div className='w-full p-2 md:p-5 bg-gray-200'>
+        <div className='w-full h-screen p-2 md:p-5 bg-gray-200'>
           <div className='flex items-center gap-2'>
             <img src={productImage} alt='layout' className='h-8' />
-            <h3 className="text-[20px] text-slate-600 font-Poppins font-semibold">Product List: {products?.length}</h3>
+            <h3 className="text-[20px] text-slate-600 font-Poppins font-semibold">Approved Product List: {currentData?.length}</h3>
           </div>
+
+          {/* Search product */}
 
           <div className="w-full mt-2 bg-white p-3 rounded-md hover:shadow-md">
             {
-              isLoading ? (<div className='w-full h-full flex items-start justify-center'><Loader /></div>) : (
+              isLoading ? (<div className='w-full h-screen flex items-start justify-center'><Loader /></div>) : (
 
                 <div className="p-4 rounded-md ">
                   <h2 className='my-3 text-[20px] text-gray-600 font-medium'>Filter products </h2>
-                  <form className='items-center justify-around grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-2 '>
+                  <form className='items-center justify-around grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 '>
 
                     <div className="flex mb-4 flex-col">
                       <label className="block text-lg font-medium text-gray-700" htmlFor="main_category_select">Brand *</label>
@@ -273,12 +266,14 @@ const AllProducts = () => {
 
               )
             }
-            <div className='mt-3 flex items-center justify-end'>
-              <button onClick={handleSubmit} type="submit" className={`text-white w-[10vw] bg-blue-600 hover:bg-blue-800 font-semibold text-center border rounded-md py-2 px-5 flex items-center justify-center ${isDisabled && isSubmitting && "cursor-not-allowed"}`}>
+            <div className='mt-1 flex items-center justify-end'>
+              <button type="submit" className={`text-white w-[15vw] bg-blue-600 hover:bg-blue-800 font-semibold text-center border rounded-md py-2 px-5 flex items-center justify-center ${isDisabled && isSubmitting && "cursor-not-allowed"}`}>
                 {isSubmitting ? <Loader /> : "Search"}
               </button>
             </div>
           </div>
+
+          {/* Product table */}
 
           <div className='w-full mt-2 bg-white p-3 rounded-md  gap-2 hover:shadow-md'>
             <div className='flex items-center justify-between flex-col md:flex-row gap-2 md:gap-0'>
@@ -369,7 +364,7 @@ const AllProducts = () => {
                           </thead>
 
                           <tbody className="bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-900">
-                            {currentData?.length > 0 ? currentData.map((product, index) => (
+                            {currentData.length > 0 ? currentData.map((product, index) => (
                               <tr key={index}>
 
                                 <td className="px-2 py-4 text-sm font-medium  ">
@@ -402,19 +397,19 @@ const AllProducts = () => {
                                   </div>
                                 </td>
 
-                                <td className="px-4 py-4 text-sm ">
+                                <td className="px-4 py-4 text-sm w-[50px] ">
                                   <h4 className="text-gray-700 text-center dark:text-gray-200">{product?.category}</h4>
                                 </td>
 
-                                <td className="px-4 py-4 text-sm ">
+                                <td className="px-4 py-4 text-sm w-[50px] ">
                                   <h4 className="text-gray-700 text-center dark:text-gray-200">{product?.subCategory}</h4>
                                 </td>
 
-                                <td className="px-4 py-4 text-sm whitespace-nowrap">
+                                <td className="px-4 py-4 text-sm ">
                                   <h4 className="text-gray-700 text-center dark:text-gray-200">{product?.stock}</h4>
                                 </td>
 
-                                <td className="px-4 py-4 text-sm whitespace-nowrap">
+                                <td className="px-4 py-4 text-sm ">
                                   <h4 className="text-gray-700 text-center dark:text-gray-200">{product?.sold_out}</h4>
                                 </td>
 
@@ -483,14 +478,14 @@ const AllProducts = () => {
                               </tr>
                             )) : (
                               <tr>
-                                <td colSpan="5" className="text-center py-4 text-gray-500 dark:text-gray-400">No product found</td>
+                                <td colSpan="5" className="text-center py-4 text-gray-500 dark:text-gray-400">No Approved product found</td>
                               </tr>
                             )}
                           </tbody>
                         </table>
 
                         {
-                          products?.length > 9 && (
+                          approveProducts?.length > 9 && (
                             <div className="flex  justify-end items-center my-2 mx-2 ">
                               {/* Previous Button */}
                               <button
@@ -505,7 +500,7 @@ const AllProducts = () => {
                               </button>
 
                               {/* Display current page and total pages */}
-                              <span className="text-gray-600 dark:text-gray-300 mx-2">
+                              <span className="text-gray-600 dark:text-gray-300">
                                 Page {currentPage} of {totalPages}
                               </span>
 
@@ -563,4 +558,4 @@ const AllProducts = () => {
   );
 };
 
-export default AllProducts;
+export default ApproveProducts;

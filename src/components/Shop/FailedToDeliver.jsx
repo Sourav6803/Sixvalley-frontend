@@ -9,7 +9,7 @@ import Loader from '../../pages/Loader';
 import productImage from "./icon/package-box.png"
 
 
-const AllOrders = () => {
+const FailedToDeliver = () => {
   const { orders, isLoading } = useSelector((state) => state.order);
   const { allUsers } = useSelector((state) => state.user);
   const { seller } = useSelector((state) => state.seller);
@@ -28,7 +28,8 @@ const AllOrders = () => {
     dispatch(getAllOrdersOfShop(seller?._id));
   }, [dispatch, seller?._id]);
 
-  
+
+  const failedToDeliverOrders = orders?.filter(order => order?.status === "Failed to Deliver")
 
   function formatMongoDate(date) {
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -72,18 +73,18 @@ const AllOrders = () => {
 
   useEffect(() => {
     if (searchTearm) {
-      const filterProduct = orders?.filter((order) =>
+      const filterProduct = failedToDeliverOrders?.filter((order) =>
         order.name.toLowerCase().includes(searchTearm.toLowerCase())
       );
       setSearchData(filterProduct);
     } else {
       setSearchData(null);
     }
-  }, [searchTearm, orders]);
+  }, [searchTearm, failedToDeliverOrders]);
 
   const handleSearch = (e) => {
     e.preventDefault();
-    const filterProduct = orders.filter((order) =>
+    const filterProduct = failedToDeliverOrders?.filter((order) =>
       order.name.toLowerCase().includes(searchTearm.toLowerCase())
     );
     setSearchData(filterProduct);
@@ -95,10 +96,10 @@ const AllOrders = () => {
   // Get the data for the current page
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentData = (searchData || orders)?.slice(indexOfFirstItem, indexOfLastItem);
+  const currentData = (searchData || failedToDeliverOrders)?.slice(indexOfFirstItem, indexOfLastItem);
 
   // Calculate total pages
-  const totalPages = Math.ceil((searchData || orders)?.length / itemsPerPage);
+  const totalPages = Math.ceil((searchData || failedToDeliverOrders)?.length / itemsPerPage);
 
   const handleNext = () => {
     if (currentPage < totalPages) {
@@ -272,8 +273,6 @@ const AllOrders = () => {
 
                                 <td className="px-4  py-2 w-[50px]  ">
                                   <div className="w-full gap-x-1 flex flex-col">
-
-
                                     <h2 className="font-medium text-gray-600 dark:text-white ">{formatMongoDate(new Date(order?.createdAt))}</h2>
                                     <h2 className="text-gray-600">{extractTimeFromDate(new Date(order?.createdAt))}</h2>
                                   </div>
@@ -334,48 +333,44 @@ const AllOrders = () => {
                               </tr>
                             )) : (
                               <tr>
-                                <td colSpan="5" className="text-center py-4 text-gray-500 dark:text-gray-400">No Order found</td>
+                                <td colSpan="5" className="text-center py-4 text-gray-500 dark:text-gray-400">No Failed to deliver orders found</td>
                               </tr>
                             )}
                           </tbody>
                         </table>
+                        
 
 
+                        <div className="flex  justify-end items-center my-2 mx-2 ">
+                          {/* Previous Button */}
+                          <button
+                            className={`px-4 py-2 rounded-md text-white font-semibold ${currentPage === 1
+                                ? "bg-gray-400 cursor-not-allowed"
+                                : "bg-blue-500 hover:bg-blue-600 cursor-pointer"
+                              }`}
+                            onClick={handlePrevious}
+                            disabled={currentPage === 1}
+                          >
+                            Previous
+                          </button>
 
-                        {
-                          currentData?.length > 9 && (
-                            <div className="flex  justify-end items-center my-2 mx-2 ">
-                              {/* Previous Button */}
-                              <button
-                                className={`px-4 py-2 rounded-md text-white font-semibold ${currentPage === 1
-                                  ? "bg-gray-400 cursor-not-allowed"
-                                  : "bg-blue-500 hover:bg-blue-600 cursor-pointer"
-                                  }`}
-                                onClick={handlePrevious}
-                                disabled={currentPage === 1}
-                              >
-                                Previous
-                              </button>
+                          {/* Display current page and total pages */}
+                          <span className="text-gray-600 dark:text-gray-300">
+                            Page {currentPage} of {totalPages}
+                          </span>
 
-                              {/* Display current page and total pages */}
-                              <span className="text-gray-600 dark:text-gray-300 mx-2">
-                                Page {currentPage} of {totalPages}
-                              </span>
-
-                              {/* Next Button */}
-                              <button
-                                className={`px-4 py-2 rounded-md text-white font-semibold ${currentPage === totalPages
-                                  ? "bg-gray-400 cursor-not-allowed"
-                                  : "bg-blue-500 hover:bg-blue-600 cursor-pointer"
-                                  }`}
-                                onClick={handleNext}
-                                disabled={currentPage === totalPages}
-                              >
-                                Next
-                              </button>
-                            </div>
-                          )
-                        }
+                          {/* Next Button */}
+                          <button
+                            className={`px-4 py-2 rounded-md text-white font-semibold ${currentPage === totalPages
+                                ? "bg-gray-400 cursor-not-allowed"
+                                : "bg-blue-500 hover:bg-blue-600 cursor-pointer"
+                              }`}
+                            onClick={handleNext}
+                            disabled={currentPage === totalPages}
+                          >
+                            Next
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -392,6 +387,6 @@ const AllOrders = () => {
   );
 };
 
-export default AllOrders;
+export default FailedToDeliver;
 
 

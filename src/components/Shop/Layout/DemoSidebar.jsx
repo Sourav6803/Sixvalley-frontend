@@ -152,19 +152,14 @@ const DemoSideBar = ({ active }) => {
                         {menu.subMenu && subMenuOpen === index && open && (
                             <ul className="">
                                 {menu.submenuItems.map((subMenuItem, subIndex) => (
-
                                     <div className="flex items-center justify-between hover:bg-[#657082] rounded-md duration-300">
                                         <Link to={subMenuItem?.link}>
-                                            <li key={subIndex} className={`text-gray-300 text-sm flex items-center cursor-pointer p-2  px-7 `}>
-
+                                            <li key={subIndex} className={`text-gray-300 text-sm font-semibold flex items-center cursor-pointer p-2  px-12 `}>
                                                 {subMenuItem.title}
                                             </li>
                                         </Link>
-
-
                                         {subMenuItem?.notication && <div className="mr-3 flex items-center justify-center bg-red-500 text-white rounded-full w-6 h-6 text-xs ">{subMenuItem?.notication}</div>}
                                     </div>
-
                                 ))}
                             </ul>
                         )}

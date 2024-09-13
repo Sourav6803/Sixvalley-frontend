@@ -9,7 +9,7 @@ import Loader from '../../pages/Loader';
 import productImage from "./icon/package-box.png"
 
 
-const AllOrders = () => {
+const PackagingOrders = () => {
   const { orders, isLoading } = useSelector((state) => state.order);
   const { allUsers } = useSelector((state) => state.user);
   const { seller } = useSelector((state) => state.seller);
@@ -28,7 +28,10 @@ const AllOrders = () => {
     dispatch(getAllOrdersOfShop(seller?._id));
   }, [dispatch, seller?._id]);
 
-  
+
+  const packgeOrders = orders?.filter(order => order?.status === "Packaging")
+
+
 
   function formatMongoDate(date) {
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -72,18 +75,18 @@ const AllOrders = () => {
 
   useEffect(() => {
     if (searchTearm) {
-      const filterProduct = orders?.filter((order) =>
+      const filterProduct = packgeOrders?.filter((order) =>
         order.name.toLowerCase().includes(searchTearm.toLowerCase())
       );
       setSearchData(filterProduct);
     } else {
       setSearchData(null);
     }
-  }, [searchTearm, orders]);
+  }, [searchTearm, packgeOrders]);
 
   const handleSearch = (e) => {
     e.preventDefault();
-    const filterProduct = orders.filter((order) =>
+    const filterProduct = packgeOrders?.filter((order) =>
       order.name.toLowerCase().includes(searchTearm.toLowerCase())
     );
     setSearchData(filterProduct);
@@ -95,10 +98,10 @@ const AllOrders = () => {
   // Get the data for the current page
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentData = (searchData || orders)?.slice(indexOfFirstItem, indexOfLastItem);
+  const currentData = (searchData || packgeOrders)?.slice(indexOfFirstItem, indexOfLastItem);
 
   // Calculate total pages
-  const totalPages = Math.ceil((searchData || orders)?.length / itemsPerPage);
+  const totalPages = Math.ceil((searchData || packgeOrders)?.length / itemsPerPage);
 
   const handleNext = () => {
     if (currentPage < totalPages) {
@@ -123,7 +126,7 @@ const AllOrders = () => {
 
           <div className='flex items-center gap-2'>
             <img src={productImage} alt='layout' className='h-8' />
-            <h3 className="text-[20px] text-slate-600 font-Poppins font-semibold">Order List: {orders?.length}</h3>
+            <h3 className="text-[20px] text-slate-600 font-Poppins font-semibold">Packaging Order List: {orders?.length}</h3>
           </div>
 
           <div className="w-full mt-2 bg-white p-3 rounded-md hover:shadow-md">
@@ -181,7 +184,7 @@ const AllOrders = () => {
               <div className='flex items-center text-white   '>
                 <div className='bg-blue-700 rounded-md px-3 py-1 flex items-center justify-center gap-1 cursor-pointer' onClick={() => navigate("/dashboard-create-product")}>
 
-                  <div className=''>Order List : {orders?.length}</div>
+                  <div className=''>Packaging Order List : {orders?.length}</div>
                 </div>
               </div>
 
@@ -334,48 +337,46 @@ const AllOrders = () => {
                               </tr>
                             )) : (
                               <tr>
-                                <td colSpan="5" className="text-center py-4 text-gray-500 dark:text-gray-400">No Order found</td>
+                                <td colSpan="5" className="text-center py-4 text-gray-500 dark:text-gray-400">No Packaging orders found</td>
                               </tr>
                             )}
                           </tbody>
                         </table>
 
-
-
                         {
-                          currentData?.length > 9 && (
-                            <div className="flex  justify-end items-center my-2 mx-2 ">
-                              {/* Previous Button */}
-                              <button
-                                className={`px-4 py-2 rounded-md text-white font-semibold ${currentPage === 1
-                                  ? "bg-gray-400 cursor-not-allowed"
-                                  : "bg-blue-500 hover:bg-blue-600 cursor-pointer"
-                                  }`}
-                                onClick={handlePrevious}
-                                disabled={currentPage === 1}
-                              >
-                                Previous
-                              </button>
+                          packgeOrders?.length > 9 &&
+                          <div className="flex  justify-end items-center my-2 mx-2 ">
+                            {/* Previous Button */}
+                            <button
+                              className={`px-4 py-2 rounded-md text-white font-semibold ${currentPage === 1
+                                ? "bg-gray-400 cursor-not-allowed"
+                                : "bg-blue-500 hover:bg-blue-600 cursor-pointer"
+                                }`}
+                              onClick={handlePrevious}
+                              disabled={currentPage === 1}
+                            >
+                              Previous
+                            </button>
 
-                              {/* Display current page and total pages */}
-                              <span className="text-gray-600 dark:text-gray-300 mx-2">
-                                Page {currentPage} of {totalPages}
-                              </span>
+                            {/* Display current page and total pages */}
+                            <span className="text-gray-600 dark:text-gray-300">
+                              Page {currentPage} of {totalPages}
+                            </span>
 
-                              {/* Next Button */}
-                              <button
-                                className={`px-4 py-2 rounded-md text-white font-semibold ${currentPage === totalPages
-                                  ? "bg-gray-400 cursor-not-allowed"
-                                  : "bg-blue-500 hover:bg-blue-600 cursor-pointer"
-                                  }`}
-                                onClick={handleNext}
-                                disabled={currentPage === totalPages}
-                              >
-                                Next
-                              </button>
-                            </div>
-                          )
+                            {/* Next Button */}
+                            <button
+                              className={`px-4 py-2 rounded-md text-white font-semibold ${currentPage === totalPages
+                                ? "bg-gray-400 cursor-not-allowed"
+                                : "bg-blue-500 hover:bg-blue-600 cursor-pointer"
+                                }`}
+                              onClick={handleNext}
+                              disabled={currentPage === totalPages}
+                            >
+                              Next
+                            </button>
+                          </div>
                         }
+
                       </div>
                     </div>
                   </div>
@@ -392,6 +393,6 @@ const AllOrders = () => {
   );
 };
 
-export default AllOrders;
+export default PackagingOrders;
 
 

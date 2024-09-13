@@ -565,7 +565,7 @@ const AdminDashboardMain = () => {
                   </div>
                 </div>
 
-                <div className="bg-white rounded-md h-[70vh] flex flex-col items-center p-2 border-2 ">
+                {/* <div className="bg-white rounded-md h-[70vh] flex flex-col items-center p-2 border-2 ">
                   <div className="flex items-center justify-center mx-auto p-2 h-10 bg-white w-full rounded-md ">
                     <img src={TopImg} alt="top" className="h-10" />
                     <h2 className="text-gray-500 font-bold text-lg">Top Delivery Man</h2>
@@ -602,7 +602,7 @@ const AdminDashboardMain = () => {
                       <p className="text-center text-[12px] py-[2px] px-1 rounded-md border border-blue-400">Order Delivered : 7</p>
                     </div>
                   </div>
-                </div>
+                </div> */}
 
                 <div className="bg-white rounded-md h-[70vh] lex flex-col items-center p-2 relative border-2  overflow-y-scroll">
                   <div className="flex items-center justify-center mx-auto p-2 h-10 bg-white w-full rounded-md ">

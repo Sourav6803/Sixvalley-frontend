@@ -190,8 +190,6 @@ const DashboardSideBar = ({ active }) => {
 
 
   return (
-
-
     <section  className={`bg-[#2a2589]  max-sm:hidden 1000px:block max-h-screen p-5 pt-8 sticky top-0 left-0 ${open ? "w-72" : "w-20"} duration-300 overflow-y-scroll overflow-x-hidden`}>
       <BsArrowLeftShort className={`bg-white text-[#16162e] text-2xl rounded-full  absolute -right-3 top-5 border border-[#461b85] cursor-pointer ${!open && "rotate-180"}`} onClick={collapsed} />
 
@@ -228,7 +226,7 @@ const DashboardSideBar = ({ active }) => {
                     {menu.submenuItems.map((subMenuItem, subIndex) => (
                       <div className="flex items-center justify-between hover:bg-[#657082] rounded-md duration-300" key={subIndex}>
                         <Link to={subMenuItem?.link}>
-                          <li className={`text-gray-300 text-sm font-medium flex items-center cursor-pointer p-2   px-7 `}>
+                          <li className={`text-gray-300  text-sm font-medium flex items-center cursor-pointer p-2   px-12 `}>
                             {subMenuItem.title}
                           </li>
                         </Link>

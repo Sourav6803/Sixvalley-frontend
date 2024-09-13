@@ -60,7 +60,7 @@ const Payment = () => {
     totalPrice: orderData?.totalCartPrice,
     couponCode: orderData?.couponCode,
     couponAmount: orderData?.couponAmount,
-    platformFee: 5,
+    
     taxAmount: 10,
     deliveryCharge: orderData?.deliverCharge
   };

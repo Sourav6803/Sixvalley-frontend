@@ -78,6 +78,7 @@ const ProfileContent = ({ active }) => {
       setImageLoading(false); // Stop loading after image upload completes
     });
   };
+  
   return (
     <div className='w-full '>
 

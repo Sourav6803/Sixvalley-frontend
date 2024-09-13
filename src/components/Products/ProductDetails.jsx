@@ -142,8 +142,8 @@ const ProductDetails = ({ data }) => {
                 ...currentVariant,
                 ...data, // Include current variant details
                 qty: count, // Include quantity
-                shippingCost: data?.shippingCost,
-                name: data?.name
+                
+                
             };
 
             // Check if the item already exists in the cart

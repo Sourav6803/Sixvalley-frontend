@@ -15,6 +15,17 @@ import ShopInboxPage from "../pages/Shop/ShopInboxPage";
 import ShopAllCupoun from "../pages/Shop/ShopAllCupon.jsx";
 import ShopBannerPage from "../pages/Shop/ShopBannerPage.jsx";
 import ShopProductView from "../pages/Shop/ShopProductView.jsx";
+import ShopPackagingOrderPage from "../pages/Shop/ShopPackagingOrderPage.jsx"
+import OutForDeliveryPage from "../pages/Shop/OutForDeliveryPage.jsx";
+import DelivredOrderPage from "../pages/Shop/DelivredOrderPage.jsx";
+import ReturnedOrderPage from "../pages/Shop/ReturnedOrderPage.jsx";
+import FailedToDeliveryPage from "../pages/Shop/FailedToDeliveryPage.jsx";
+import ShopCancledOrderPage from "../pages/Shop/ShopCacncledOrder.jsx";
+import ApprovedProductPage from "../pages/Shop/ApprovedProductPage.jsx";
+import PendingProductPage from "../pages/Shop/PendingProductPage.jsx";
+import ShopBankInformationPage from "../pages/Shop/ShopBankInformationPage.jsx";
+import OrderReportPage from "../pages/Shop/OrderReportPage.jsx";
+
 
 export {
     ShopDashboardPage,
@@ -32,6 +43,15 @@ export {
     ShopInboxPage,
     ShopAllCupoun,
     ShopBannerPage,
-    ShopProductView
-
+    ShopProductView,
+    ShopPackagingOrderPage,
+    OutForDeliveryPage,
+    DelivredOrderPage,
+    ReturnedOrderPage,
+    FailedToDeliveryPage,
+    ShopCancledOrderPage,
+    ApprovedProductPage,
+    PendingProductPage,
+    ShopBankInformationPage,
+    OrderReportPage
 }

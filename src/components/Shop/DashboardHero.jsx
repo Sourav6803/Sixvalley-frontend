@@ -1,27 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { AiOutlineArrowRight, AiOutlineMoneyCollect } from "react-icons/ai";
-import styles from "../../styles/styles";
-import { Link } from "react-router-dom";
-import { MdBorderClear } from "react-icons/md";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllOrdersOfShop } from "../../redux/actions/order";
 import { getAllProductsShop } from "../../redux/actions/product";
-// import { Button } from "@material-ui/core";
-import Button from '@mui/material/Button'
-import { DataGrid } from "@material-ui/data-grid";
 import { IoDiamondSharp } from "react-icons/io5";
-
-// import { Button } from "@material-ui/core";
-
 import { IoIosArrowDown } from "react-icons/io";
-import { getAllOrdersOfAdmin } from "../../redux/actions/order";
-import Loader from "../Layout/Loader";
-import { getAllSellers } from "../../redux/actions/sellers";
+import Loader from "../../pages/Loader";
 import analytics from "./icon/Analytics .png"
-import orderImg from "./icon/order.png";
-import storeImg from "./icon/store.png";
-import productImg from "./icon/products.png"
-import customerImg from "./icon/rating.png"
 import pendingImg from "./icon/time.png"
 import confirmedImg from "./icon/shopping-bag.png"
 import packagingImg from "./icon/package-box.png"
@@ -31,109 +16,57 @@ import returnedImg from "./icon/cancel.png"
 import rejectedImg from "./icon/rejected.png"
 import cancledImg from "./icon/cancelled.png"
 import adminWalletImg from "./icon/wallet.png"
-import earningImg from "./icon/earnings.png"
-import deliveryChargeImg from "./icon/electric-truck.png"
-import totalTaskImg from "./icon/tax.png"
+import ReactApexChart from 'react-apexcharts';
+import axios from "axios";
+import { server } from "../../server";
+import { toast } from "react-toastify";
+import { AiFillStar } from "react-icons/ai";
 import TopImg from "./icon/badge.png"
 import popularImg from "./icon/fire.png"
-import pendingPaymentImg from "./icon/payment-authentication.png"
-import inHouseEarningImg from "./icon/dollar-symbol.png"
-import ReactApexChart from 'react-apexcharts';
-import ApexCharts from 'apexcharts'
-import { AiFillHeart, AiFillStar } from "react-icons/ai";
-import { BiShoppingBag } from "react-icons/bi";
-import moneyPrinter from "./icon/printer.png"
+
+
+
 const DashboardHero = () => {
   const dispatch = useDispatch();
   const { orders } = useSelector((state) => state.order);
   const { seller } = useSelector((state) => state.seller);
+
   const { products } = useSelector((state) => state.products);
 
+  const popularProduct = Array.isArray(products) ? [...products].sort((a, b) => b?.ratings - a?.ratings).slice(0, 6) : [];
+  const topSellingProduct = Array.isArray(products) ? [...products].sort((a, b) => b?.sold_out - a?.sold_out).slice(0, 5) : [];
 
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    dispatch(getAllOrdersOfShop(seller?._id));
+
+  }, [dispatch, seller?._id]);
 
   useEffect(() => {
     dispatch(getAllOrdersOfShop(seller?._id));
     dispatch(getAllProductsShop(seller?._id));
   }, [dispatch, seller]);
 
+  const [timeFilter, setTimeFilter] = useState('?rangeType=months&rangeCount=12');
+  const [analyticData, setAnalyticData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
 
-  const availableBalance = seller?.availableBalance?.toFixed(2);
-
-  const columns = [
-    { field: "id", headerName: "Order ID", minWidth: 150, flex: 0.7 },
-
-    {
-      field: "status",
-      headerName: "Status",
-      minWidth: 130,
-      flex: 0.7,
-      cellClassName: (params) => {
-        return params.getValue(params.id, "status") === "Delivered"
-          ? "greenColor"
-          : "redColor";
-      },
-    },
-    {
-      field: "itemsQty",
-      headerName: "Items Qty",
-      type: "number",
-      minWidth: 130,
-      flex: 0.7,
-    },
-
-    {
-      field: "total",
-      headerName: "Total",
-      type: "number",
-      minWidth: 130,
-      flex: 0.8,
-    },
-
-    {
-      field: " ",
-      flex: 1,
-      minWidth: 150,
-      headerName: "",
-      type: "number",
-      sortable: false,
-      renderCell: (params) => {
-        return (
-          <>
-            <Link to={`/dashboard/order/${params.id}`}>
-              <Button>
-                <AiOutlineArrowRight size={20} />
-              </Button>
-            </Link>
-          </>
-        );
-      },
-    },
-  ];
-
-  const row = [];
-
-  orders && orders.forEach((item) => {
-    row.push({
-      id: item._id,
-      itemsQty: item.cart.reduce((acc, item) => acc + item.qty, 0),
-      total: "₹ " + item?.totalPrice,
-      status: item.status,
-    });
-  });
 
 
   const [series, setSeries] = useState([
     {
-      name: 'Inhouse',
+      name: 'Total Price',
       type: 'column',
-      data: [11000, 23000, 25800, 33000, 35000, 38900, 41100, 42300]
+      data: []
     },
     {
-      name: 'Vendor',
-      type: 'column',
-      data: [12000, 21000, 27800, 35000, 38000, 40900, 41900, 46300]
-    },
+      name: 'Total Orders',
+      type: 'line',
+      data: []
+    }
   ]);
 
   const [options, setOptions] = useState({
@@ -149,17 +82,16 @@ const DashboardHero = () => {
       width: [1, 1]
     },
     title: {
-      text: 'Order Stastic',
+      text: 'Order Statistics',
       align: 'left',
       offsetX: 110
     },
     xaxis: {
-      categories: ["Jan", "Feb", "March", "Apr", "May", "Jun", "July", "Aug", "Sept", "Oct", "Nov", "Dec"],
+      categories: [],
     },
     yaxis: [
       {
-        min: 0,
-        seriesName: 'Inhouse',
+        seriesName: 'Total Price',
         axisTicks: {
           show: true,
         },
@@ -172,15 +104,13 @@ const DashboardHero = () => {
             colors: '#008FFB',
           }
         },
-
         tooltip: {
           enabled: true
         }
       },
       {
-        min: 0,
-        seriesName: 'vendor',
         opposite: true,
+        seriesName: 'Total Orders',
         axisTicks: {
           show: true,
         },
@@ -193,17 +123,15 @@ const DashboardHero = () => {
             colors: '#00E396',
           }
         },
-
-      },
-
+      }
     ],
     tooltip: {
       fixed: {
         enabled: true,
-        position: 'topLeft', // topRight, topLeft, bottomRight, bottomLeft
+        position: 'topLeft',
         offsetY: 30,
         offsetX: 60
-      },
+      }
     },
     legend: {
       horizontalAlign: 'left',
@@ -211,24 +139,62 @@ const DashboardHero = () => {
     }
   });
 
-  const [pieSeries, setPieSeries] = useState([44, 55, 41]);
-  const [pieOptions, setPieOptions] = useState({
-    chart: {
-      type: 'donut',
-    },
-    responsive: [{
-      breakpoint: 480,
-      options: {
-        chart: {
-          width: 200,
-
-        },
-        legend: {
-          position: 'bottom'
-        }
+  useEffect(() => {
+    const fetchAnalyticData = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`${server}/analytic/order-analytic${timeFilter}`, { withCredentials: true });
+        setAnalyticData(response?.data?.data?.data); // Update state with the fetched data
+      } catch (error) {
+        console.error("Error fetching analytic data:", error);
+        setError("Failed to fetch analytic data. Please try again later.");
+      } finally {
+        setLoading(false);
       }
-    }]
-  });
+    };
+
+    fetchAnalyticData();
+  }, [timeFilter]);
+
+  useEffect(() => {
+    if (analyticData && analyticData.length > 0) {
+
+      const periods = analyticData.map(item => item.period || 'Unknown');
+      const totalPrices = analyticData?.map(item => Number(item.totalPrice) || 0);
+      const totalOrders = analyticData?.map(item => Number(item.totalOrders) || 0);
+
+      // Check for NaN or undefined values
+      if (totalPrices.includes(NaN) || totalOrders.includes(NaN)) {
+        toast.error('Invalid data found in series.');
+        return;
+      }
+
+      // Update chart series and categories
+      setSeries([
+        {
+          name: 'Total Price',
+          type: 'column',
+          data: totalPrices || [] // Handle empty data gracefully
+        },
+        {
+          name: 'Total Orders',
+          type: 'line',
+          data: totalOrders || [] // Handle empty data gracefully
+        }
+      ]);
+
+      setOptions(prevOptions => ({
+        ...prevOptions,
+        xaxis: {
+          categories: periods || [] // Handle empty categories gracefully
+        }
+      }));
+    }
+  }, [analyticData]);
+
+
+
+
   return (
     <section className="relative">
       <div className="w-full p-2 bg-white ">
@@ -266,49 +232,13 @@ const DashboardHero = () => {
 
 
 
-          {/* <div className="w-full  p-2  ">
-            <div className="grid sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4  gap-2 p-2  ">
 
-              <div className=" mb-4 bg-[#e1e1e2]  p-2 min-h-[18vh]  shadow-md hover:shadow-lg border rounded px-2 py-5">
-                <div className="flex items-center gap-3 md:gap-6 mx-auto  justify-center">
-                  <img src={productImg} alt="Analytics" className="h-7" />
-                  <h3
-                    className={`${styles.productTitle} !text-[18px] leading-5 !font-[400] text-[#00000085]`}
-                  >
-                    All Product
-                  </h3>
-                </div>
-                
-                <h5 className="pt-2 pl-[36px] text-[22px] font-[500] text-center">0</h5>
-                <Link to="/admin-product" className="text-center b">
-                  <h5 className="pt-4 pl-2 text-blue-800 font-bold">View Product</h5>
-                </Link>
-              </div>
-
-              <div className=" mb-4  p-2 min-h-[18vh] bg-[#e1e1e2] shadow-md hover:shadow-lg border rounded  py-5 ">
-                <div className="flex items-center gap-3 justify-center">
-                  <img src={orderImg} alt="Analytics" className="h-7" />
-                  <h3
-                    className={`${styles.productTitle} !text-[18px] leading-5 !font-[400] text-[#00000085]`}
-                  >
-                    Total Orders
-                  </h3>
-                </div>
-                
-                <h5 className="pt-2 pl-[36px] text-center text-[22px] font-[500]">00</h5>
-                <Link to="/admin-orders">
-                  <h5 className="pt-4 pl-2 text-blue-800 font-bold text-center">View Orders</h5>
-                </Link>
-              </div>
-
-            </div>
-          </div> */}
 
 
 
           <div className="w-full  p-2 mt-1">
             <div className="grid md:grid-cols-2 sm:grid-cols-2 lg:grid-cols-4  gap-2">
-              <div className="border min-h-[12vh] bg-slate-200 rounded-lg flex items-center justify-between">
+              <div onClick={() => navigate('/dashboard/confirmed/order')} className="border min-h-[12vh] bg-slate-200 rounded-lg flex items-center justify-between cursor-pointer">
                 <div className="flex items-center gap-3 ">
                   <img src={pendingImg} alt="" className="h-7 ml-3" />
                   <h2 className="text-lg text-slate-600 font-medium">Pending</h2>
@@ -316,7 +246,7 @@ const DashboardHero = () => {
                 <div className="text-blue-400 font-semibold text-xl mr-3">20</div>
               </div>
 
-              <div className="border min-h-[12vh] bg-slate-200 rounded-lg flex items-center justify-between">
+              <div onClick={() => navigate('/dashboard/confirmed/order')} className="border min-h-[12vh] bg-slate-200 rounded-lg flex items-center justify-between cursor-pointer">
                 <div className="flex items-center gap-3 ">
                   <img src={confirmedImg} alt="" className="h-7 ml-3" />
                   <h2 className="text-lg text-slate-600 font-medium">Confirmed</h2>
@@ -324,7 +254,7 @@ const DashboardHero = () => {
                 <div className="font-medium text-lg mr-3 text-green-400">20</div>
               </div>
 
-              <div className="border min-h-[12vh] bg-slate-200 rounded-lg flex items-center justify-between">
+              <div onClick={() => navigate('/dashboard/packaging/order')} className="border min-h-[12vh] bg-slate-200 rounded-lg flex items-center justify-between cursor-pointer">
                 <div className="flex items-center gap-3 ">
                   <img src={packagingImg} alt="" className="h-7 ml-3" />
                   <h2 className="text-lg text-slate-600 font-medium">Packaging</h2>
@@ -332,7 +262,7 @@ const DashboardHero = () => {
                 <div className="text-yellow-400 font-semibold text-xl mr-3">20</div>
               </div>
 
-              <div className="border min-h-[12vh] bg-slate-200 rounded-lg flex items-center justify-between">
+              <div onClick={() => navigate('/dashboard/delivered/order')} className="border min-h-[12vh] bg-slate-200 rounded-lg flex items-center justify-between cursor-pointer">
                 <div className="flex items-center gap-3 ">
                   <img src={delivredImg} alt="" className="h-7 ml-3" />
                   <h2 className="text-lg  text-slate-600 font-medium">Delivered</h2>
@@ -340,7 +270,7 @@ const DashboardHero = () => {
                 <div className="text-green-400 font-semibold text-xl mr-3">20</div>
               </div>
 
-              <div className="border min-h-[12vh] bg-slate-200 rounded-lg flex items-center justify-between">
+              <div onClick={() => navigate('/dashboard/out-for-delivery/order')} className="border min-h-[12vh] bg-slate-200 rounded-lg flex items-center justify-between cursor-pointer">
                 <div className="flex items-center gap-3 ">
                   <img src={outForDeliveryImh} alt="" className="h-7 ml-3" />
                   <h2 className="font-medium text-slate-600 text-lg">Out For Delivery</h2>
@@ -348,7 +278,8 @@ const DashboardHero = () => {
                 <div className="text-blue-400 font-semibold text-xl mr-3">20</div>
               </div>
 
-              <div className="border min-h-[12vh] bg-slate-200 rounded-lg flex items-center justify-between">
+
+              <div onClick={() => navigate('/dashboard/returned/order')} className="border min-h-[12vh] bg-slate-200 rounded-lg flex items-center justify-between cursor-pointer">
                 <div className="flex items-center gap-3 ">
                   <img src={returnedImg} alt="" className="h-7 ml-3" />
                   <h2 className="text-lg text-slate-600 font-medium">Returned</h2>
@@ -356,7 +287,7 @@ const DashboardHero = () => {
                 <div className="text-blue-400 font-semibold text-xl mr-3">20</div>
               </div>
 
-              <div className="border min-h-[12vh] bg-slate-200 rounded-lg flex items-center justify-between">
+              <div onClick={() => navigate('/dashboard/cancled/order')} className="border min-h-[12vh] bg-slate-200 rounded-lg flex items-center justify-between">
                 <div className="flex items-center gap-3 ">
                   <img src={cancledImg} alt="" className="h-7 ml-3" />
                   <h2 className="font-medium text-slate-600 text-lg">Cancled</h2>
@@ -364,7 +295,8 @@ const DashboardHero = () => {
                 <div className="text-red-400 font-semibold text-xl mr-3">20</div>
               </div>
 
-              <div className="border min-h-[12vh] bg-slate-200 rounded-lg flex items-center justify-between">
+
+              <div onClick={() => navigate('/dashboard/failedToDeliver/order')} className="border min-h-[12vh] bg-slate-200 rounded-lg flex items-center justify-between">
                 <div className="flex items-center gap-3 ">
                   <img src={rejectedImg} alt="" className="h-7 ml-3" />
                   <h2 className="font-medium text-slate-600 text-lg">Failed To Delivery</h2>
@@ -386,77 +318,77 @@ const DashboardHero = () => {
           </div>
 
 
-          <div class="grid grid-cols-1 gap-2 lg:grid-cols-3 w-full" >
+          <div className="grid grid-cols-1 gap-2 lg:grid-cols-3 w-full" >
 
-            <div class="lg:col-span-1">
-              <div class="card h-full flex justify-center items-center bg-white shadow-md rounded-lg p-6">
-                <div class="flex flex-col items-center gap-4">
-                  <img width="48" class="mb-2" src="https://6valley.6amtech.com/public/assets/back-end/img/withdraw.png" alt="" />
-                  <h3 class="text-2xl font-bold mb-0">$10,023.50</h3>
-                  <div class="font-bold capitalize mb-6 text-center">Withdrawable balance</div>
-                  <button class="bg-blue-500 text-white px-4 py-2 rounded-md" data-toggle="modal" data-target="#balance-modal">Withdraw</button>
+            <div className="lg:col-span-1">
+              <div className="card h-full flex justify-center items-center bg-white shadow-md rounded-lg p-6">
+                <div className="flex flex-col items-center gap-4">
+                  <img width="48" className="mb-2" src="https://6valley.6amtech.com/public/assets/back-end/img/withdraw.png" alt="" />
+                  <h3 className="text-2xl font-bold mb-0">₹{seller?.availableBalance.toFixed(2)}</h3>
+                  <div className="font-bold capitalize mb-6 text-center">Withdrawable balance</div>
+                  <button className="bg-blue-500 text-white px-4 py-2 rounded-md" data-toggle="modal" data-target="#balance-modal">Withdraw</button>
                 </div>
               </div>
             </div>
 
 
-            <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-2">
 
-              <div class="card bg-white shadow-md rounded-lg p-4 flex items-center">
-                <div class="flex justify-between items-center w-full">
-                  <div class="flex flex-col items-start">
-                    <h3 class="text-2xl font-bold mb-1">$500.00</h3>
-                    <div class="capitalize mb-0">Pending Withdraw</div>
+              <div className="card bg-white shadow-md rounded-lg p-4 flex items-center">
+                <div className="flex justify-between items-center w-full">
+                  <div className="flex flex-col items-start">
+                    <h3 className="text-2xl font-bold mb-1">₹{seller?.pendingWithdraw}</h3>
+                    <div className="capitalize mb-0">Pending Withdraw</div>
                   </div>
-                  <img width="40" class="mb-2" src="https://6valley.6amtech.com/public/assets/back-end/img/pw.png" alt="" />
+                  <img width="40" className="mb-2" src="https://6valley.6amtech.com/public/assets/back-end/img/pw.png" alt="" />
                 </div>
               </div>
 
-              <div class="card bg-white shadow-md rounded-lg p-4 flex items-center">
-                <div class="flex justify-between items-center w-full">
-                  <div class="flex flex-col items-start">
-                    <h3 class="text-2xl font-bold mb-1">$6,394.47</h3>
-                    <div class="capitalize mb-0">Total Commission Given</div>
+              <div className="card bg-white shadow-md rounded-lg p-4 flex items-center">
+                <div className="flex justify-between items-center w-full">
+                  <div className="flex flex-col items-start">
+                    <h3 className="text-2xl font-bold mb-1">₹{seller?.totalCommission}</h3>
+                    <div className="capitalize mb-0">Total Commission Given</div>
                   </div>
                   <img width="40" src="https://6valley.6amtech.com/public/assets/back-end/img/tcg.png" alt="" />
                 </div>
               </div>
 
-              <div class="card bg-white shadow-md rounded-lg p-4 flex items-center">
-                <div class="flex justify-between items-center w-full">
-                  <div class="flex flex-col items-start">
-                    <h3 class="text-2xl font-bold mb-1">$600.00</h3>
-                    <div class="capitalize mb-0">Already Withdrawn</div>
+              <div className="card bg-white shadow-md rounded-lg p-4 flex items-center">
+                <div className="flex justify-between items-center w-full">
+                  <div className="flex flex-col items-start">
+                    <h3 className="text-2xl font-bold mb-1">₹{seller?.totalWithdraw}</h3>
+                    <div className="capitalize mb-0">Already Withdrawn</div>
                   </div>
                   <img width="40" src="https://6valley.6amtech.com/public/assets/back-end/img/aw.png" alt="" />
                 </div>
               </div>
 
-              <div class="card bg-white shadow-md rounded-lg p-4 flex items-center">
-                <div class="flex justify-between items-center w-full">
-                  <div class="flex flex-col items-start">
-                    <h3 class="text-2xl font-bold mb-1">$822.00</h3>
-                    <div class="capitalize mb-0">Total Delivery Charge Earned</div>
+              <div className="card bg-white shadow-md rounded-lg p-4 flex items-center">
+                <div className="flex justify-between items-center w-full">
+                  <div className="flex flex-col items-start">
+                    <h3 className="text-2xl font-bold mb-1">₹{seller?.totalDeliveryCharge}</h3>
+                    <div className="capitalize mb-0">Total Delivery Charge Earned</div>
                   </div>
                   <img width="40" src="https://6valley.6amtech.com/public/assets/back-end/img/tdce.png" alt="" />
                 </div>
               </div>
 
-              <div class="card bg-white shadow-md rounded-lg p-4 flex items-center">
-                <div class="flex justify-between items-center w-full">
-                  <div class="flex flex-col items-start">
-                    <h3 class="text-2xl font-bold mb-1">$2,519.00</h3>
-                    <div class="capitalize mb-0">Total Tax Given</div>
+              {/* <div className="card bg-white shadow-md rounded-lg p-4 flex items-center">
+                <div className="flex justify-between items-center w-full">
+                  <div className="flex flex-col items-start">
+                    <h3 className="text-2xl font-bold mb-1">$2,519.00</h3>
+                    <div className="capitalize mb-0">Total Tax Given</div>
                   </div>
                   <img width="40" src="https://6valley.6amtech.com/public/assets/back-end/img/ttg.png" alt="" />
                 </div>
-              </div>
+              </div> */}
 
-              <div class="card bg-white shadow-md rounded-lg p-4 flex items-center">
-                <div class="flex justify-between items-center w-full">
-                  <div class="flex flex-col items-start">
-                    <h3 class="text-2xl font-bold mb-1">$25,756.80</h3>
-                    <div class="capitalize mb-0">Collected Cash</div>
+              <div className="card bg-white shadow-md rounded-lg p-4 flex items-center">
+                <div className="flex justify-between items-center w-full">
+                  <div className="flex flex-col items-start">
+                    <h3 className="text-2xl font-bold mb-1">₹{seller?.collectedCash}</h3>
+                    <div className="capitalize mb-0">Collected Cash</div>
                   </div>
                   <img width="40" src="https://6valley.6amtech.com/public/assets/back-end/img/cc.png" alt="" />
                 </div>
@@ -468,225 +400,100 @@ const DashboardHero = () => {
 
         </div>
 
-        {/* statistic */}
-        <div className="w-full flex items-center justify-center  bg-slate-100 rounded-md p-3 mt-3    ">
-          <div className=" w-full  bg-white rounded-md h-[55vh] md:h-[60vh] py-3 ">
-            <div>
-              <div id="chart">
-                <ReactApexChart options={options} series={series} type="line" height={400} />
-              </div>
-              <div id="html-dist"></div>
-            </div>
-          </div>
 
-
-
-        </div>
-
-
-
-        {/* <div className="w-full flex items-center 1000px:justify-between  bg-slate-100 rounded-md mt-3 p-2">
-
-              <div className="w-full grid md:grid-cols-2 sm:grid-cols-2   gap-2 rounded-md bg-white p-1">
-
-                <div className="bg-white rounded-md h-[80vh] md:h-[70vh]  flex flex-col items-center  md:gap-1 border-2 ">
-                  <div className="flex items-center justify-center mx-auto p-2 h-10 bg-white w-full rounded-md ">
-                    <img src={popularImg} alt="top" className="h-10" />
-                    <h2 className="text-gray-500 font-bold text-lg">Popular Product</h2>
-                  </div>
-
-                  <div className="bg-white w-full h-full md:px-5 p-2 flex items-center justify-between gap-2 ">
-                    <div className="border rounded-md md:pl-4  flex flex-col items-center justify-center p-2  h-[20vh] w-[45vw] md:h-[15vh] md:w-[12vw]">
-                      <img src="https://6valley.6amtech.com/storage/app/public/product/thumbnail/2022-04-20-625fe69f72cce.png" alt="" className="h-[50px]" />
-                      <p className="text-center text-[12px] ">Printed T-Shirt</p>
-                      <div className="flex items-center justify-center">
-                        <AiFillStar color="red" />
-                        <p className="text-center text-[12px]">4.4 (5 Reviews)</p>
-                      </div>
-                    </div>
-
-                    <div className="border rounded-md flex flex-col items-center justify-center hover:shadow-lg p-2 md:pr-4 h-[20vh] w-[45vw] md:h-[15vh] md:w-[12vw]">
-                      <img src="https://6valley.6amtech.com/storage/app/public/product/thumbnail/2022-04-20-625fe69f72cce.png" alt="" className="h-[50px]" />
-                      <p className="text-center text-[12px]">Printed T-Shirt </p>
-                      <div className="flex items-center justify-center">
-                        <AiFillStar color="red" />
-                        <p>4.4 (5 Reviews)</p>
-                      </div>
-                    </div>
-
-                  </div>
-
-                  <div className="bg-white w-full h-full md:px-5 p-2 flex items-center justify-between gap-2 ">
-                    <div className="border rounded-md md:pl-4  flex flex-col items-center justify-center p-2  h-[20vh] w-[45vw] md:h-[15vh] md:w-[12vw]">
-                      <img src="https://6valley.6amtech.com/storage/app/public/product/thumbnail/2022-04-20-625fe69f72cce.png" alt="" className="h-[50px]" />
-                      <p className="text-center text-[12px] ">Printed T-Shirt</p>
-                      <div className="flex items-center justify-center">
-                        <AiFillStar color="red" />
-                        <p className="text-center text-[12px]">4.4 (5 Reviews)</p>
-                      </div>
-                    </div>
-
-                    <div className="border rounded-md flex flex-col items-center justify-center hover:shadow-lg p-2 md:pr-4 h-[20vh] w-[45vw] md:h-[15vh] md:w-[12vw]">
-                      <img src="https://6valley.6amtech.com/storage/app/public/product/thumbnail/2022-04-20-625fe69f72cce.png" alt="" className="h-[50px]" />
-                      <p className="text-center text-[12px]">Printed T-Shirt </p>
-                      <div className="flex items-center justify-center">
-                        <AiFillStar color="red" />
-                        <p>4.4 (5 Reviews)</p>
-                      </div>
-                    </div>
-
-                  </div>
-
-                  <div className="bg-white w-full h-full md:px-5 p-2 flex items-center justify-between gap-2 ">
-                    <div className="border rounded-md md:pl-4  flex flex-col items-center justify-center p-2  h-[20vh] w-[45vw] md:h-[15vh] md:w-[12vw]">
-                      <img src="https://6valley.6amtech.com/storage/app/public/product/thumbnail/2022-04-20-625fe69f72cce.png" alt="" className="h-[50px]" />
-                      <p className="text-center text-[12px] ">Printed T-Shirt</p>
-                      <div className="flex items-center justify-center">
-                        <AiFillStar color="red" />
-                        <p className="text-center text-[12px]">4.4 (5 Reviews)</p>
-                      </div>
-                    </div>
-
-                    <div className="border rounded-md flex flex-col items-center justify-center hover:shadow-lg p-2 md:pr-4 h-[20vh] w-[45vw] md:h-[15vh] md:w-[12vw]">
-                      <img src="https://6valley.6amtech.com/storage/app/public/product/thumbnail/2022-04-20-625fe69f72cce.png" alt="" className="h-[50px]" />
-                      <p className="text-center text-[12px]">Printed T-Shirt </p>
-                      <div className="flex items-center justify-center">
-                        <AiFillStar color="red" />
-                        <p>4.4 (5 Reviews)</p>
-                      </div>
-                    </div>
-
-                  </div>
-
-                </div>
-
-                <div className="bg-white rounded-md h-[70vh] lex flex-col items-center p-2 relative border-2  overflow-y-scroll">
-                  <div className="flex items-center justify-center mx-auto p-2 h-10 bg-white w-full rounded-md ">
-                    <img src={TopImg} alt="top" className="h-10" />
-                    <h2 className="text-gray-500 font-bold text-lg">Top Selling Product</h2>
-                  </div>
-
-                  <div className="w-full   rounded-md gap-2 md:gap-3 mt-0 flex items-center flex-col p-2  ">
-                    <div className="flex items-center justify-between gap-2 h-[10vh] md:h-[9vh] border w-full px-3 rounded-md">
-                      <img src="https://6valley.6amtech.com/storage/app/public/product/thumbnail/2022-04-20-625fe97736a17.png" alt="" className="h-[50px]" />
-
-                      <p>Movile cover</p>
-                      <div className="border border-blue-400 p-1 rounded-md">
-                        Sold: 28
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between gap-2 h-[10vh] md:h-[9vh] border w-full px-3 rounded-md">
-                      <img src="https://6valley.6amtech.com/storage/app/public/product/thumbnail/2022-04-20-625fe97736a17.png" alt="" className="h-[50px]" />
-
-                      <p>Movile cover</p>
-                      <div className="border border-blue-400 p-1 rounded-md">
-                        Sold: 28
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between gap-2 h-[10vh] md:h-[9vh] border w-full px-3 rounded-md">
-                      <img src="https://6valley.6amtech.com/storage/app/public/product/thumbnail/2022-04-20-625fe97736a17.png" alt="" className="h-[50px]" />
-
-                      <p>Movile cover</p>
-                      <div className="border border-blue-400 p-1 rounded-md">
-                        Sold: 28
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between gap-2 h-[10vh] md:h-[9vh] border w-full px-3 rounded-md">
-                      <img src="https://6valley.6amtech.com/storage/app/public/product/thumbnail/2022-04-20-625fe97736a17.png" alt="" className="h-[50px]" />
-
-                      <p>Movile cover</p>
-                      <div className="border border-blue-400 p-1 rounded-md">
-                        Sold: 28
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between gap-2 h-[10vh] md:h-[9vh] border w-full px-3 rounded-md">
-                      <img src="https://6valley.6amtech.com/storage/app/public/product/thumbnail/2022-04-20-625fe97736a17.png" alt="" className="h-[50px]" />
-
-                      <p>Movile cover</p>
-                      <div className="border border-blue-400 p-1 rounded-md">
-                        Sold: 28
-                      </div>
-                    </div>
-
-                  </div>
-                </div>
-
-
-              </div>
-
-            </div> */}
-
-
-        {/* <div className="w-full block 800px:flex items-center justify-between gap-2">
-          <div className="w-full mb-4 800px:w-[70%] min-h-[20vh]  shadow rounded px-2 py-5 bg-white">
-            <div className="flex items-center ">
-              <AiOutlineMoneyCollect
-                size={30}
-                className="mr-2"
-                fill="#00000085"
-              />
-              <h3 className={`${styles.productTitle} !text-[18px] leading-5 !font-[400] text-[#00000085]`}>
-                Account Balance{" "}
-                <span className="text-[16px]">(with 10% service charge)</span>
-              </h3>
-            </div>
-            <h5 className="pt-2 pl-[36px] text-[22px] font-[500]">₹{availableBalance}</h5>
-            <Link to="/dashboard-withdraw-money">
-              <h5 className="pt-4 pl-[2] text-[#077f9c]">Withdraw Money</h5>
-            </Link>
-          </div>
-
-          <div className="w-full mb-4 800px:w-[30%] min-h-[20vh] bg-white shadow rounded px-2 py-5">
-            <div className="flex items-center">
-              <MdBorderClear size={30} className="mr-2" fill="#00000085" />
-              <h3
-                className={`${styles.productTitle} !text-[18px] leading-5 !font-[400] text-[#00000085]`}
+        <div className="w-full flex items-center justify-center bg-slate-100 rounded-md p-3 mt-3">
+          <div className="w-full bg-white rounded-md h-[60vh] md:h-[70vh] py-3">
+            <div className="flex justify-end space-x-4 mb-4  ">
+              <button
+                className={`px-4 rounded-md py-2 ${timeFilter === '?rangeType=months&rangeCount=12' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+                onClick={() => setTimeFilter('?rangeType=months&rangeCount=12')}
               >
-                All Orders
-              </h3>
-            </div>
-            <h5 className="pt-2 pl-[36px] text-[22px] font-[500]">{orders && orders.length}</h5>
-            <Link to="/dashboard-orders">
-              <h5 className="pt-4 pl-2 text-[#077f9c]">View Orders</h5>
-            </Link>
-          </div>
-
-          <div className="w-full mb-4 800px:w-[30%] min-h-[20vh] bg-white shadow rounded px-2 py-5">
-            <div className="flex items-center">
-              <AiOutlineMoneyCollect
-                size={30}
-                className="mr-2"
-                fill="#00000085"
-              />
-              <h3
-                className={`${styles.productTitle} !text-[18px] leading-5 !font-[400] text-[#00000085]`}
+                This Year
+              </button>
+              <button
+                className={`px-4 rounded-md py-2 ${timeFilter === '?rangeType=months&rangeCount=3' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+                onClick={() => setTimeFilter('?rangeType=months&rangeCount=3')}
               >
-                All Products
-              </h3>
+                This Month
+              </button>
+              <button
+                className={`px-4 rounded-md py-2 ${timeFilter === '?rangeType=days&rangeCount=7' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+                onClick={() => setTimeFilter('?rangeType=days&rangeCount=7')}
+              >
+                This Week
+              </button>
             </div>
-            <h5 className="pt-2 pl-[36px] text-[22px] font-[500]">{products && products.length}</h5>
-            <Link to="/dashboard-products">
-              <h5 className="pt-4 pl-2 text-[#077f9c]">View Products</h5>
-            </Link>
+            {
+              loading === true ? (
+                <div className="flex items-center justify-center h-screen relative">
+                  <Loader />
+                </div>
+              ) : (
+                <div id="chart">
+                  <ReactApexChart options={options} series={series} type="line" height={400} />
+                </div>
+              )
+            }
           </div>
         </div>
 
-        <br /> */}
+        <div className="w-full flex items-start justify-between bg-slate-100 rounded-md mt-3 p-2">
+          <div className="w-full grid md:grid-cols-2 sm:grid-cols-1 gap-4 rounded-md bg-white p-2">
 
-        {/* <h3 className="text-[22px] font-Poppins pb-2">Latest Orders</h3>
-        <div className="w-full min-h-[45vh] bg-white rounded">
-          <DataGrid
-            rows={row}
-            columns={columns}
-            pageSize={10}
-            disableSelectionOnClick
-            autoHeight
-          />
-        </div> */}
+            {/* Popular Products Section */}
+            <div className="bg-white rounded-md flex flex-col border-2 shadow-md p-2">
+              <div className="flex items-center justify-center mb-4 p-2 bg-white rounded-md border-b">
+                <img src={popularImg} alt="Popular Products" className="h-10 mr-2" />
+                <h2 className="text-gray-500 font-bold text-lg">Popular Products</h2>
+              </div>
+
+              <div className="w-full grid grid-cols-2 gap-2">
+                {popularProduct?.map((product) => (
+                  <div key={product?.id} className="flex flex-col items-center p-4 border rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                    <img
+                      src={product?.images[0].url}
+                      alt={product?.name}
+                      className="h-20 w-20 object-contain mb-2"
+                    />
+                    <p className="text-center text-[14px] font-medium mb-1">
+                      {product?.name}
+                    </p>
+                    <div className="flex items-center justify-center space-x-1">
+                      <AiFillStar color="red" />
+                      <p className="text-center text-[12px]">
+                        {product?.ratings} ({product?.reviews?.length} Reviews)
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Top Selling Products Section */}
+            <div className="bg-white rounded-md flex flex-col border-2 shadow-md overflow-y-auto">
+              <div className="flex items-center justify-center mb-4 p-2 bg-white rounded-md border-b">
+                <img src={TopImg} alt="Top Selling Products" className="h-10 mr-2" />
+                <h2 className="text-gray-500 font-bold text-lg">Top Selling Products</h2>
+              </div>
+
+              <div className="w-full flex flex-col gap-4 p-2">
+                {topSellingProduct?.map((product) => (
+                  <div key={product?.id} className="flex items-center justify-between gap-2 border rounded-md p-2">
+                    <img src={product?.images[0].url} alt={product?.name} className="h-20 w-20 object-contain" />
+                    <p className="flex-1 text-sm">{product?.name}</p>
+                    <div className="border border-blue-400 p-1 rounded-md text-sm">
+                      Sold: {product?.sold_out}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div className="text-center text-lg font-semibold mt-3">Jamalpur Bazar. Copyright sourav@2024</div>
+
       </div>
     </section>
   );
