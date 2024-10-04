@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { BsFillBagFill } from "react-icons/bs";
 import { Link, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -9,6 +9,11 @@ import { RxCross1 } from "react-icons/rx";
 import { AiFillStar, AiOutlineStar } from "react-icons/ai";
 import axios from "axios";
 import { toast } from "react-toastify";
+import socketIO from "socket.io-client";
+
+const ENDPOINT = "http://localhost:4000";
+const socketId = socketIO(ENDPOINT, { transports: ["websocket"] });
+
 
 const UserOrderDetails = () => {
     const { orders } = useSelector((state) => state.order);
@@ -18,7 +23,8 @@ const UserOrderDetails = () => {
     const [comment, setComment] = useState("");
     const [selectedItem, setSelectedItem] = useState(null);
     const [rating, setRating] = useState(1);
-
+    const [returnReason, setReturnReason] = useState('');
+    const [showReturnModal, setShowReturnModal] = useState(false);
 
     const { id } = useParams();
 
@@ -26,7 +32,7 @@ const UserOrderDetails = () => {
         dispatch(getAllOrdersOfUser(user?._id));
     }, [dispatch, user?._id]);
 
-    const data = orders && orders.find((item) => item?._id === id);
+    const data = useMemo(() => orders?.find((item) => item?._id === id), [orders, id]);
    
 
     const reviewHandler = async (e) => {
@@ -55,15 +61,34 @@ const UserOrderDetails = () => {
     };
 
     const refundHandler = async () => {
+
         await axios.put(`${server}/order/order-refund/${id}`, {
-            status: "Processing refund"
+            status: "Processing refund", returnReason: returnReason
         }).then((res) => {
             toast.success(res.data.message);
             dispatch(getAllOrdersOfUser(user._id));
+            socketId.emit("notification", {
+                title: "New return request" ,
+                content: `Refund request for Order ${id}`,
+                image: data?.cart[0]?.images[0]?.url,
+                users: [{ userId: data?.cart?.map((item)=>item?.shopId) }]
+            });
         }).catch((error) => {
-            toast.error(error.response.data.message);
+            toast.error(error?.response?.data?.message);
         })
     };
+
+
+    const handleReturn = async () => {
+        if (!returnReason) {
+            toast.error("Please select a return reason");
+            return;
+        }
+        await refundHandler(); // Existing function
+
+        setShowReturnModal(false);
+    };
+
 
     function formatMongoDate(date) {
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -86,11 +111,33 @@ const UserOrderDetails = () => {
         return `${day}${daySuffix(day)} ${month}, ${year}`;
     }
 
-    const statuses = ['Ordered', 'Shipped', 'Out for delivery', 'Delivered']
+    const isReturnEligible = (deliveryDate) => {
+        const today = new Date();
+        const delivery = new Date(deliveryDate);
+        const diffTime = Math.abs(today - delivery);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays <= 7;
+    };
+
+    const status = data?.status
+    const createdAt = data?.createdAt
+    const outForDeliveryAt = data?.outForDeliveryAt
+    const shippedAt = data?.shippedAt
+    const deliveredAt = data?.deliveredAt
+
+    const statuses = [
+        { label: 'Order Confirmed', date: createdAt, key: 'Confirmed' },
+        { label: 'Shipped', date: shippedAt, key: 'Shipped' },
+        { label: 'Out For Delivery', date: outForDeliveryAt, key: 'Out for delivery' },
+        { label: 'Delivery', date: deliveredAt, key: 'Delivered' },
+    ];
+
+    const getStatusDate = (date) => {
+        return date ? new Date(date).toDateString() : 'Expected';
+    };
 
 
     return (
-        
 
         <div className={`py-4 min-h-screen ${styles.section}`}>
             {/* Header: Order Details */}
@@ -118,49 +165,55 @@ const UserOrderDetails = () => {
                 </div> */}
             </div>
 
-           
+
 
             {/* Order Status and Tracking */}
-            <div className="w-full py-6 mt-6 bg-white rounded-lg shadow-lg">
-                <h3 className="text-xl text-slate-800 font-semibold border-b pb-3">Order Status</h3>
-                <div className="flex justify-between items-center w-full mt-4 relative">
-                    {/* Progress Line */}
-                    <div className="absolute w-full h-1 bg-gray-200 left-0 top-10 z-0">
-                        <div className={`h-1 bg-green-600`} style={{ width: `${(statuses.indexOf(data?.status) + 1) * 25}%` }}></div>
+
+
+            <div className="w-full p-4 mt-6 bg-white rounded-lg shadow-md">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Order Status</h3>
+                <div className="relative flex justify-between items-center w-full mt-4">
+                    
+                    <div className="absolute w-full h-1 bg-gray-300 top-10 left-0">
+                        <div
+                            className={`h-1 bg-green-500 transition-all duration-300`}
+                            style={{ width: `${(statuses.findIndex((s) => s.key === status) + 1) * 25}%` }}
+                        />
                     </div>
-                    {/* Status icons and labels */}
-                    {['Ordered', 'Shipped', 'Out for delivery', 'Delivered'].map((status, i) => (
-                        <div key={i} className="relative z-10 w-[24%] text-center">
+
+                    {statuses.map((item, index) => (
+                        <div key={index} className="relative z-10 w-[24%] text-center">
                             <div
-                                className={`w-10 h-10 mx-auto flex items-center justify-center rounded-full transition-all duration-300 
-                    ${data?.status === status || statuses.indexOf(data?.status) > i
-                                        ? 'bg-green-600 text-white'
+                                className={`w-8 h-8 mx-auto flex items-center justify-center rounded-full transition-all duration-300 
+                ${status === item.key || statuses.findIndex((s) => s.key === status) > index
+                                        ? 'bg-green-500 text-white'
                                         : 'bg-gray-300 text-gray-500'
                                     }`}
                             >
-                                {/* Use appropriate icons */}
-                                {data?.status === status || statuses.indexOf(data?.status) > i ? (
-                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                {status === item.key || statuses.findIndex((s) => s.key === status) > index ? (
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                                     </svg>
                                 ) : (
-                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                                     </svg>
                                 )}
                             </div>
-                            <p className={`mt-3 font-medium text-sm ${data?.status === status ? 'text-green-600 font-bold' : 'text-gray-500'}`}>{status}</p>
+                            <p className="mt-3 font-medium text-sm">{item.label}</p>
+                            <p className="text-xs text-gray-400">{getStatusDate(item.date)}</p>
                         </div>
                     ))}
                 </div>
             </div>
 
 
+
             {/* Order Items */}
             <h3 className="text-[22px] font-semibold py-4 text-slate-600">Items Ordered</h3>
             {data?.cart.map((item, index) => (
                 <>
-                    
+
                     <div className="flex items-start border-b pb-4 mb-4" key={index}>
                         <img
                             src={item.images[0].url}
@@ -210,8 +263,8 @@ const UserOrderDetails = () => {
 
             {/* Review Popup */}
             {open && (
-                <div className="w-full fixed top-0 left-0 h-screen bg-[#0005] z-50 flex items-center justify-center">
-                    <div className="w-[50%] h-min bg-white shadow-lg rounded-md p-4">
+                <div className="w-full fixed top-2 md:top-0 left-0 h-screen bg-[#0005] z-50 flex items-center justify-center">
+                    <div className="md:w-[50%] w-[90%] h-min bg-white shadow-lg rounded-md p-4">
                         <div className="flex justify-end">
                             <RxCross1
                                 size={30}
@@ -221,7 +274,7 @@ const UserOrderDetails = () => {
                         </div>
                         <h2 className="text-[24px] font-semibold text-center">Give a Review</h2>
                         <div className="w-full flex mt-4">
-                            <img src={`${backend_url}${selectedItem?.images[0]}`} alt="" className="w-[80px] h-[80px]" />
+                            <img src={`${backend_url}${selectedItem?.images[0].url}`} alt="" className="w-[80px] h-[80px]" />
                             <div className="pl-3">
                                 <div className="text-[20px]">{selectedItem?.name}</div>
                                 <h4 className="text-[20px] text-green-600">
@@ -278,8 +331,8 @@ const UserOrderDetails = () => {
             {
                 data?.cart.map((item, index) => (
                     <>
-                    { console.log(item)}
-                        <div className="mb-2 mt-2" >
+                        
+                        <div className="mb-2 mt-2" key={index} >
                             <h1 className="text-gray-700 text-xl font-medium">Price Details</h1>
                         </div>
 
@@ -336,15 +389,78 @@ const UserOrderDetails = () => {
                     <h4 className="text-[20px] font-semibold">Payment Info:</h4>
                     <p>Status: {data?.paymentInfo?.status || "Not Paid"}</p>
                     <p>Payment Method: {data?.paymentInfo?.type || "Unknown"}</p>
-                    {data?.status === "Delivered" && (
+                    {data?.status === "Delivered" && isReturnEligible(data?.deliveredAt) && (
                         <div
-                            className={`${styles.button} text-white mt-2`}
-                            onClick={refundHandler}
+                            className={`bg-red-500 text-white flex justify-center items-center  py-2 px-6 rounded-lg text-lg font-medium hover:bg-red-600 transition-all mt-4`}
+                            onClick={() => setShowReturnModal(true)}
                         >
-                            Request Refund
+                            Return
                         </div>
                     )}
+
+                    {showReturnModal && (
+                        <div className="modal-container">
+                            <div className="modal-content relative">
+                                <RxCross1 size={20} className="absolute right-4 top-2 cursor-pointer" onClick={() => setShowReturnModal(false)} />
+                                <h2 className="text-xl font-semibold text-center mb-4">Choose a Return Reason</h2>
+                                <select
+                                    className="w-full border border-gray-300 rounded p-2 mb-4"
+                                    value={returnReason}
+                                    onChange={(e) => setReturnReason(e.target.value)}
+                                >
+                                    <option value="">Select a reason</option>
+                                    <option value="Damaged item">Damaged item</option>
+                                    <option value="Wrong item received">Wrong item received</option>
+                                    <option value="Quality not satisfactory">Quality not satisfactory</option>
+                                    <option value="Brand not match">Brand not match</option>
+                                    <option value="Product not match as per image">Product not match as per image</option>
+                                    <option value="Find an better deal">Find an better deal</option>
+                                    <option value="To much late delivery date">To much late delivery date</option>
+                                </select>
+                                <button
+                                    className="bg-green-500 text-white py-2 px-6 rounded-lg w-full text-lg font-medium hover:bg-green-600 transition-all"
+                                    onClick={handleReturn}
+                                >
+                                    Confirm Return
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+
+                    {!isReturnEligible(data?.deliveredAt) && data?.status === "Delivered" && (
+                        <p className="text-red-500 text-sm">Return period expired</p>
+                    )}
+
+                    {data?.status === "Delivered" && (
+                        <div className="text-center bg-green-100 text-green-600 py-2 rounded-lg mt-4">
+                            Your product Delivered on {formatMongoDate(new Date(data?.deliveredAt))}.
+                        </div>
+                    )}
+
+                    {data?.status === "Processing refund" && (
+                        <div className="text-center bg-yellow-100 text-yellow-600 py-2 rounded-lg mt-4">
+                            Your return request accepted on {formatMongoDate(new Date(data?.returnRequestedAt))}.
+                        </div>
+                    )}
+
+                    {data?.status === "Refund Success" && (
+                        <div className="text-center bg-yellow-100 text-yellow-600 py-2 rounded-lg mt-4">
+                            Refund Success 
+                        </div>
+                    )}
+
+                    {data?.status === "Rejected" && (
+                        <div className="text-center bg-yellow-100 text-yellow-600 py-2 rounded-lg mt-4">
+                            Refund rejected
+                        </div>
+                    )}
+                   
+
+
                 </div>
+
+
             </div>
 
 
@@ -360,3 +476,5 @@ const UserOrderDetails = () => {
 };
 
 export default UserOrderDetails;
+
+

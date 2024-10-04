@@ -17,7 +17,7 @@ const Footer = () => {
   return (
     <div className="bg-[#000] text-white">
       <div className="md:flex md:justify-between md:items-center sm:px-12 px-4 bg-[#342ac8] py-7" style={{ background: "linear-gradient(to right, #ee7724, #d8363a, #dd3675, #b44593)" }}>
-        <h1 className="lg:text-4xl text-3xl md:mb-0 mb-6 lg:leading-normal font-semibold md:w-2/5">
+        <h1 className="lg:text-4xl text-xl md:mb-0 mb-6 lg:leading-normal font-semibold md:w-2/5">
           <span className="text-[#56d879]">Subscribe</span> us for get news{" "}
           <br />
           events and offers
@@ -40,7 +40,7 @@ const Footer = () => {
           <img
             src={mainLogo}
             alt=""
-            style={{ filter: "brightness(0) invert(1)" }}
+            
           />
           <br />
           <p>The home and elements needeed to create beatiful products.</p>

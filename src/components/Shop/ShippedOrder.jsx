@@ -292,7 +292,7 @@ const ShippedOrder = () => {
                                 <td className="px-4 py-4 w-[50px]  text-sm ">
                                   <div className='text-center  flex flex-col gap-x-2 '>
                                     <h4 className="text-gray-700 dark:text-gray-200">₹{order?.totalPrice}</h4>
-                                    <p>{order?.paymentInfo?.type === "Cash On Delivery" ? <span className="px-1 bg-red-100 py-[1px] font-[600] border rounded-md border-red-200 text-red-500 text-[10px]">Unpaid</span> : <span className="px-1 py-[1px] bg-green-100 rounded-md border border-green-200 text-green-500 text-[10px]">paid</span>}</p>
+                                    <p>{order?.status === "Delivered" ? <span className="px-1 py-[1px] bg-green-100 rounded-md border border-green-200 text-green-500 text-[10px]">Paid</span> : <span className="px-1 bg-red-100 py-[1px] font-[600] border rounded-md border-red-200 text-red-500 text-[10px]">Unpaid</span>}</p>
                                   </div>
                                 </td>
 
@@ -340,15 +340,15 @@ const ShippedOrder = () => {
                             )}
                           </tbody>
                         </table>
-                        
+
 
 
                         <div className="flex  justify-end items-center my-2 mx-2 ">
                           {/* Previous Button */}
                           <button
                             className={`px-4 py-2 rounded-md text-white font-semibold ${currentPage === 1
-                                ? "bg-gray-400 cursor-not-allowed"
-                                : "bg-blue-500 hover:bg-blue-600 cursor-pointer"
+                              ? "bg-gray-400 cursor-not-allowed"
+                              : "bg-blue-500 hover:bg-blue-600 cursor-pointer"
                               }`}
                             onClick={handlePrevious}
                             disabled={currentPage === 1}
@@ -364,8 +364,8 @@ const ShippedOrder = () => {
                           {/* Next Button */}
                           <button
                             className={`px-4 py-2 rounded-md text-white font-semibold ${currentPage === totalPages
-                                ? "bg-gray-400 cursor-not-allowed"
-                                : "bg-blue-500 hover:bg-blue-600 cursor-pointer"
+                              ? "bg-gray-400 cursor-not-allowed"
+                              : "bg-blue-500 hover:bg-blue-600 cursor-pointer"
                               }`}
                             onClick={handleNext}
                             disabled={currentPage === totalPages}

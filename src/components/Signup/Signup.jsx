@@ -24,17 +24,7 @@ const Signup = () => {
         setAvatar(file);
     };
 
-    // const imagehandler = async (e) => {
-    //     const fileReader = new FileReader();
-
-    //     fileReader.onload = () => {
-    //         if (fileReader.readyState === 2) {
-    //             const avatarO = fileReader.result;
-    //             setAvatar(avatarO);
-    //         }
-    //     };
-    //     fileReader.readAsDataURL(e.target.files[0]);
-    // };
+    
 
     const handleSubmit = (e) => {
         e.preventDefault();

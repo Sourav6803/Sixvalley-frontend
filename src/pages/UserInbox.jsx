@@ -36,10 +36,10 @@ const UserInbox = () => {
   const [val, setVal] = useState('')
   const [fil, setFil] = useState()
   const [newMessageFlag, setNewMessageFlag] = useState()
-  const [isSuccess, setissuccess] = useState(false)
   const [isError, setIsError] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [imgLoading, setImgLoading] = useState(false)
+  
 
 
   useEffect(() => {
@@ -108,20 +108,22 @@ const UserInbox = () => {
     getConversation();
   }, [user]);
 
-
   useEffect(() => {
     if (user) {
-      const sellerId = user?._id;
-      socketId.emit("addUser", sellerId);
+      const userId = user?._id;
+      console.log(user?._id)
+      socketId.emit("addUser", userId);
       socketId.on("getUsers", (data) => {
         setOnlineUsers(data);
       });
     }
   }, [user]);
 
+  console.log("onlineUsers :;", onlineUsers)
+
   const onlineCheck = (chat) => {
     const chatMembers = chat.members.find((member) => member !== user?._id);
-    const online = onlineUsers.find((user) => user.userId === chatMembers);
+    const online = onlineUsers?.find((user) => user.userId === chatMembers);
 
     return online ? true : false;
   };
@@ -184,8 +186,6 @@ const UserInbox = () => {
     // setIsError(false)
     // setissuccess(true)
   };
-
-
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ beahaviour: "smooth" });
@@ -263,10 +263,10 @@ const MessageList = ({ data, index, setOpen, setCurrentChat, me, setUserData, us
     setOpen(true);
   };
 
-
   useEffect(() => {
     setActiveStatus(online);
     const userId = data.members.find((user) => user !== me);
+
     const getUser = async () => {
       try {
         const res = await axios.get(`${server}/shop/get-shop-info/${userId}`);
@@ -278,9 +278,7 @@ const MessageList = ({ data, index, setOpen, setCurrentChat, me, setUserData, us
     getUser();
   }, [me,online, setActiveStatus, data]);
 
-
   const msgLength = data?.lastMessage?.length >= 10 ? data?.lastMessage.slice(0, 10) + "..." : data?.lastMessage
-
 
   return (
 
@@ -295,7 +293,7 @@ const MessageList = ({ data, index, setOpen, setCurrentChat, me, setUserData, us
       }
     >
       <div className="relative">
-        <img src={`${user?.avatar}`} alt="hhh" className="w-[50px] h-[50px] rounded-full" />
+        <img src={`${user?.avatar?.url}`} alt="hhh" className="w-[50px] h-[50px] rounded-full" />
 
         {online ? (
           <div className="w-[12px] h-[12px] bg-green-400 rounded-full absolute top-[2px] right-[2px]" />
@@ -319,8 +317,6 @@ const SellerInbox = ({ setOpen, value, groupTitle, data,setImgLoading, imgLoadin
 
 const [emoji , setEmoji] = useState(false)
 
-console.log(isError)
-
 const emojiClick = ((e, emojiObj)=>{
   setValue(prevInput => prevInput + emojiObj.emoji)
   setEmoji(false)
@@ -332,7 +328,7 @@ const emojiClick = ((e, emojiObj)=>{
       <div className="w-full flex p-3 items-center justify-between bg-[#00bfa5]">
         <div className="flex">
           <img
-            src={`${userData?.avatar}`}
+            src={`${userData?.avatar?.url}`}
             alt=""
             className="w-[60px] h-[60px] rounded-full"
           />
@@ -351,7 +347,7 @@ const emojiClick = ((e, emojiObj)=>{
 
       {/* messages */}
       <div className="px-3 h-[75vh] py-3 overflow-y-scroll " style={{ backgroundImage: "url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')", backgroundSize: "cover", backgroundRepeat: "no-repeat" }}>
-        {messages && messages.map((item, index) => (
+        {messages && messages?.map((item, index) => (
 
           <>
 
@@ -363,7 +359,7 @@ const emojiClick = ((e, emojiObj)=>{
                     <div style={{ position: 'relative' }}>
                       <img src={`${item?.text}`} alt="" className="w-[200px] h-[200px] object-cover rounded-[10px] ml-2 mb-2 border" />
                       {
-                        item.sender !== sellerId ? <div style={{ position: 'absolute', bottom: 0, right: 0, cursor: 'pointer' }}>
+                        item?.sender !== sellerId ? <div style={{ position: 'absolute', bottom: 0, right: 0, cursor: 'pointer' }}>
                           <MdDownloadForOffline size={30} style={{ marginRight: 10, border: '1px solid grey', borderRadius: '50%', }} fontSize='large' onClick={(e) => downloadMedia(e, item.text)} />
                         </div> : ''
                       }
@@ -378,7 +374,7 @@ const emojiClick = ((e, emojiObj)=>{
                   </div>
                   :
                   <div>
-                    <div style={{ maxWidth: '90%', wordBreak: 'break-word', width: 'fit-content' }} className={`w-max p-2 rounded ${item.sender === sellerId ? "bg-green-300 ml-auto  " : "bg-[#e18181]"} text-black h-min`}>
+                    <div style={{ maxWidth: '90%', wordBreak: 'break-word', width: 'fit-content' }} className={`w-max p-2 rounded ${item.sender === sellerId ? "bg-green-300 ml-auto  " : "bg-[#b4afaf]"} text-black h-min`}>
                       <p>{item?.text}</p>
                     </div>
 
@@ -394,7 +390,7 @@ const emojiClick = ((e, emojiObj)=>{
 
       {/* send message input */}
       <form
-        aria-required='true'
+        
         className="p-3 relative w-full flex justify-between items-center"
         onSubmit={sendMessageHandler}
       >

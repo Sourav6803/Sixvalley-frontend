@@ -36,6 +36,16 @@ const DashboardHero = () => {
   const popularProduct = Array.isArray(products) ? [...products].sort((a, b) => b?.ratings - a?.ratings).slice(0, 6) : [];
   const topSellingProduct = Array.isArray(products) ? [...products].sort((a, b) => b?.sold_out - a?.sold_out).slice(0, 5) : [];
 
+  const cancledProduct = orders?.filter((order) => order?.status === "Canceled")
+
+  const confirmedProduct = orders?.filter((order) => order?.status === "Confirmed")
+  const completeProduct = orders?.filter((order) => order?.status === "Delivered")
+  const shippedProducts =  orders?.filter((order) => order?.status === "Shipped")
+  const packagingProduct = orders?.filter((order) => order?.status === "Packaging")
+  const outForDeliveryProduct = orders?.filter((order) => order?.status === "Out for delivery")
+  const returnedProduct = orders?.filter((order) => order?.status === "Returned")
+  const failedToDeliver = orders?.filter((order) => order?.status === "Failed to Deliver")
+
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -251,7 +261,7 @@ const DashboardHero = () => {
                   <img src={confirmedImg} alt="" className="h-7 ml-3" />
                   <h2 className="text-lg text-slate-600 font-medium">Confirmed</h2>
                 </div>
-                <div className="font-medium text-lg mr-3 text-green-400">20</div>
+                <div className="font-medium text-lg mr-3 text-green-400">{confirmedProduct?.length}</div>
               </div>
 
               <div onClick={() => navigate('/dashboard/packaging/order')} className="border min-h-[12vh] bg-slate-200 rounded-lg flex items-center justify-between cursor-pointer">

@@ -5,18 +5,18 @@ import Loader from "../pages/Loader"
 
 
 const SellerProtectedRoute = ({ children }) => {
-    const { isLoading, isSeller, seller } = useSelector((state) => state?.seller)
+    const { isLoading, isSeller, isAuthenticated } = useSelector((state) => state?.seller)
     
-    console.log(`isLoading : ${isLoading},  isSeller ${isSeller}`)
 
-    if (isLoading === true || isSeller === undefined) {
+
+    if ((isLoading === true || isSeller === undefined) && isAuthenticated) {
         return (
             <div className="flex items-center justify-center h-screen absolute inset-0 bg-gray-900/10">
                 <Loader />
             </div>
         )
     } else {
-        if (isSeller === undefined ) {
+        if (isAuthenticated === false) {
             return <Navigate to={`/shop-login`} replace />
         }
     }

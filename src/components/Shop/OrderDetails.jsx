@@ -8,6 +8,11 @@ import { backend_url, server } from "../../server";
 import axios from "axios";
 import { toast } from "react-toastify";
 import styles from "../../styles/styles"; // Ensure the styles are updated accordingly
+import socketIO from "socket.io-client";
+
+const ENDPOINT = "http://localhost:4000";
+const socketId = socketIO(ENDPOINT, { transports: ["websocket"] });
+
 
 const OrderDetails = () => {
     const { orders } = useSelector((state) => state.order);
@@ -27,13 +32,69 @@ const OrderDetails = () => {
 
     const orderUpdateHandler = async () => {
         try {
+            // Update order status in the backend
             await axios.put(`${server}/order/update-order-status/${id}`, { status }, { withCredentials: true });
             toast.success("Order status updated successfully!");
+    
+            // Define a function to map order status to notification details
+            const getNotificationDetails = (status) => {
+                switch (status) {
+                    case "Shipped":
+                        return {
+                            title: "Your Order has been Shipped",
+                            content: `Your order with ID #${data?._id?.slice(0, 8)} has been shipped. It will reach you soon!`,
+                            image: data?.cart[0]?.images[0]?.url || "/default-shipped-image.jpg", // Replace with a default image if none is available
+                        };
+                    case "Out for delivery":
+                        return {
+                            title: "Your Order is Out for Delivery",
+                            content: `Your order with ID #${data?._id?.slice(0, 8)} is out for delivery. Please be available to receive it.`,
+                            image: data?.cart[0]?.images[0]?.url || "/default-out-for-delivery-image.jpg",
+                        };
+                    case "Delivered":
+                        return {
+                            title: "Your Order has been Delivered",
+                            content: `Your order with ID #${data?._id?.slice(0, 8)} has been delivered. We hope you enjoy your purchase!`,
+                            image: data?.cart[0]?.images[0]?.url || "/default-delivered-image.jpg",
+                        };
+                    case "Returned":
+                        return {
+                            title: "Your Order has been Returned",
+                            content: `Your order with ID #${data?._id?.slice(0, 8)} has been successfully returned.`,
+                            image: data?.cart[0]?.images[0]?.url || "/default-returned-image.jpg",
+                        };
+                    case "Canceled":
+                        return {
+                            title: "Your Order has been Canceled",
+                            content: `Your order with ID #${data?._id?.slice(0, 8)} has been canceled.`,
+                            image: data?.cart[0]?.images[0]?.url || "/default-canceled-image.jpg",
+                        };
+                    default:
+                        return {
+                            title: "Order Status Updated",
+                            content: `The status of your order with ID #${data?._id?.slice(0, 8)} has been updated to "${status}".`,
+                            image: data?.cart[0]?.images[0]?.url || "/default-status-updated-image.jpg",
+                        };
+                }
+            };
+    
+            // Get the notification details based on the new order status
+            const { title, content, image } = getNotificationDetails(status);
+    
+            // Emit the notification using Socket.IO
+            socketId.emit("notification", {
+                title,
+                content,
+                image
+            });
+    
+            // Redirect to the orders page
             navigate("/dashboard-orders");
         } catch (error) {
             toast.error(error.response?.data?.message || "Failed to update order status");
         }
     };
+    
 
     const refundOrderUpdateHandler = async () => {
         try {
@@ -81,8 +142,6 @@ const OrderDetails = () => {
                                     ))
                                 }
                             </div>
-
-
                         </div>
                     ))}
                 </div>
@@ -160,12 +219,12 @@ const OrderDetails = () => {
                             className="w-full max-w-xs border rounded-md p-2 mt-2"
                         >
                             {[
-                                "Processing", "Confirmed", "Packaging", "Transferred to delivery partner", "Shipped", "On the way",
+                                 "Confirmed", "Packaging",  "Shipped", "On the way",
                                 "Out for delivery", "Delivered", "Canceled", "Failed to Deliver", "Returned"
                             ]
                                 .slice(
                                     [
-                                        "Processing", "Confirmed", "Packaging", "Transferred to delivery partner", "Shipped", "On the way",
+                                         "Confirmed", "Packaging",  "Shipped", "On the way",
                                         "Out for delivery", "Delivered", "Canceled", "Failed to Deliver", "Returned"
                                     ].indexOf(data?.status)
                                 )

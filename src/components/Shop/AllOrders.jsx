@@ -291,9 +291,10 @@ const AllOrders = () => {
                                 <td className="px-4 py-4 w-[50px]  text-sm ">
                                   <div className='text-center  flex flex-col gap-x-2 '>
                                     <h4 className="text-gray-700 dark:text-gray-200">₹{order?.totalPrice}</h4>
-                                    <p>{order?.paymentInfo?.type === "Cash On Delivery" ? <span className="px-1 bg-red-100 py-[1px] font-[600] border rounded-md border-red-200 text-red-500 text-[10px]">Unpaid</span> : <span className="px-1 py-[1px] bg-green-100 rounded-md border border-green-200 text-green-500 text-[10px]">paid</span>}</p>
+                                    <p>{order?.paymentInfo?.status === "Succeeded" ? <span className="px-1 py-[1px] bg-green-100 rounded-md border border-green-200 text-green-500 text-[10px]">Paid</span> : <span className="px-1 bg-red-100 py-[1px] font-[600] border rounded-md border-red-200 text-red-500 text-[10px]">Unpaid</span> }</p>
                                   </div>
                                 </td>
+                                
 
                                 <td className="px-4 py-4 text-sm whitespace-nowrap">
                                   <h4 className="text-gray-700 text-center dark:text-gray-200">{order?.paymentInfo?.type}</h4>

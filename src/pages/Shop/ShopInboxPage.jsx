@@ -7,15 +7,20 @@ import DemoSideBar from '../../components/Shop/Layout/DemoSidebar';
 const ShopInboxPage = () => {
   const [navOpen, setNavOpen] = useState(false);
   return (
-    <div>
-    <DashboardHeader navOpen = {navOpen} setNavOpen= {setNavOpen}/>
-    <div className="flex items-start justify-between w-full">
-      <div className="w-[80px] 800px:w-[330px]">
-        <DemoSideBar active={8} navOpen = {navOpen} setNavOpen= {setNavOpen} />
+    
+
+    <main className='relative'>
+
+      <DashboardHeader navOpen={navOpen} setNavOpen={setNavOpen} />
+      <div className='flex'>
+        <DemoSideBar navOpen={navOpen} setNavOpen={setNavOpen} />
+        <section className='flex min-h-screen flex-1 flex-col px-0 pb-5 pt-1 max-md:pb-14 sm:px-0'>
+          <div className='w-full'>
+            <DashboardMessages />
+          </div>
+        </section>
       </div>
-       <DashboardMessages />
-    </div>
-  </div>
+    </main>
   )
 }
 

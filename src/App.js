@@ -27,7 +27,9 @@ import {
   ApprovedProductPage,
   PendingProductPage,
   ShopBankInformationPage,
-  OrderReportPage
+  OrderReportPage,
+  ProductReortPage,
+  TransactionReportPage
 } from './routes/ShopRoutes';
 import { getAllProducts } from './redux/actions/product';
 import { getAllEvents } from './redux/actions/event';
@@ -116,79 +118,6 @@ const App = ({ data }) => {
     getStripeApikey()
 
   }, [])
-
-  // const checkNotificationPermission = async () => {
-  //   const permission = Notification.permission;
-
-  //   if (permission !== 'granted') {
-  //     setShowConsent(true);
-  //   } else {
-  //     setShowConsent(false);
-  //     try {
-  //       const token = await requestFCMToken();
-  //       setFcmToken(token);
-
-  //       // Make API call to update deviceToken
-  //       if (isAuthenticated && !user?.deviceToken) {
-  //         console.log("update device token api calling")
-  //         await axios.put(`${server}/user/update-device-token`, { fcmToken: token }, {
-  //           headers: {
-  //             'Content-Type': 'application/json',
-  //           },
-  //           withCredentials: true, // Include cookies with the request
-  //         });
-  //       }
-  //     } catch (error) {
-  //       console.error("Error during notification setup:", error);
-  //     }
-  //   }
-  // };
-
-  // const handleAccept = async () => {
-  //   localStorage.setItem('cookieConsent', 'accepted');
-
-  //   console.log("update device token api calling")
-
-  //   // Request notification permission
-  //   const permission = await Notification.requestPermission();
-  //   if (permission === 'granted') {
-  //     setShowConsent(false);
-
-  //     try {
-  //       const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-  //       console.log('Service Worker registered with scope:', registration.scope);
-
-  //       const token = await requestFCMToken();
-  //       setFcmToken(token);
-
-
-  //       // Make API call to update deviceToken
-  //       if (isAuthenticated && !user?.deviceToken) {
-  //         await axios.put(`${server}/user/update-device-token`, { fcmToken: token }, {
-  //           headers: {
-  //             'Content-Type': 'application/json',
-  //           },
-  //           withCredentials: true, // Include cookies with the request
-  //         });
-  //       }
-
-  //     } catch (error) {
-  //       console.error("Error during notification setup:", error);
-  //     }
-  //   } else {
-  //     console.log('Notification permission not granted');
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   const consent = localStorage.getItem('cookieConsent');
-
-  //   if (consent === null) {
-  //     setShowConsent(true);
-  //   } else {
-  //     checkNotificationPermission()
-  //   }
-  // }, [checkNotificationPermission]);
 
   const checkNotificationPermission = useCallback(async () => {
     const permission = Notification.permission;
@@ -346,7 +275,10 @@ const App = ({ data }) => {
           <Route path='/dashboard/approved/product' element={<SellerProtectedRoute ><ApprovedProductPage /></SellerProtectedRoute>} />
           <Route path='/dashboard/pending/product' element={<SellerProtectedRoute ><PendingProductPage /></SellerProtectedRoute>} />
           <Route path='/dashboard/bank-information' element={<SellerProtectedRoute ><ShopBankInformationPage /></SellerProtectedRoute>} />
-          <Route path='/dashboard/order-report' element={<SellerProtectedRoute ><OrderReportPage /></SellerProtectedRoute>} />
+         
+          <Route path='/dashboard/order-report' element={<SellerProtectedRoute ><OrderReportPage /></SellerProtectedRoute>} /> <Route path='/dashboard/order-report' element={<SellerProtectedRoute ><OrderReportPage /></SellerProtectedRoute>} />
+          <Route path='/dashboard/product-report' element={<SellerProtectedRoute ><ProductReortPage /></SellerProtectedRoute>} />
+          <Route path='/dashboard/transaction-report' element={<SellerProtectedRoute ><TransactionReportPage /></SellerProtectedRoute>} />
 
           <Route path='/dashboard/product-view/:id' element={<SellerProtectedRoute ><ShopAllProducts /></SellerProtectedRoute>} />
           <Route path='/dashboard-banner' element={<SellerProtectedRoute ><ShopBannerPage /></SellerProtectedRoute>} />

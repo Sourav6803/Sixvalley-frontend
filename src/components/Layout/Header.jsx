@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import styles from '../../styles/styles';
 import { Link, Navigate } from 'react-router-dom';
 import { categoriesData, ProfileMenu } from "../../static/data"
@@ -8,7 +8,7 @@ import { BiMenuAltLeft, BiMicrophone, BiSearch } from 'react-icons/bi';
 import { CgProfile } from "react-icons/cg"
 import DropDown from "./DropDown.jsx";
 import Navbar from '../Layout/Navbar.jsx'
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { server } from '../../server';
 import Cart from '../Cart/Cart';
 import Wishlist from '../Wishlist/Wishlist';
@@ -20,7 +20,11 @@ import axios from 'axios';
 import { FaChevronRight, FaFacebook, FaInstagram, FaTwitter } from 'react-icons/fa';
 
 import { toast } from 'react-toastify';
+import { format } from 'timeago.js';
+import socketIO from "socket.io-client";
 
+const ENDPOINT = "http://localhost:4000";
+const socketId = socketIO(ENDPOINT, { transports: ["websocket"] });
 
 
 const Header = ({ activeHeading }) => {
@@ -39,6 +43,9 @@ const Header = ({ activeHeading }) => {
     const [open, setOpen] = useState(false)
     const { cart } = useSelector(state => state.cart)
     const [searchOpen, setSearchOpen] = useState(false)
+    const [notficationOpen, setNotificationOpen] = useState(false)
+    const [loading, setIsLoading] = useState(false)
+    const [notifications, setNotifications] = useState([])
 
     const admin = user?.role === "Admin"
 
@@ -92,7 +99,7 @@ const Header = ({ activeHeading }) => {
     };
 
     const [isListening, setIsListening] = useState(false);
-   
+
 
     // Speech Recognition Setup
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -149,11 +156,107 @@ const Header = ({ activeHeading }) => {
         }
     };
 
+    const handleNotificationClose = (e) => {
+        if (e.target.id === "screen") {
+            setNotificationOpen(false);
+        }
+    };
+
     const handleWishlistClose = (e) => {
         if (e.target.id === "screen") {
             setOpenWishlist(false);
         }
     };
+
+    const dispatch = useDispatch()
+
+    const userId = user?._id
+
+    useEffect(() => {
+        setIsLoading(true);
+        userId && axios.get(`${server}/admin/notifications/unread`, { params: { userId }, withCredentials: true, }).then((res) => {
+            setIsLoading(false);
+            setNotifications(res.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+
+        }).catch((error) => {
+            setIsLoading(false);
+        });
+    }, [userId]);
+
+    const handleNotificationChange = async (notificationId) => {
+        const userId = user?._id
+        try {
+            const response = await axios.put(`${server}/admin/notifications/read/${notificationId}`, { userId });
+
+            if (response.status === 200) {
+                // Update the state after successfully marking as read
+                setNotifications((prevNotifications) =>
+                    prevNotifications.map((notif) =>
+                        notif._id === notificationId ? { ...notif, isRead: true } : notif
+                    )
+                );
+            } else {
+                console.error('Failed to mark notification as read');
+            }
+        } catch (error) {
+            console.error('Error marking notification as read:', error);
+        }
+    }
+
+    const markAllAsRead = async (userId) => {
+        try {
+            const response = await axios.put(`${server}/admin/notifications/read-all`, { userId });
+
+            if (response.status === 200) {
+                // Assuming the backend responds with the updated count and a success message
+                console.log(response.data.message);
+                
+
+                // Update all notifications' isRead status in the state
+                setNotifications((prevNotifications) =>
+                    prevNotifications.map((notif) => ({ ...notif, isRead: true }))
+                );
+            } else {
+                console.error('Error marking all notifications as read');
+            }
+        } catch (error) {
+            console.error('Error marking all notifications as read:', error);
+        }
+    };
+
+
+    const audio = useMemo(() => new Audio("http://res.cloudinary.com/dr4mnk4tw/raw/upload/v1720603600/audioTutorial/ZURQ2FE-notification.mp3"), []);
+
+    useEffect(() => {
+        const fetchNotifications = () => {
+            setIsLoading(true);
+            if (userId) {
+                axios.get(`${server}/admin/notifications/unread`, { params: { userId }, withCredentials: true })
+                    .then((res) => {
+                        setIsLoading(false);
+                        setNotifications(res.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+                    })
+                    .catch((error) => {
+                        setIsLoading(false);
+                        console.error("Error fetching notifications:", error);
+                    });
+            }
+        };
+
+        socketId.on("newNotification", (data) => {
+
+            console.log("new notification recived:", data)
+            fetchNotifications()
+            audio.play().catch((error) => {
+                console.error("Error playing sound:", error);
+            });
+            // setNotifications((prev) => [...prev, data]);
+        });
+
+        return () => {
+            socketId.off("newNotification");
+        };
+    }, [audio, userId]);
 
 
     return (
@@ -327,12 +430,76 @@ const Header = ({ activeHeading }) => {
                                 {isAuthenticated && wishlist?.length > 0 && <span className='absolute right-0 top-0 rounded-full bg-[#ffffff] w-3 h-3 top right p-0 m-0  font-mono text-[10px] leading-tight text-center'>{wishlist && wishlist?.length}</span>}
                             </div>
                         </div>
-                        <div className="relative cursor-pointer ">
+                        <div className="relative cursor-pointer " onClick={() => setNotificationOpen(!notficationOpen)}>
                             <IoMdNotificationsOutline size={30} className="text-white  cursor-pointer  " />
-                            <span className="absolute top-0 right-1 bg-white rounded-full w-3 h-3 text-[10px] flex items-center justify-center  ">
-                                5
-                            </span>
+                            {notifications?.length > 0 && (
+                                <span className="absolute top-0 right-1 bg-white rounded-full w-3 h-3 text-[10px] flex items-center justify-center">
+                                    {notifications?.length}
+                                </span>
+                            )}
                         </div>
+
+                        {notficationOpen && (
+                            <div className="absolute right-0 top-16 w-[320px] max-h-[400px] bg-white shadow-lg rounded-lg z-20 overflow-hidden border border-gray-400">
+                                {/* Header */}
+                                <div className="p-4 bg-gray-200 border-b border-gray-400 flex justify-between items-center">
+                                    <h5 className="text-lg font-semibold text-gray-700">Notifications</h5>
+                                    {
+                                        notifications?.length > 0 &&
+                                        <button
+                                            className="text-sm text-blue-600 hover:underline"
+                                            onClick={() => markAllAsRead(user?._id)}
+                                        >
+                                            Mark all as read
+                                        </button>
+                                    }
+                                </div>
+
+                                {/* Notification List */}
+                                <div id='screen' onClick={handleNotificationClose} className="overflow-y-auto max-h-[320px]">
+                                    {notifications.length > 0 ? (
+                                        notifications.map((item, index) => (
+                                            <div
+                                                className={`flex items-start p-4 border-b border-gray-200 transition duration-200 ease-in-out hover:bg-gray-50 ${item.isRead ? "bg-white" : "bg-gray-50"
+                                                    }`}
+                                                key={index}
+                                            >
+                                                {/* Notification Image */}
+                                                <img
+                                                    src={item?.image?.url || "/placeholder-image.png"}
+                                                    alt={item?.title || "Notification"}
+                                                    className="w-12 h-12 rounded-full object-cover mr-3"
+                                                />
+
+                                                {/* Notification Content */}
+                                                <div className="flex-1">
+                                                    <p className="text-sm font-semibold text-gray-800">{item?.title}</p>
+                                                    <p className="text-xs text-gray-500">{item?.content?.length > 60 ? item?.content?.slice(0,60) +"..." : item?.content }</p>
+                                                    <p className="text-xs text-gray-500 mt-1">{format(item?.createdAt)}</p>
+                                                </div>
+
+                                                {/* Mark as Read Button */}
+                                                {!item.isRead && (
+                                                    <button
+                                                        className="ml-3 text-xs text-blue-600 hover:underline"
+                                                        onClick={() => handleNotificationChange(item._id)}
+                                                    >
+                                                        Mark as read
+                                                    </button>
+                                                )}
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="p-4 text-center text-gray-500">
+                                            No new notifications
+                                        </div>
+                                    )}
+                                </div>
+
+
+                            </div>
+                        )}
+
                         <div className="relative mr-[20px]" onClick={() => setOpenCart(true)}>
                             <AiOutlineShoppingCart size={30} color='' className='text-white' />
                             {isAuthenticated && cart?.length >= 1 && <span className="absolute right-1 top-0 rounded-full bg-white w-3 h-3 top  p-0 m-0  font-mono text-[10px]  leading-tight text-center">
@@ -341,18 +508,12 @@ const Header = ({ activeHeading }) => {
                         </div>
                     </div>
 
-
-
-
-
-
                     {/* cart popup */}
                     {openCart ? <Cart setOpenCart={setOpenCart} handleCartClose={handleCartClose} /> : null}
 
                     {/* wishlist popup */}
 
                     {openWishlist ? <Wishlist setOpenWishlist={setOpenWishlist} handleWishlistClose={handleWishlistClose} /> : null}
-
 
 
                 </div>

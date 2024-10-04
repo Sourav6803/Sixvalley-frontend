@@ -9,11 +9,7 @@ const ShopDashboardPage = ({ active }) => {
     const [navOpen, setNavOpen] = useState(false);
     return (
         <>
-            {/* <DashboardHeader navOpen={navOpen} setNavOpen={setNavOpen} />
-            <div className='flex items-center w-full '>
-                <DemoSideBar navOpen={navOpen} setNavOpen={setNavOpen} />
-                <DashboardHero />
-            </div> */}
+            
 
             <main className='relative'>
                 <DashboardHeader navOpen={navOpen} setNavOpen={setNavOpen} />

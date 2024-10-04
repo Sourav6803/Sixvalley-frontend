@@ -2,13 +2,10 @@ import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import styles from '../../styles/styles'
 import { AiFillHeart, AiOutlineMessage, AiOutlineShoppingCart } from 'react-icons/ai'
-import { backend_url, server } from '../../server'
+import { server } from '../../server'
 import { useDispatch, useSelector } from 'react-redux'
 import { getAllProductsShop } from "../../redux/actions/product";
-import {
-    addToWishlist,
-    removeFromWishlist,
-} from "../../redux/actions/wishlist";
+import { addToWishlist, removeFromWishlist,} from "../../redux/actions/wishlist";
 import { toast } from 'react-toastify';
 import { addTocart } from '../../redux/actions/cart'
 import Ratings from './Ratings'
@@ -31,6 +28,7 @@ const ProductDetails = ({ data }) => {
     const { wishlist } = useSelector(state => state?.wishlist)
     const { products } = useSelector(state => state?.products)
     const { user, isAuthenticated } = useSelector((state) => state.user);
+    const {seller } = useSelector((state) => state.seller);
     const { cart } = useSelector(state => state?.cart)
     const [click, setClick] = useState(false)
     const [count, setCount] = useState(1)
@@ -42,8 +40,6 @@ const ProductDetails = ({ data }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [allCoupons, setAllCoupons] = useState([]);
     const [loadingCouponCode, setLoadingCouponCode] = useState(null);
-
-    console.log(currentVariant)
 
 
     const formatDate = (isoDate) => {
@@ -203,7 +199,7 @@ const ProductDetails = ({ data }) => {
         if (isAuthenticated) {
             const groupTitle = data?.name;
             const userId = user?._id;
-            const sellerId = data?.shop._id;
+            const sellerId = data?.shopId;
             await axios
                 .post(`${server}/conversation/create-new-conversation`, {
                     groupTitle,
@@ -246,6 +242,8 @@ const ProductDetails = ({ data }) => {
 
         logProductView();
     }, [data?._id, user?._id]);
+
+ 
 
 
     return (
@@ -473,9 +471,9 @@ const ProductDetails = ({ data }) => {
                                                     {/* Product other details */}
                                                     {data?.otherDetails && (
                                                         <div className="text-slate-600 font-[450] mt-2 text-[12px]">
-                                                            {data.otherDetails.map((detail, index) => (
+                                                            {data?.otherDetails?.map((detail, index) => (
                                                                 <div key={index}>
-                                                                    <span className="font-semibold text-[14px]">{detail.key}:</span> {detail.value}
+                                                                    <span className="font-semibold text-[14px]">{detail?.key}:</span> {detail.value}
                                                                 </div>
                                                             ))}
                                                         </div>
@@ -545,9 +543,9 @@ const ProductDetails = ({ data }) => {
                                                 </div>
 
                                                 <div className='flex items-center pt-8'>
-                                                    <img src={`${data?.shop?.avatar}`} alt='' className='w-[50px] h-[50px] rounded-full mr-2 ' />
+                                                    <img src={`${seller?.avatar?.url}`} alt='' className='w-[50px] h-[50px] rounded-full mr-2 ' />
                                                     <div className='pr-8 text-slate-700'>
-                                                        <Link to={`/shop/preview/${data?.shop._id}`}>
+                                                        <Link to={`/shop/preview/${data?.shopId}`}>
                                                             <h3 className={`${styles.shop_name} pb-1 pt-1`}>
                                                                 {data?.shop?.name}
                                                             </h3>

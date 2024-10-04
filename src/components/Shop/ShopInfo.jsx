@@ -27,7 +27,7 @@ const ShopInfo = ({ isOwner }) => {
       toast.error(error);
       setIsLoading(false);
     })
-  }, [])
+  }, [dispatch, id])
   
 
   const logoutHandler = async () => {
@@ -63,7 +63,7 @@ const ShopInfo = ({ isOwner }) => {
         <div className="w-full flex item-center justify-center">
           <img
             // src={`${data.avatar?.url}`}
-            src={`${data?.avatar}`}
+            src={`${data?.avatar?.url}`}
             alt=""
             className="w-[150px] h-[150px] object-cover rounded-full"
           />

@@ -32,9 +32,6 @@ const OrderReport = () => {
 
     }, [dispatch, seller?._id]);
 
-
-
-
     const [series, setSeries] = useState([
         {
             name: 'Total Price',
@@ -191,15 +188,11 @@ const OrderReport = () => {
 
     const [searchTearm, setSearchTearm] = useState("")
     const [searchData, setSearchData] = useState(null)
-    const [selectedUser, setSelectedUser] = useState("")
-
-
+    
 
     useEffect(() => {
         dispatch(getAllOrdersOfShop(seller?._id));
     }, [dispatch, seller?._id]);
-
-
 
     function formatMongoDate(date) {
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -450,7 +443,7 @@ const OrderReport = () => {
                             </div>
 
                             <div className=" w-full sm:w-[50%] md:w-[40%] shadow-md flex h-full items-center justify-center  rounded-md ">
-                                <div className=" w-full bg-white rounded-md h-[72vh] md:h-[53vh] ">
+                                <div className=" w-full bg-white rounded-md h-[60vh] md:h-[53vh] ">
 
                                     {
                                         loading === true ? (
@@ -467,7 +460,7 @@ const OrderReport = () => {
                             </div>
 
                             <div className=' w-full md:w-[29%] bg-white shadow-md rounded-md space-y-6 '>
-                                <div className='w-full bg-white rounded-md h-[55vh] md:h-[53vh]'>
+                                <div className='w-full bg-white rounded-md h-[60vh] md:h-[53vh]'>
                                     <Chart
                                         chartType="PieChart"
                                         data={data}

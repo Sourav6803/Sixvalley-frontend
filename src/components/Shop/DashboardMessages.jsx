@@ -33,13 +33,17 @@ const DashboardMessages = () => {
   const [open, setOpen] = useState(false);
   const [newMessageFlag, setNewMessageFlag] = useState()
   const scrollRef = useRef(null);
-  
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState()
+  const [totalUnreadMessage, setTotalUnreadMessage] = useState()
+
+
+
+  console.log(onlineUsers)
+
 
   const [img, setImg] = useState('')
   const [val, setVal] = useState()
   const [fil, setFil] = useState()
- 
-
 
   const onFileChange = (e) => {
     setVal(e.target.files[0].name);
@@ -48,7 +52,7 @@ const DashboardMessages = () => {
 
   useEffect(() => {
     const getImage = async () => {
-      if (fil ) {
+      if (fil) {
         const data = new FormData();
         data.append("name", fil.name);
         data.append("file", fil);
@@ -75,17 +79,50 @@ const DashboardMessages = () => {
   }, [arrivalMessage, currentChat]);
 
   useEffect(() => {
-    const getConversation = async () => {
-      try {
-        const resonse = await axios.get(
-          `${server}/conversation/get-all-conversation-seller/${seller?._id}`,{ withCredentials: true, });
-           setConversations(resonse.data.conversations);
-      } catch (error) {
-        toast.error(error.message)
-      }
-    };
-    getConversation();
+    if (seller?._id) {
+      const getConversation = async () => {
+        try {
+          const resonse = await axios.get(
+            `${server}/conversation/get-all-conversation-seller/${seller?._id}`, { withCredentials: true, });
+          setConversations(resonse.data.conversations);
+        } catch (error) {
+          toast.error(error.message)
+        }
+      };
+      getConversation();
+    }
   }, [seller]);
+
+  // useEffect(() => {
+  //   const getTotalUnreadMessagesCount = async () => {
+  //     try {
+  //       const resonse = await axios.get(
+  //         `${server}/conversation/get-total-unread-messages`, { withCredentials: true, });
+  //       setUnreadMessagesCount(resonse.data.totalUnreadMessages);
+  //     } catch (error) {
+  //       toast.error(error.message)
+  //     }
+  //   };
+  //   getTotalUnreadMessagesCount();
+  // }, []);
+
+  // useEffect(() => {
+  //   if (seller?._id) {
+  //     const getUnreadMessagesCount = async () => {
+  //       try {
+  //         const response = await axios.get(
+  //           `${server}/conversation/get-unread-messages/${seller?._id}`, { withCredentials: true, });
+  //         setTotalUnreadMessage(response?.data?.unreadMessages);
+  //         console.log(response.data)
+  //         socketId.emit("totalUnreadMessages", totalUnreadMessage)
+  //       } catch (error) {
+  //         toast.error(error.message)
+  //       }
+  //     };
+  //     getUnreadMessagesCount();
+  //   }
+  // }, [seller?._id, totalUnreadMessage]);
+
 
   useEffect(() => {
     if (seller) {
@@ -94,17 +131,49 @@ const DashboardMessages = () => {
       socketId.on("getUsers", (data) => {
         setOnlineUsers(data);
       });
+
+      // Fetch unread messages count for the current user
+      // socketId.on("unreadMessagesCount", (unreadCount) => {
+      //   setUnreadMessagesCount(unreadCount);
+      // });
     }
   }, [seller]);
 
+  // useEffect(() => {
+  //   socketId.on("totalUnreadMessages", (totalUnreadCount) => {
+  //     console.log("Total unread messages:", totalUnreadCount);
+  //     setUnreadMessagesCount(totalUnreadCount);
+  //   });
+  // }, []);
+
+  // useEffect(() => {
+  //   if (seller) {
+  //     socketId.emit("getUnreadMessagesForDashboard");
+  //   }
+  // }, [seller]);
+
+  const markMessageAsSeen = (messageId) => {
+    const receiverId = currentChat.members.find(
+      (member) => member !== seller?._id
+    );
+
+    socketId.emit("messageSeen", {
+      senderId: seller._id,
+      receiverId,
+      messageId,
+    });
+  };
+
   const onlineCheck = (chat) => {
     const chatMembers = chat.members.find((member) => member !== seller?._id);
-    const online = onlineUsers.find((user) => user.userId === chatMembers);
+    const online = onlineUsers.find((user) => user?.userId === chatMembers);
 
     return online ? true : false;
   };
 
- 
+
+
+
 
   // get messages
   useEffect(() => {
@@ -120,7 +189,7 @@ const DashboardMessages = () => {
       }
     };
     getMessage();
-  }, [currentChat, newMessageFlag, seller._id]);
+  }, [currentChat, newMessageFlag, seller?._id]);
 
 
   const sendMessageHandler = async (e) => {
@@ -135,9 +204,9 @@ const DashboardMessages = () => {
       };
     } else {
       message = {
-        sender: seller._id,
+        sender: seller?._id,
         text: img,
-        conversationId: currentChat._id,
+        conversationId: currentChat?._id,
         type: 'file',
       };
     }
@@ -155,18 +224,28 @@ const DashboardMessages = () => {
     await newMessages(message)
 
     setVal('');
-    setFil(null)  
+    setFil(null)
     setImg(' ');
     setNewMessageFlag(prev => !prev);
-    
+
   };
+
+  const markAsReedConversation = async (conversationId) => {
+    try {
+      const resonse = await axios.put(
+        `${server}/conversation/mark-messages-as-read/${conversationId}`, { withCredentials: true, });
+      setUnreadMessagesCount(resonse.data.conversations);
+    } catch (error) {
+      toast.error(error.message)
+    }
+  }
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ beahaviour: "smooth" });
   }, [messages]);
 
   return (
-    <div className="w-[90%] bg-white m-5 h-[90vh] overflow-y-scroll rounded">
+    <div className="w-full bg-white m-2 h-[90vh] overflow-y-scroll rounded">
       {!open && (
         <>
           <h1 className="text-center text-[30px] py-3 font-Poppins">
@@ -175,7 +254,7 @@ const DashboardMessages = () => {
           {/* All messages list */}
           {conversations &&
             conversations.map((item, index) => (
-            
+
               <MessageList
                 data={item}
                 key={index}
@@ -188,8 +267,9 @@ const DashboardMessages = () => {
                 online={onlineCheck(item)}
                 setActiveStatus={setActiveStatus}
                 isLoading={isLoading}
+                markAsReedConversation={markAsReedConversation}
               />
-              
+
             ))}
         </>
       )}
@@ -222,11 +302,13 @@ const MessageList = ({
   setUserData,
   online,
   setActiveStatus,
-  isLoading
+  isLoading,
+  markAsReedConversation
 }) => {
 
   const [user, setUser] = useState([]);
   const navigate = useNavigate();
+
   const handleClick = (id) => {
     navigate(`/dashboard-messages?${id}`);
     setOpen(true);
@@ -248,10 +330,10 @@ const MessageList = ({
     getUser();
   }, [me, data]);
 
- 
 
 
-  const msgLength = data.lastMessage?.length >= 10 ? data.lastMessage.slice(0, 10) + "..." : data.lastMessage
+
+  const msgLength = data?.lastMessage?.length >= 10 ? data?.lastMessage.slice(0, 10) + "..." : data?.lastMessage
 
   return (
     <div
@@ -261,12 +343,13 @@ const MessageList = ({
         handleClick(data._id) ||
         setCurrentChat(data) ||
         setUserData(user) ||
-        setActiveStatus(online)
+        setActiveStatus(online) ||
+        markAsReedConversation(data?._id)
       }
     >
       <div className="relative">
         <img
-          src={`${user?.avatar}`}
+          src={`${user?.avatar?.url}`}
           alt="user"
           className="w-[50px] h-[50px] rounded-full"
         />
@@ -281,7 +364,7 @@ const MessageList = ({
         <p className="text-[16px] text-[#000c]">
           {!isLoading && data?.lastMessageId !== user?._id
             ? "You:"
-            : user?.name?.split(" ")[0] + ": "}{" "}
+            : user?.name?.split(" ")[0] + ":  "}{" "}
           {(/\.(gif|jpg|jpeg|tiff|png)$/i).test(data.lastMessage) ? "Photo" : msgLength}
         </p>
       </div>
@@ -309,7 +392,7 @@ const SellerInbox = ({
       <div className="w-full flex p-3 items-center justify-between bg-green-500">
         <div className="flex">
           <img
-            src={`${userData?.avatar}`}
+            src={`${userData?.avatar?.url}`}
             alt=""
             className="w-[60px] h-[60px] rounded-full"
           />
@@ -328,53 +411,52 @@ const SellerInbox = ({
       {/* messages */}
       <div className=" relative px-3 h-[65vh] py-3 overflow-y-scroll" style={{ backgroundImage: "url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')", backgroundSize: "cover", backgroundRepeat: "no-repeat" }}>
         {messages && messages.map((item, index) => {
-            return (
-              <div className={`flex w-full my-2 ${item.sender === sellerId ? "justify-end" : "justify-start"}`} ref={scrollRef}  key={index}>
-                {
-                  item?.type === 'file' ?
+          return (
+            <div className={`flex w-full my-2 ${item.sender === sellerId ? "justify-end" : "justify-start"}`} ref={scrollRef} key={index}>
+              {
+                item?.type === 'file' ?
 
-                    <div>
-                      <div style={{position: "relative"}}>
-                        <img
-                          src={`${item.text}`}
-                          className="w-[200px] h-[200px] object-cover rounded-[10px] mr-2"
-                          alt=""
-                        />
-                        {
-                          item.sender !== sellerId ? <div style={{ position: 'absolute', bottom: 0, right: 0, cursor: 'pointer' }}>
-                          <MdDownloadForOffline size={30} style={{ marginRight: 10, border: '1px solid grey', borderRadius: '50%', }} fontSize='large' onClick={(e) => downloadMedia(e,item.text)} />
-                        </div>: ''
-                        }
-                      </div>
-                      <p className="text-[12px] text-[#000000d3] pt-1 text-end ">
-                        {format(item.createdAt)}
-                      </p>
+                  <div>
+                    <div style={{ position: "relative" }}>
+                      <img
+                        src={`${item.text}`}
+                        className="w-[200px] h-[200px] object-cover rounded-[10px] mr-2"
+                        alt=""
+                      />
+                      {
+                        item.sender !== sellerId ? <div style={{ position: 'absolute', bottom: 0, right: 0, cursor: 'pointer' }}>
+                          <MdDownloadForOffline size={30} style={{ marginRight: 10, border: '1px solid grey', borderRadius: '50%', }} fontSize='large' onClick={(e) => downloadMedia(e, item.text)} />
+                        </div> : ''
+                      }
                     </div>
-                    :
-                    <div>
-                      <div
-                        style={{ maxWidth: '90%', wordBreak: 'break-word', width: 'fit-content' }} className={`w-max p-2 rounded ${item.sender === sellerId ? "bg-green-300 ml-auto" : "bg-[#e18181]"
-                          } text-black h-min`}
-                      >
-                        <p>{item.text}</p>
-                      </div>
-
-                      <p className="text-[12px] text-[#000000d3] pt-1">
-                        {format(item.createdAt)}
-                      </p>
+                    <p className="text-[12px] text-[#000000d3] pt-1 text-end ">
+                      {format(item.createdAt)}
+                    </p>
+                  </div>
+                  :
+                  <div>
+                    <div
+                      style={{ maxWidth: '90%', wordBreak: 'break-word', width: 'fit-content' }} className={`w-max p-2 rounded ${item.sender === sellerId ? "bg-green-300 ml-auto" : "bg-[#aaa6a6]"
+                        } text-black h-min`}
+                    >
+                      <p>{item.text}</p>
                     </div>
-                }
+
+                    <p className="text-[12px] text-[#000000d3] pt-1">
+                      {format(item.createdAt)}
+                    </p>
+                  </div>
+              }
 
 
 
-              </div>
-            );
-          })}
+            </div>
+          );
+        })}
       </div>
 
       {/* send message input */}
       <form
-        aria-required={true}
         className="p-3 relative w-full flex justify-between items-center"
         onSubmit={sendMessageHandler}
       >

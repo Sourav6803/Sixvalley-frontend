@@ -25,7 +25,8 @@ import ApprovedProductPage from "../pages/Shop/ApprovedProductPage.jsx";
 import PendingProductPage from "../pages/Shop/PendingProductPage.jsx";
 import ShopBankInformationPage from "../pages/Shop/ShopBankInformationPage.jsx";
 import OrderReportPage from "../pages/Shop/OrderReportPage.jsx";
-
+import ProductReortPage from "../pages/Shop/ProductReportPage.jsx";
+import TransactionReportPage from "../pages/Shop/TransactionReportPage.jsx";
 
 export {
     ShopDashboardPage,
@@ -53,5 +54,7 @@ export {
     ApprovedProductPage,
     PendingProductPage,
     ShopBankInformationPage,
-    OrderReportPage
+    OrderReportPage,
+    ProductReortPage,
+    TransactionReportPage
 }

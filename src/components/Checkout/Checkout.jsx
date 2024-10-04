@@ -25,7 +25,6 @@ const Checkout = () => {
   const [discountPrice, setDiscountPrice] = useState(null);
   const [couponAmount, setCouponAmount] = useState(0)
 
-// console.log("cart :", cart)
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -39,11 +38,9 @@ const Checkout = () => {
 
   // this is shipping cost variable
   const shipping = cart?.reduce(
-    (acc, item) => acc +   item?.shippingCost,
+    (acc, item) => acc + item?.shippingCost,
     0
   );
-
-  
 
   const totalOriginalPrice = cart?.reduce(
     (acc, item) => acc + item?.qty * item?.originalPrice,
@@ -60,11 +57,9 @@ const Checkout = () => {
     0
   );
 
-
   const deliverCharge = shipping
 
   const totalCartPrice = totalPrice + shipping - couponAmount
-  console.log("totalCartPrice :", totalCartPrice)
 
   const paymentSubmit = () => {
     if (address1 === "" || address2 === "" || zipCode === null || country === "" || city === "") {
@@ -127,16 +122,26 @@ const Checkout = () => {
         </div>
 
       </div>
-      <div
-        className={`${styles.button} w-[150px] 800px:w-[280px] mt-10`}
-        onClick={paymentSubmit}
-      >
-        <h5 className="text-white">Go to Payment</h5>
+
+      <div className="flex w-full max-w-3xl items-center justify-between mx-auto p-4 bg-white shadow-lg rounded-md">
+        {/* Payment Amount Section */}
+        <div className="mt-5">
+          <h5 className="text-md font-semibold text-gray-700">Your Payment Amount</h5>
+          <h5 className="text-xl font-bold text-gray-900">₹ {totalCartPrice}</h5>
+        </div>
+
+        {/* Payment Button */}
+        <div
+          className="bg-blue-600 mt-5 py-3 px-6 rounded-lg cursor-pointer hover:bg-blue-700 transition duration-300"
+          onClick={paymentSubmit}
+        >
+          <h5 className="text-white font-semibold text-lg">Go to Payment</h5>
+        </div>
       </div>
+
     </div>
   );
 };
-
 
 
 const ShippingInfo = ({
@@ -162,6 +167,8 @@ const ShippingInfo = ({
     country: '',
     city: '',
   });
+
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (user?.addresses?.length) {
@@ -238,7 +245,11 @@ const ShippingInfo = ({
           )}
         </div>
       ) : (
-        <p className="text-red-600">No addresses found. Please add a new address.</p>
+        <div>
+          <p className="text-red-600">No addresses found. Please add a new address.</p>
+          <button onClick={() => navigate("/user/address")} className="text-blue-600 font-medium hover:underline">+ Add a new address</button>
+        </div>
+
       )}
     </div>
   );
@@ -261,7 +272,7 @@ const CartData = ({
   const [allCoupons, setAllCoupons] = useState([]);
   const [loadingCouponCode, setLoadingCouponCode] = useState(null);
   const [appliedCouponCode, setAppliedCouponCode] = useState(null); // Track applied coupon
-  
+
 
   const [activeTab, setActiveTab] = useState(0);
 
@@ -321,8 +332,6 @@ const CartData = ({
         setCouponCode(code);
         setCoupon(appliedCoupon?.coupon);
         setAppliedCouponCode(code); // Mark the coupon as applied
-
-
         toast.success('Coupon applied successfully!');
       } else {
         toast.error('Failed to apply coupon. Please try again.');
@@ -442,14 +451,6 @@ const CartData = ({
             })}
           </div>
         )}
-
-
-        
-
-
-      
-
-
       </div>
 
       {/* Price Details Section */}
@@ -498,9 +499,6 @@ const CartData = ({
   );
 };
 
-
-
-
 export default Checkout;
 
 
@@ -512,65 +510,3 @@ export default Checkout;
 
 
 
-  {/* <div className="bg-green-100 p-4 border rounded-md">
-          {allCoupons && allCoupons
-            .filter(coupon => {
-              const eligibleItems = cart.filter(
-                item => coupon.couponCategory === "All" || item.category === coupon.couponCategory
-              );
-
-              const eligiblePrice = eligibleItems.reduce(
-                (acc, item) => acc + item.qty * item.afterDiscountPrice,
-                0
-              );
-
-              return eligiblePrice >= coupon.minPurchase; // Filter out non-eligible coupons
-            })
-            .map((coupon, index) => {
-              const isApplied = appliedCouponCode === coupon.couponCode; // Check if this coupon is applied
-
-              return (
-                <div key={index} className="mb-4">
-                  <h3 className="text-sm font-semibold text-gray-500">
-                    Extra ₹{coupon?.discountAmount} Off on orders above ₹{coupon?.minPurchase}
-                  </h3>
-                  <h3 className="text-sm font-semibold text-gray-600">
-                    Best price ₹{totalCartPrice - coupon?.discountAmount} with coupon{' '}
-                    <span className="font-bold">{coupon.couponCode}</span>.
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    Expires on {formatDate(coupon?.expireDate)}
-                  </p>
-                  {coupon.couponType === 'First Order' && (
-                    <p className="text-sm text-green-700 italic">First time only</p>
-                  )}
-
-                  {coupon?.couponCategory !== "All" && (
-                    <p className="text-sm text-green-700 italic">This coupon only valid for {coupon?.couponCategory}</p>
-                  )}
-
-                  <div className="flex justify-between items-center mt-2">
-                    <div className="bg-green-100 border border-dashed border-gray-700 px-2 py-1 font-bold rounded-md">
-                      {coupon.couponCode}
-                    </div>
-
-                    <div
-                      className={`border px-2 py-0.5 rounded-md text-blue-600 cursor-pointer ${loadingCouponCode && !isApplied ? 'cursor-not-allowed opacity-50' : 'border-blue-600'}`}
-                      onClick={() => {
-                        if (isApplied) {
-                          removeCoupon();
-                        } else if (!loadingCouponCode) {
-                          claimCoupon(coupon.couponCode);
-                        }
-                      }}
-
-                      disabled={loadingCouponCode && !isApplied}
-                    >
-                      {isApplied ? 'Remove' : (loadingCouponCode === coupon.couponCode ? 'Applying...' : 'Apply')}
-                    </div>
-                  </div>
-                 
-                </div>
-              );
-            })}
-        </div> */}
