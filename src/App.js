@@ -29,7 +29,8 @@ import {
   ShopBankInformationPage,
   OrderReportPage,
   ProductReortPage,
-  TransactionReportPage
+  TransactionReportPage,
+  ShippedOrderPage
 } from './routes/ShopRoutes';
 import { getAllProducts } from './redux/actions/product';
 import { getAllEvents } from './redux/actions/event';
@@ -267,6 +268,7 @@ const App = ({ data }) => {
           <Route path='/dashboard-products' element={<SellerProtectedRoute ><ShopAllProducts /></SellerProtectedRoute>} />
           <Route path='/dashboard/confirmed/order' element={<SellerProtectedRoute ><ShopConfirmedOrderPage /></SellerProtectedRoute>} />
           <Route path='/dashboard/packaging/order' element={<SellerProtectedRoute ><ShopPackagingOrderPage /></SellerProtectedRoute>} />
+          <Route path='/dashboard/shipped/order' element={<SellerProtectedRoute ><ShippedOrderPage /></SellerProtectedRoute>} />
           <Route path='/dashboard/out-for-delivery/order' element={<SellerProtectedRoute ><OutForDeliveryPage /></SellerProtectedRoute>} />
           <Route path='/dashboard/delivered/order' element={<SellerProtectedRoute ><DelivredOrderPage /></SellerProtectedRoute>} />
           <Route path='/dashboard/returned/order' element={<SellerProtectedRoute ><ReturnedOrderPage /></SellerProtectedRoute>} />

@@ -17,6 +17,7 @@ import ShopBannerPage from "../pages/Shop/ShopBannerPage.jsx";
 import ShopProductView from "../pages/Shop/ShopProductView.jsx";
 import ShopPackagingOrderPage from "../pages/Shop/ShopPackagingOrderPage.jsx"
 import OutForDeliveryPage from "../pages/Shop/OutForDeliveryPage.jsx";
+import ShippedOrderPage from "../pages/Shop/ShippedOrder.jsx";
 import DelivredOrderPage from "../pages/Shop/DelivredOrderPage.jsx";
 import ReturnedOrderPage from "../pages/Shop/ReturnedOrderPage.jsx";
 import FailedToDeliveryPage from "../pages/Shop/FailedToDeliveryPage.jsx";
@@ -56,5 +57,6 @@ export {
     ShopBankInformationPage,
     OrderReportPage,
     ProductReortPage,
-    TransactionReportPage
+    TransactionReportPage,
+    ShippedOrderPage
 }

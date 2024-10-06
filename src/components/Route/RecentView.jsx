@@ -1,13 +1,10 @@
 
-import MensTshirt from "../../Assests/Add a heading.jpg"
-import Trouser from "../../Assests/Untitled design (2).jpg"
-import wallet from "../../Assests/Untitled design (1).jpg"
-import Belt from "../../Assests/belt.jpg"
+
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux';
 import { server } from '../../server';
-import { Link, useNavigate } from 'react-router-dom';
+import {  useNavigate } from 'react-router-dom';
 
 const RecentView = () => {
     const { user } = useSelector((state) => state?.user)
@@ -25,8 +22,8 @@ const RecentView = () => {
             try {
                 const response = await axios.get(`${server}/activity/recommendations/${user?._id}`);
                 const { data } = response; // Destructure response to get data
-
-                setRecommendations(data);
+                const sortedRecommendations = data.sort((a, b) => new Date(b?.createdAt) - new Date(a?.createdAt));
+                setRecommendations(sortedRecommendations);
             } catch (err) {
                 console.error("Failed to fetch recommendations:", err.message);
                 setError('Failed to load recommendations.'); // Set error state if there's an issue
@@ -61,7 +58,7 @@ const RecentView = () => {
             <div className="mb-2 p-2">
                 <h2 className="text-lg text-slate-600 font-bold">Recent Searched Products</h2>
             </div>
-
+ 
             {/* Horizontal scrollable section */}
             <div className="flex gap-1 overflow-x-auto whitespace-nowrap p-1">
                 {

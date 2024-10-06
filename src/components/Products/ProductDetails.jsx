@@ -5,7 +5,7 @@ import { AiFillHeart, AiOutlineMessage, AiOutlineShoppingCart } from 'react-icon
 import { server } from '../../server'
 import { useDispatch, useSelector } from 'react-redux'
 import { getAllProductsShop } from "../../redux/actions/product";
-import { addToWishlist, removeFromWishlist,} from "../../redux/actions/wishlist";
+import { addToWishlist, removeFromWishlist, } from "../../redux/actions/wishlist";
 import { toast } from 'react-toastify';
 import { addTocart } from '../../redux/actions/cart'
 import Ratings from './Ratings'
@@ -28,7 +28,7 @@ const ProductDetails = ({ data }) => {
     const { wishlist } = useSelector(state => state?.wishlist)
     const { products } = useSelector(state => state?.products)
     const { user, isAuthenticated } = useSelector((state) => state.user);
-    const {seller } = useSelector((state) => state.seller);
+    const { seller } = useSelector((state) => state.seller);
     const { cart } = useSelector(state => state?.cart)
     const [click, setClick] = useState(false)
     const [count, setCount] = useState(1)
@@ -41,6 +41,8 @@ const ProductDetails = ({ data }) => {
     const [allCoupons, setAllCoupons] = useState([]);
     const [loadingCouponCode, setLoadingCouponCode] = useState(null);
 
+
+    const productArr = [data]
 
     const formatDate = (isoDate) => {
         const date = new Date(isoDate);
@@ -138,8 +140,8 @@ const ProductDetails = ({ data }) => {
                 ...currentVariant,
                 ...data, // Include current variant details
                 qty: count, // Include quantity
-                
-                
+
+
             };
 
             // Check if the item already exists in the cart
@@ -243,8 +245,6 @@ const ProductDetails = ({ data }) => {
         logProductView();
     }, [data?._id, user?._id]);
 
- 
-
 
     return (
         <div className='bg-white '>
@@ -294,14 +294,14 @@ const ProductDetails = ({ data }) => {
                                             <div className='w-full 800px:w-[50%] ml-1 p-3'>
                                                 {/* <h1 className={`${styles.productTitle} mt-3 !text-[18px] !text-slate-700`}>{data.name } ({currentVariant && currentVariant?.Size} {currentVariant && currentVariant?.Color}) </h1> */}
                                                 <h1 className={`${styles.productTitle} mt-3 !text-[18px] !text-slate-700`}>
-                                                    {data.name}
+                                                    {data?.name}
                                                     {currentVariant ? ` (${currentVariant.attributes.map(attr => `${attr.key}: ${attr.value}`).join(', ')})` : ''}
                                                 </h1>
 
                                                 <h1 className={`${styles.productTitle} mt-2 !text-[13px] !font-normal !text-slate-600`}>{data.description}</h1>
 
                                                 <h3 className={`${styles.shop_name} pb-1 pt-1 `}>
-                                                    <span className='!text-slate-700 font-medium '>Seller:</span> <Link to={`/shop/preview/${data?.shop._id}`}>{data?.shop?.name}</Link>
+                                                    <span className='!text-slate-700 font-medium '>Seller:</span> <Link to={`/shop/preview/${data?.shop._id}`}>{data?.shop?.shopName}</Link>
 
                                                 </h3>
 
@@ -358,7 +358,7 @@ const ProductDetails = ({ data }) => {
                                                     ))}
                                                 </div>
 
-                                                {invalidCombo && (
+                                                {invalidCombo && currentVariant !== null && (
                                                     <div className="mt-4 text-red-500">
                                                         <p>Selected combination is not available.</p>
                                                     </div>
@@ -367,30 +367,29 @@ const ProductDetails = ({ data }) => {
                                                 <div className='flex items-center mt-2 justify-between pr-3'>
                                                     <div>
                                                         <button className='bg-gradient-to-r from-teal-500 to-teal-500 text-white font-bold rounded-l px-4 py-2 shadow-lg hover:opacity-75 transition duration-300 ease-in-out' onClick={decreamentCount}>-</button>
-                                                        <span className='bg-gray-200 text-gray-800 font-medium px-4 py-[10px]'>{count}</span>
+                                                        <span className='bg-gray-200 text-gray-800 font-medium px-4 py-[9px]'>{count}</span>
                                                         <button className='bg-gradient-to-r from-teal-500 to-teal-500 text-white font-bold rounded-r px-4 py-2 shadow-lg hover:opacity-75 transition duration-300 ease-in-out' onClick={increamentCount}>+</button>
                                                     </div>
                                                 </div>
 
                                                 {/* coupon */}
-                                                <div className=' py-2 mt-1'>
+                                                {/* <div className=' py-2 mt-1'>
                                                     <div className='text-slate-700 font-medium text-base'>
                                                         <h1>Offers for you</h1>
                                                     </div>
 
-
-
                                                     <div className="bg-[#e7e7e8] mt-2 p-2 border rounded-md">
                                                         {allCoupons && allCoupons
                                                             .filter(coupon => {
-                                                                const eligibleItems = cart.filter(
+                                                                const eligibleItems = productArr.filter(
                                                                     item => coupon.couponCategory === "All" || item.category === coupon.couponCategory
                                                                 );
 
                                                                 const eligiblePrice = eligibleItems.reduce(
-                                                                    (acc, item) => acc + item.qty * item.afterDiscountPrice,
+                                                                    (acc, item) => acc + item.afterDiscountPrice,
                                                                     0
                                                                 );
+                                                                
 
                                                                 return eligiblePrice >= coupon.minPurchase; // Filter out non-eligible coupons
                                                             })
@@ -444,7 +443,85 @@ const ProductDetails = ({ data }) => {
                                                             })}
                                                     </div>
 
+                                                </div> */}
+
+                                                <div className="py-2 mt-1">
+                                                    {allCoupons && allCoupons.some(coupon => {
+                                                        const eligibleItems = productArr.filter(
+                                                            item => coupon.couponCategory === "All" || item.category === coupon.couponCategory
+                                                        );
+                                                        const eligiblePrice = eligibleItems.reduce(
+                                                            (acc, item) => acc + item.afterDiscountPrice,
+                                                            0
+                                                        );
+                                                        return eligiblePrice >= coupon.minPurchase;
+                                                    }) ? (
+                                                        <div>
+                                                            <div className="text-slate-700 font-medium text-lg mb-3">
+                                                                <h1>Offers for you</h1>
+                                                            </div>
+
+                                                            <div className="bg-gray-100 p-3 rounded-lg shadow-md border border-gray-300">
+                                                                {allCoupons
+                                                                    .filter(coupon => {
+                                                                        const eligibleItems = productArr.filter(
+                                                                            item => coupon.couponCategory === "All" || item.category === coupon.couponCategory
+                                                                        );
+                                                                        const eligiblePrice = eligibleItems.reduce(
+                                                                            (acc, item) => acc + item.afterDiscountPrice,
+                                                                            0
+                                                                        );
+                                                                        return eligiblePrice >= coupon.minPurchase; // Filter out non-eligible coupons
+                                                                    })
+                                                                    .map((coupon, index) => {
+                                                                        const handleCopy = () => {
+                                                                            navigator.clipboard.writeText(coupon.couponCode)
+                                                                                .then(() => {
+                                                                                    toast.success(`Coupon code ${coupon.couponCode} copied to clipboard!`);
+                                                                                })
+                                                                                .catch(err => {
+                                                                                    toast.error('Failed to copy text: ', err);
+                                                                                });
+                                                                        };
+
+                                                                        return (
+                                                                            <div key={index} className="mb-4">
+                                                                                <h3 className="text-sm font-bold text-gray-700">
+                                                                                    Get ₹{coupon?.discountAmount} Off on orders above ₹{coupon?.minPurchase}
+                                                                                </h3>
+                                                                                <p className="text-xs text-gray-500">
+                                                                                    Valid until {formatDate(coupon?.expireDate)}
+                                                                                </p>
+                                                                                {coupon.couponType === 'First Order' && (
+                                                                                    <p className="text-sm text-green-700 italic">First-time customers only</p>
+                                                                                )}
+                                                                                {coupon?.couponCategory !== "All" && (
+                                                                                    <p className="text-sm text-green-700 italic">Valid for {coupon?.couponCategory} category</p>
+                                                                                )}
+
+                                                                                <div className="flex justify-between items-center mt-2">
+                                                                                    <div className="bg-green-100 text-green-800 font-bold px-3 py-1 rounded-lg border border-green-300">
+                                                                                        {coupon.couponCode}
+                                                                                    </div>
+                                                                                    <button
+                                                                                        className="bg-blue-100 text-blue-600 border border-blue-400 px-3 py-1 rounded-lg ml-2 hover:bg-blue-200"
+                                                                                        onClick={handleCopy}
+                                                                                    >
+                                                                                        Copy Code
+                                                                                    </button>
+                                                                                </div>
+                                                                            </div>
+                                                                        );
+                                                                    })}
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="text-gray-500 italic">
+                                                            No available offers for this product at the moment.
+                                                        </div>
+                                                    )}
                                                 </div>
+
 
                                                 <div className='py-2 mt-1'>
                                                     <div className='text-slate-700 font-medium text-base'>
@@ -516,6 +593,7 @@ const ProductDetails = ({ data }) => {
 
 
                                                 </div>
+
                                                 <div>
                                                     <p className='text-slate-700'>Expected Delivery Date {date.toDateString()}</p>
                                                 </div>
@@ -582,6 +660,8 @@ const ProductDetails = ({ data }) => {
 
 const ProductDetailsInfo = ({ data, products, totalReviewsLength, averageRating }) => {
     const [active, setActive] = useState(1)
+
+
 
     return (
         <div>
@@ -658,10 +738,10 @@ const ProductDetailsInfo = ({ data, products, totalReviewsLength, averageRating 
                             <div className='w-full  800px:w-[50%]'>
                                 <Link to={`/shop/preview/${data?.shop?._id}`}>
                                     <div className='flex items-center'>
-                                        <img src={`${data?.shop?.avatar}`} alt='' className='w-[50px] h-[50px] rounded-full ' />
+                                        <img src={`${data?.shop?.avatar?.url}`} alt='' className='w-[50px] h-[50px] rounded-full ' />
 
                                         <div className='pl-3'>
-                                            <h3 className={`${styles.shop_name}`}>{data?.shop?.name}</h3>
+                                            <h3 className={`${styles.shop_name}`}>{data?.shop?.shopName}</h3>
                                             <h5 className='pb-2 text-[15px]'>({averageRating}/5) Ratings</h5>
 
                                         </div>

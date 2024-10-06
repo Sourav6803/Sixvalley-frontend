@@ -37,10 +37,9 @@ const DashboardHero = () => {
   const topSellingProduct = Array.isArray(products) ? [...products].sort((a, b) => b?.sold_out - a?.sold_out).slice(0, 5) : [];
 
   const cancledProduct = orders?.filter((order) => order?.status === "Canceled")
-
   const confirmedProduct = orders?.filter((order) => order?.status === "Confirmed")
   const completeProduct = orders?.filter((order) => order?.status === "Delivered")
-  const shippedProducts =  orders?.filter((order) => order?.status === "Shipped")
+  const shippedProducts = orders?.filter((order) => order?.status === "Shipped")
   const packagingProduct = orders?.filter((order) => order?.status === "Packaging")
   const outForDeliveryProduct = orders?.filter((order) => order?.status === "Out for delivery")
   const returnedProduct = orders?.filter((order) => order?.status === "Returned")
@@ -94,7 +93,7 @@ const DashboardHero = () => {
     title: {
       text: 'Order Statistics',
       align: 'left',
-      offsetX: 110
+      offsetX: 90
     },
     xaxis: {
       categories: [],
@@ -241,22 +240,11 @@ const DashboardHero = () => {
           </div>
 
 
-
-
-
-
-
           <div className="w-full  p-2 mt-1">
             <div className="grid md:grid-cols-2 sm:grid-cols-2 lg:grid-cols-4  gap-2">
-              <div onClick={() => navigate('/dashboard/confirmed/order')} className="border min-h-[12vh] bg-slate-200 rounded-lg flex items-center justify-between cursor-pointer">
-                <div className="flex items-center gap-3 ">
-                  <img src={pendingImg} alt="" className="h-7 ml-3" />
-                  <h2 className="text-lg text-slate-600 font-medium">Pending</h2>
-                </div>
-                <div className="text-blue-400 font-semibold text-xl mr-3">20</div>
-              </div>
 
-              <div onClick={() => navigate('/dashboard/confirmed/order')} className="border min-h-[12vh] bg-slate-200 rounded-lg flex items-center justify-between cursor-pointer">
+
+              <div onClick={() => navigate('/dashboard/shipped/order')} className="border min-h-[12vh] bg-slate-200 rounded-lg flex items-center justify-between cursor-pointer">
                 <div className="flex items-center gap-3 ">
                   <img src={confirmedImg} alt="" className="h-7 ml-3" />
                   <h2 className="text-lg text-slate-600 font-medium">Confirmed</h2>
@@ -269,15 +257,15 @@ const DashboardHero = () => {
                   <img src={packagingImg} alt="" className="h-7 ml-3" />
                   <h2 className="text-lg text-slate-600 font-medium">Packaging</h2>
                 </div>
-                <div className="text-yellow-400 font-semibold text-xl mr-3">20</div>
+                <div className="text-yellow-400 font-semibold text-xl mr-3">{packagingProduct?.length}</div>
               </div>
 
-              <div onClick={() => navigate('/dashboard/delivered/order')} className="border min-h-[12vh] bg-slate-200 rounded-lg flex items-center justify-between cursor-pointer">
+              <div onClick={() => navigate('/dashboard/shipped/order')} className="border min-h-[12vh] bg-slate-200 rounded-lg flex items-center justify-between cursor-pointer">
                 <div className="flex items-center gap-3 ">
-                  <img src={delivredImg} alt="" className="h-7 ml-3" />
-                  <h2 className="text-lg  text-slate-600 font-medium">Delivered</h2>
+                  <img src={pendingImg} alt="" className="h-7 ml-3" />
+                  <h2 className="text-lg text-slate-600 font-medium">Shipped order</h2>
                 </div>
-                <div className="text-green-400 font-semibold text-xl mr-3">20</div>
+                <div className="text-blue-400 font-semibold text-xl mr-3">{shippedProducts?.length}</div>
               </div>
 
               <div onClick={() => navigate('/dashboard/out-for-delivery/order')} className="border min-h-[12vh] bg-slate-200 rounded-lg flex items-center justify-between cursor-pointer">
@@ -285,8 +273,18 @@ const DashboardHero = () => {
                   <img src={outForDeliveryImh} alt="" className="h-7 ml-3" />
                   <h2 className="font-medium text-slate-600 text-lg">Out For Delivery</h2>
                 </div>
-                <div className="text-blue-400 font-semibold text-xl mr-3">20</div>
+                <div className="text-blue-400 font-semibold text-xl mr-3">{outForDeliveryProduct?.length}</div>
               </div>
+
+              <div onClick={() => navigate('/dashboard/delivered/order')} className="border min-h-[12vh] bg-slate-200 rounded-lg flex items-center justify-between cursor-pointer">
+                <div className="flex items-center gap-3 ">
+                  <img src={delivredImg} alt="" className="h-7 ml-3" />
+                  <h2 className="text-lg  text-slate-600 font-medium">Delivered</h2>
+                </div>
+                <div className="text-green-400 font-semibold text-xl mr-3">{completeProduct?.length}</div>
+              </div>
+
+
 
 
               <div onClick={() => navigate('/dashboard/returned/order')} className="border min-h-[12vh] bg-slate-200 rounded-lg flex items-center justify-between cursor-pointer">
@@ -294,7 +292,7 @@ const DashboardHero = () => {
                   <img src={returnedImg} alt="" className="h-7 ml-3" />
                   <h2 className="text-lg text-slate-600 font-medium">Returned</h2>
                 </div>
-                <div className="text-blue-400 font-semibold text-xl mr-3">20</div>
+                <div className="text-blue-400 font-semibold text-xl mr-3">{returnedProduct?.length}</div>
               </div>
 
               <div onClick={() => navigate('/dashboard/cancled/order')} className="border min-h-[12vh] bg-slate-200 rounded-lg flex items-center justify-between">
@@ -302,7 +300,7 @@ const DashboardHero = () => {
                   <img src={cancledImg} alt="" className="h-7 ml-3" />
                   <h2 className="font-medium text-slate-600 text-lg">Cancled</h2>
                 </div>
-                <div className="text-red-400 font-semibold text-xl mr-3">20</div>
+                <div className="text-red-400 font-semibold text-xl mr-3">{cancledProduct?.length}</div>
               </div>
 
 
@@ -311,7 +309,7 @@ const DashboardHero = () => {
                   <img src={rejectedImg} alt="" className="h-7 ml-3" />
                   <h2 className="font-medium text-slate-600 text-lg">Failed To Delivery</h2>
                 </div>
-                <div className="text-blue-400 font-semibold text-xl mr-3">20</div>
+                <div className="text-blue-400 font-semibold text-xl mr-3">{failedToDeliver?.length}</div>
               </div>
             </div>
           </div>
@@ -357,7 +355,7 @@ const DashboardHero = () => {
               <div className="card bg-white shadow-md rounded-lg p-4 flex items-center">
                 <div className="flex justify-between items-center w-full">
                   <div className="flex flex-col items-start">
-                    <h3 className="text-2xl font-bold mb-1">₹{seller?.totalCommission}</h3>
+                    <h3 className="text-2xl font-bold mb-1">₹{seller?.totalCommission.toFixed(2)}</h3>
                     <div className="capitalize mb-0">Total Commission Given</div>
                   </div>
                   <img width="40" src="https://6valley.6amtech.com/public/assets/back-end/img/tcg.png" alt="" />

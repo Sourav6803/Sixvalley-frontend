@@ -31,8 +31,6 @@ const ShippedOrder = () => {
 
   const shippdOrders = orders?.filter(order => order?.status === "Shipped")
 
-
-
   function formatMongoDate(date) {
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const day = date.getDate();
@@ -126,7 +124,7 @@ const ShippedOrder = () => {
 
           <div className='flex items-center gap-2'>
             <img src={productImage} alt='layout' className='h-8' />
-            <h3 className="text-[20px] text-slate-600 font-Poppins font-semibold">Order List: {orders?.length}</h3>
+            <h3 className="text-[20px] text-slate-600 font-Poppins font-semibold">Order List: {shippdOrders?.length}</h3>
           </div>
 
           <div className="w-full mt-2 bg-white p-3 rounded-md hover:shadow-md">
@@ -184,7 +182,7 @@ const ShippedOrder = () => {
               <div className='flex items-center text-white   '>
                 <div className='bg-blue-700 rounded-md px-3 py-1 flex items-center justify-center gap-1 cursor-pointer' onClick={() => navigate("/dashboard-create-product")}>
 
-                  <div className=''>Order List : {orders?.length}</div>
+                  <div className=''>Order List : {shippdOrders?.length}</div>
                 </div>
               </div>
 

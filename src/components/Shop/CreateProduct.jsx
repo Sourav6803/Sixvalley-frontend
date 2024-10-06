@@ -21,6 +21,11 @@ import { htmlToText } from 'html-to-text';
 import ImageModal from "../../utils/ImageModal";
 import { FaQuestionCircle } from "react-icons/fa";
 import SelectBrand from "./SelectBrand";
+import socketIO from "socket.io-client";
+
+const ENDPOINT = "http://localhost:4000";
+const socketId = socketIO(ENDPOINT, { transports: ["websocket"] });
+
 
 
 const CreateProduct = () => {
@@ -31,6 +36,7 @@ const CreateProduct = () => {
     const { allSubSubCategory } = useSelector((state) => state?.subSubCategory);
     const { allBrand } = useSelector((state) => state?.brand);
     const { allAttribute } = useSelector((state) => state?.attribute);
+    const {product} = useSelector((state) => state?.products);
 
 
     const navigate = useNavigate();
@@ -303,11 +309,11 @@ const CreateProduct = () => {
         });
     };
 
-    
+
     const handleCategoryChange = useCallback((e) => {
         const selectedMainCategory = e;
         setMainCategory(selectedMainCategory);
-        setDropdownOpen({ ...dropdownOpen, mainCategory: false,  });
+        setDropdownOpen({ ...dropdownOpen, mainCategory: false, });
         const filteredSubCategories = allSubCategory?.filter(subCat => subCat.mainCategory === selectedMainCategory);
         setFilteredSubCategories(filteredSubCategories);
         setFilterBrand(allBrand?.filter(brand => brand?.category === selectedMainCategory))
@@ -534,23 +540,40 @@ const CreateProduct = () => {
 
 
     useEffect(() => {
+        // Handle error toast
         if (error) {
             toast.error(error);
         }
-
-        if (isLoading) {
-            <Loader />
-        }
-
+    
+        // Handle success logic
         if (success) {
             toast.success("Product created successfully!");
-
-            setTimeout(() => navigate("/dashboard-products"), 800)
+    
+            const adminTitle = "New product approval request";
+            const adminContent = `A new product "${name}" has been created by ${seller?.shopName}. Please review and approve.`;
+    
+            // Emit socket notification to the admin
+            socketId.emit("notification", {
+                title: adminTitle,
+                content: adminContent,
+                image: product ? product?.images[0].url : "",  // Ensure safe access to image URL
+            });
+    
+            // Navigate to the dashboard after success and cleanup socket
+            setTimeout(() => {
+                navigate("/dashboard-products");
+            }, 800);
+    
+            // Clean up function to remove socket listener
+            return () => {
+                socketId.off('notification');
+            };
         }
-    }, [dispatch, error, success, isLoading, navigate]);
+    
+        // Dependency array
+    }, [dispatch, error, success, isLoading, navigate, name, seller?.shopName, product ]);
 
     let isFilled;
-
 
     return (
         <div>
@@ -609,7 +632,7 @@ const CreateProduct = () => {
                                             Category <span className="text-red-500">*</span>
                                         </label>
 
-                                       
+
 
                                         <div className="relative w-full mt-2">
                                             <div
@@ -662,7 +685,7 @@ const CreateProduct = () => {
 
                                     <div>
                                         <label className="pb-2 text-slate-700 font-medium text-md">Sub Sub-Category</label>
-                                      
+
 
                                         <div className="relative w-full mt-2">
                                             <div
@@ -704,7 +727,7 @@ const CreateProduct = () => {
                                         </select>
                                     </div> */}
 
-                                    <SelectBrand 
+                                    <SelectBrand
                                         category={mainCategory}
                                         allBrands={allBrand} // The list of all brands with categories
                                         dropdownOpen={dropdownOpen}
@@ -1262,7 +1285,7 @@ const CreateProduct = () => {
                                                                             <div key={imgIndex} className="relative w-[60px] h-[50px]" >
                                                                                 <img
                                                                                     src={url}
-                                                                                    alt={`Color ${variation[selectedAttributes.length]}-${imgIndex}`}
+                                                                                    alt={`Color ${variation[selectedAttributes.length]} - ${imgIndex}`}
                                                                                     className="w-full h-full object-cover rounded-md cursor-pointer"
                                                                                     onClick={(e) => handleImageClick(url)}
                                                                                 />
@@ -1297,7 +1320,7 @@ const CreateProduct = () => {
                                         type="button"
                                         onClick={addMoreVariations}
                                         disabled={!isFilled} // Disable if any field is empty
-                                        className={`px-4 py-2 bg-blue-700 text-white rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${!isFilled && 'cursor-not-allowed text-gray-400 bg-blue-300'} `}
+                                        className={`px - 4 py - 2 bg - blue - 700 text - white rounded - md shadow - sm hover: bg - blue - 600 focus: outline - none focus: ring - 2 focus: ring - offset - 2 focus: ring - blue - 500 ${!isFilled && 'cursor-not-allowed text-gray-400 bg-blue-300'} `}
                                     >
                                         Add More
                                     </button>

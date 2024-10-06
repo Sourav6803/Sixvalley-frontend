@@ -22,6 +22,10 @@ import { FaCreditCard } from 'react-icons/fa';
 import Lottie from "react-lottie";
 import animationData from "../../Assests/Animation/animation_lnb4mz5t.json";
 import { useLocation } from "react-router-dom";
+import socketIO from "socket.io-client";
+
+const ENDPOINT = "http://localhost:4000";
+const socketId = socketIO(ENDPOINT, { transports: ["websocket"] });
 
 const Payment = () => {
   const [orderData, setOrderData] = useState([]);
@@ -72,6 +76,12 @@ const Payment = () => {
     deliveryCharge: orderData?.deliverCharge
   };
 
+
+  const title = `New Order  Received`
+  const content = `You have received a new order with the following items: ${order?.cart?.map(item => item.name).join(', ')}. Please prepare the order for shipping.`;
+  const imageUrl = order?.cart?.map(item => item?.images[0].url)
+
+
   const onApprove = async (data, actions) => {
     return actions.order.capture().then(function (details) {
       const { payer } = details;
@@ -84,36 +94,36 @@ const Payment = () => {
     });
   };
 
- 
+
   const paypalPaymentHandler = async (paymentInfo) => {
     const config = {
       headers: {
         "Content-Type": "application/json",
       },
     };
-  
+
     try {
       // Set the loading state
       setPaymentProcessing(true);
-  
+
       // Prepare payment info to be added to the order
       order.paymentInfo = {
         id: paymentInfo.payer_id,
         status: "succeeded",
         type: "Paypal",
       };
-  
+
       // Make the POST request to create the order
       const response = await axios.post(`${server}/order/create-order`, order, config);
-  
+
       // If successful, proceed with order completion actions
       setOpen(false);
       toast.success("Order successful!");
-  
+
       // Clear cart and order data from localStorage
       localStorage.setItem("cartItems", JSON.stringify([]));
       localStorage.setItem("latestOrder", JSON.stringify([]));
-  
+
       // Navigate to order success page
       navigate("/order/success");
     } catch (error) {
@@ -125,7 +135,7 @@ const Payment = () => {
       setPaymentProcessing(false);
     }
   };
-  
+
 
   const paymentData = {
     amount: Math.round(orderData?.totalPrice * 100),
@@ -133,7 +143,7 @@ const Payment = () => {
 
   const paymentHandler = async (e) => {
     e.preventDefault();
-    
+
     try {
       const config = {
         headers: {
@@ -189,16 +199,16 @@ const Payment = () => {
     }
   };
 
-  
+
   const cashOnDeliveryHandler = async (e) => {
     e.preventDefault();
-  
+
     const config = {
       headers: {
         "Content-Type": "application/json",
       },
     };
-  
+
     // Add payment info for Cash on Delivery
     const updatedOrder = {
       ...order,
@@ -206,25 +216,31 @@ const Payment = () => {
         type: "Cash On Delivery",
       },
     };
-  
+
     setPaymentProcessing(true); // Start the loading state
-  
+
     try {
       // Make the API request to create the order
       const response = await axios.post(`${server}/order/create-order`, updatedOrder, config);
-    
+
       if (response.status === 201) {
         // Order successful
         toast.success("Order successful!");
-  
+
         // Clear local storage items related to the order and cart
         localStorage.setItem("cartItems", JSON.stringify([]));
         localStorage.setItem("latestOrder", JSON.stringify([]));
-  
+
+        socketId.emit("notification", {
+          title,
+          content,
+          imageUrl
+        });
+
         // Close modal if any and redirect to success page
         setOpen(false);
         navigate("/order/success", { state: { order } });
-  
+
         // Optional: Reload page if necessary to reset the state
         window.location.reload();
       } else {
@@ -239,11 +255,11 @@ const Payment = () => {
       setPaymentProcessing(false);
     }
   };
-  
+
 
   return (
     <div className="w-full flex flex-col items-center py-3">
-     <LoadingModal loading={payementProcessing} />
+      <LoadingModal loading={payementProcessing} />
       <div className="w-full 1000px:w-[70%] block 800px:flex p-1">
         <div className="w-full 800px:w-[65%]">
           <PaymentInfo
@@ -367,7 +383,7 @@ const PaymentInfo = ({ orderData, user,
 
 
       {/* Saved Payment Options */}
-      <div className="border-b py-2">
+      {/* <div className="border-b py-2">
         <div className="flex">
           <span className="mr-2 mt-2"><IoTimerOutline /></span>
           <button
@@ -381,7 +397,7 @@ const PaymentInfo = ({ orderData, user,
         {showPaymentOptions.savedOptions && (
           <div className="pl-4 py-2 text-sm text-gray-600">No saved payment options</div>
         )}
-      </div>
+      </div> */}
 
       {/* Credit/Debit/ATM Card Section */}
       <div className="border-b py-2">
@@ -398,30 +414,77 @@ const PaymentInfo = ({ orderData, user,
           </button>
         </div>
         <p className="text-gray-500 text-[10px] mr-10 ">Add and secure cards as per RBI guidelines</p>
-        
+
         {showPaymentOptions.card && (
           <div className="pl-4 py-2">
             <p className="text-sm text-gray-600">Add your card details</p>
             {/* Card Form */}
             <div className="mt-2">
-              <input
-                type="text"
+              
+              <CardNumberElement
+                className={`w-full p-2 mb-2 border rounded-lg`}
                 placeholder="Card Number"
-                className="w-full p-2 mb-2 border rounded-lg"
+                options={{
+                  style: {
+                    base: {
+                      fontSize: "14px",
+                      lineHeight: 1.5,
+
+                    },
+                    empty: {
+                      color: "#3a120a",
+                      backgroundColor: "transparent",
+
+                    },
+                  },
+                }}
               />
-              <input
-                type="text"
-                placeholder="MM/YY"
-                className="w-full p-2 mb-2 border rounded-lg"
+
+              <CardExpiryElement
+                className={`w-full p-2 mb-2 border rounded-lg`}
+                options={{
+                  style: {
+                    base: {
+                      fontSize: "14px",
+                      lineHeight: 1.5,
+                      // color: "#444",
+                    },
+                    empty: {
+                      color: "#3a120a",
+                      backgroundColor: "transparent",
+                      "::placeholder": {
+                        // color: "#444",
+                        fontSize: "14px",
+                      },
+                    },
+                  },
+                }}
               />
-              <input
-                type="text"
-                placeholder="CVV"
-                className="w-full p-2 border rounded-lg"
+
+              <CardCvcElement
+                className={`w-full p-2 border rounded-lg`}
+                options={{
+                  style: {
+                    base: {
+                      fontSize: "14px",
+                      lineHeight: 1.5,
+                      // color: "#444",
+                    },
+                    empty: {
+                      color: "#3a120a",
+                      backgroundColor: "transparent",
+                      "::placeholder": {
+                        // color: "#444",
+                      },
+                    },
+                  },
+                }}
               />
             </div>
+
+
             <button className="w-full mt-3 py-2 bg-blue-600 text-white rounded-md">
-              Add Card
+              Pay ₹{orderData?.totalCartPrice}
             </button>
           </div>
         )}

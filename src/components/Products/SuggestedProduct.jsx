@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { productData } from '../../static/data'
+
 import styles from '../../styles/styles'
 import ProductCard from "../Route/ProductCard/ProductCard"
 import { useSelector } from 'react-redux'
@@ -10,9 +10,10 @@ const SuggestedProduct = ({data}) => {
     const [productData,setProductData] = useState()
 
     useEffect(()=>{
-        const d = allProducts && allProducts?.filter((i)=> i.category === data.category || i.name === data.name || i.tags === data.tags)
+        const d = allProducts && allProducts?.filter((i)=> i.category === data?.category || i.name === data?.name || i.tags === data?.tags)
         setProductData(d)
-    },[])
+    },[allProducts, data?.category, data?.name, data?.tags])
+    
   return (
     <div>
         {

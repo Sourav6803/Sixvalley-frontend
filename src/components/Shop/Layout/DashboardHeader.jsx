@@ -320,15 +320,13 @@ const DashboardHeader = ({ navOpen, setNavOpen }) => {
               <img src={mainLogo} alt="Main Logo" className="h-[60px]" />
             </Link>
           </div>
-
-
         </div>
 
         <div className="flex items-center">
-          <div className="flex items-center space-x-5">
+          <div className="flex items-center space-x-3">
             <div className="relative cursor-pointer m-1">
-              <IoMdNotificationsOutline className="text-2xl cursor-pointer dark:text-white text-black" size={35} />
-              <span onClick={() => setNotificationOpen(!notficationOpen)} className="absolute -top-2 -right-1 bg-[#1f614d] rounded-full w-[20px] h-[20px] text-[12px] flex items-center justify-center text-white ">
+              <IoMdNotificationsOutline onClick={() => setNotificationOpen(!notficationOpen)} className="text-2xl cursor-pointer dark:text-white text-black" size={38} />
+              <span  className="absolute -top-1 -right-1 bg-[#1f614d] rounded-full w-[20px] h-[20px] text-[12px] flex items-center justify-center text-white ">
                 {notifications?.length > 0 && (
                   <span className="absolute top-1 right-1  rounded-full w-3 h-3 text-[12px] flex items-center justify-center">
                     {notifications?.length}

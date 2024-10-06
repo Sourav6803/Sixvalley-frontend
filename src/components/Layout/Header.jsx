@@ -48,7 +48,7 @@ const Header = ({ activeHeading }) => {
     const [notifications, setNotifications] = useState([])
 
     const admin = user?.role === "Admin"
-
+    
     const handleSearchChange = (e) => {
         const term = e.target.value
         setSearchTearm(term)
@@ -99,7 +99,6 @@ const Header = ({ activeHeading }) => {
     };
 
     const [isListening, setIsListening] = useState(false);
-
 
     // Speech Recognition Setup
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -500,7 +499,7 @@ const Header = ({ activeHeading }) => {
                             </div>
                         )}
 
-                        <div className="relative mr-[20px]" onClick={() => setOpenCart(true)}>
+                        <div className="relative mr-[20px]" onClick={() => {setOpenCart(true); setNotificationOpen(false)}}>
                             <AiOutlineShoppingCart size={30} color='' className='text-white' />
                             {isAuthenticated && cart?.length >= 1 && <span className="absolute right-1 top-0 rounded-full bg-white w-3 h-3 top  p-0 m-0  font-mono text-[10px]  leading-tight text-center">
                                 {cart && cart?.length}

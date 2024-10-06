@@ -3,7 +3,7 @@ import Header from '../components/Layout/Header'
 import Footer from '../components/Layout/Footer'
 import ProductDetails from "../components/Products/ProductDetails"
 import { useParams, useSearchParams } from 'react-router-dom'
- import SuggestedProduct from '../components/Products/SuggestedProduct'
+import SuggestedProduct from '../components/Products/SuggestedProduct'
 import { useSelector } from 'react-redux'
 import Loader from './Loader'
 
@@ -23,19 +23,13 @@ const ProductDetailsPage = () => {
 
 
   useEffect(() => {
-    if (eventData !== null) {
-      const data = allEvents?.find((i) => i._id === id)
-      setData(data)
-      setLoading(false)
-    } else {
-      const data = allProducts?.find((i) => i._id === id)
-      setData(data)
-      setLoading(false)
-    }
+    const data = allProducts?.find((i) => i._id === id)
+    setData(data)
+    setLoading(false)
 
-  }, [allProducts, eventData, allEvents, id])
+  }, [allProducts, id])
 
- 
+
 
 
   return (
@@ -46,11 +40,9 @@ const ProductDetailsPage = () => {
             <div>
               <Header />
               <ProductDetails data={data} />
-              {
-                !eventData && (
-                  data && <SuggestedProduct data={data} eventData={eventData} />
-                )
-              }
+
+              <SuggestedProduct data={data} eventData={eventData} />
+
               <Footer />
             </div>
           )
