@@ -8,12 +8,8 @@ import { useSelector } from 'react-redux'
 import Loader from './Loader'
 
 
-
-
-
 const ProductDetailsPage = () => {
   const { allProducts } = useSelector((state) => state?.products);
-  const { allEvents } = useSelector(state => state.events)
   const [loading, setLoading] = useState(false)
   const { id } = useParams()
   const [data, setData] = useState(null)
@@ -23,13 +19,11 @@ const ProductDetailsPage = () => {
 
 
   useEffect(() => {
-    const data = allProducts?.find((i) => i._id === id)
+    const data = allProducts?.find((i) => i?._id === id)
     setData(data)
     setLoading(false)
 
   }, [allProducts, id])
-
-
 
 
   return (
