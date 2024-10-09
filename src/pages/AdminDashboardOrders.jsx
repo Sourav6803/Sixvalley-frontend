@@ -68,28 +68,7 @@ const AdminDashboardOrders = () => {
       });
     });
   return (
-    // <div>
-    //   <AdminHeader />
-    //   <div className="w-full flex">
-    //     <div className="flex items-start justify-between w-full">
-    //       <div className="w-[80px] 800px:w-[330px]">
-    //         <AdminSideBar active={2} />
-    //       </div>
-
-    //       <div className="w-full min-h-[45vh] pt-5 rounded flex justify-center">
-    //         <div className="w-[97%] flex justify-center">
-    //           <DataGrid
-    //             rows={row}
-    //             columns={columns}
-    //             pageSize={4}
-    //             disableSelectionOnClick
-    //             autoHeight
-    //           />
-    //         </div>
-    //       </div>
-    //     </div>
-    //   </div>
-    // </div>
+   
 
     <main className="relative ">
       <AdminHeader navOpen={navOpen} setNavOpen={setNavOpen} />

@@ -1,36 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import Header from '../components/Layout/Header';
-import styles from '../styles/styles';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { paintingSubCategoriesdata } from '../static/data';
 import ProductCard from '../components/Route/ProductCard/ProductCard';
 import { useSelector } from 'react-redux';
-
 import Footer from '../components/Layout/Footer';
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
-
-import axios from 'axios';
-import { server } from '../server';
 import Loader from './Loader';
 import { styled } from '@mui/material';
-
 import { Fashion } from '../static/data';
 
-const responsive = {
-    desktop: {
-        breakpoint: { max: 3000, min: 1024 },
-        items: 1,
-    },
-    tablet: {
-        breakpoint: { max: 1024, min: 464 },
-        items: 1,
-    },
-    mobile: {
-        breakpoint: { max: 464, min: 0 },
-        items: 1,
-    }
-};
 
 const Image = styled('img')(({ theme }) => ({
     width: '100%',

@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import DashboardHeader from '../../components/Shop/Layout/DashboardHeader'
-import DashboardSideBar from '../../components/Shop/Layout/DashboardSidebar'
 import DashboardHero from '../../components/Shop/DashboardHero'
 
 import DemoSideBar from '../../components/Shop/Layout/DemoSidebar'

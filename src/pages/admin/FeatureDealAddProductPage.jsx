@@ -2,7 +2,6 @@ import React from 'react'
 import AdminHeader from '../../components/Layout/AdminHeader'
 import AdminSideBar from '../../components/Admin/Layout/AdminSidebar'
 import { useState } from 'react'
-import FlashDealAddProduct from '../../components/Admin/FlashDealAddProduct'
 import FeatureDealAddProduct from '../../components/Admin/FeatureDealAddProduct'
 
 

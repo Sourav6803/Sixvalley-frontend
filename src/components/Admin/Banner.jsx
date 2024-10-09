@@ -39,8 +39,8 @@ const Banner = () => {
     const [publishModalOpentwo, setPublishModaltwo] = useState(false);
     const [isPublished, setIsPublished] = useState()
     // Modal state
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [modalData, setModalData] = useState({});
+    // const [isModalOpen, setIsModalOpen] = useState(false);
+    // const [modalData, setModalData] = useState({});
 
     useEffect(() => {
         setFilterResourceValue(allProducts);
@@ -130,8 +130,8 @@ const Banner = () => {
 
     const handleUpdate = (banner) => {
         // Open the modal with banner data
-        setModalData(banner);
-        setIsModalOpen(true);
+        // setModalData(banner);
+        // setIsModalOpen(true);
     };
 
 

@@ -25,7 +25,7 @@ const FeatureDeal = () => {
     const [publishedModalOpen, setPublishedModalOpen] = useState(false);
     const [publishModalOpentwo, setPublishModaltwo] = useState(false);
     const [isPublished, setIsPublished] = useState()
-    const [flashDealId, setFlashDealId] = useState("")
+   
     const [featureDealId, setFeatureDealId] =  useState("")
     const [allFeatureDeal, setAllFeatureDeal] = useState([])
 

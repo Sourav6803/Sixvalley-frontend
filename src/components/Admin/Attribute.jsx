@@ -14,7 +14,7 @@ const Attribute = () => {
     const [open, setOpen] = useState(false);
     const [name, setName] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [isDisabled, setIsDisabled] = useState(true);
+    const [isDisabled, ] = useState(true);
     const [searchTearm, setSearchTearm] = useState("")
     const [searchData, setSearchData] = useState(null)
     const [attributeId, setAttributeId] = useState("")

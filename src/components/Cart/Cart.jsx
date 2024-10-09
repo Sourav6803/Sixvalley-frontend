@@ -1,5 +1,5 @@
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState } from "react";
 import { RxCross1 } from "react-icons/rx";
 import { IoBagHandleOutline } from "react-icons/io5";
 import { HiOutlineMinus, HiPlus } from "react-icons/hi";
@@ -14,7 +14,6 @@ import insurence from "../../Assests/insurance.png"
 
 const Cart = ({ setOpenCart , handleCartClose}) => {
     const { cart } = useSelector((state) => state?.cart);
-    const { user, isAuthenticated } = useSelector(state => state.user)
     const [loading, setLoading] = useState(false)
     const dispatch = useDispatch();
     console.log(cart)

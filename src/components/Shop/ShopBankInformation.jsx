@@ -4,7 +4,7 @@
 
 import axios from 'axios';
 import React, { useState } from 'react';
-import { FaLock, FaInfoCircle, FaCheckCircle, FaShieldAlt, FaTimesCircle } from 'react-icons/fa';
+import { FaLock , FaShieldAlt, FaTimesCircle } from 'react-icons/fa';
 import { server } from "../../server";
 import { toast } from 'react-toastify';
 import { loadSeller } from '../../redux/actions/user';
@@ -25,15 +25,12 @@ const ShopBankInformation = ({ initialData }) => {
 
     const { seller } = useSelector((state) => state.seller);
 
-    const [showAddBankForm, setShowAddBankForm] = useState(false);
 
     const handleAddBankClick = () => {
         setShowAddBankModal(true);
     };
 
-    const handleCancel = () => {
-        setShowAddBankForm(false);
-    };
+   
 
     const handleDeleteBankClick = (bankId) => {
         setSelectedBankId(bankId);

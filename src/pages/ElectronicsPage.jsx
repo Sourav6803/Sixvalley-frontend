@@ -1,37 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import Header from '../components/Layout/Header';
-import styles from '../styles/styles';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { paintingSubCategoriesdata } from '../static/data';
+import { useNavigate, } from 'react-router-dom';
 import ProductCard from '../components/Route/ProductCard/ProductCard';
 import { useSelector } from 'react-redux';
-
 import Footer from '../components/Layout/Footer';
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
-
-import axios from 'axios';
-import { server } from '../server';
 import Loader from './Loader';
 import { styled } from '@mui/material';
 import { ElectronicsData } from '../static/data';
 
-
-
-const responsive = {
-    desktop: {
-        breakpoint: { max: 3000, min: 1024 },
-        items: 1,
-    },
-    tablet: {
-        breakpoint: { max: 1024, min: 464 },
-        items: 1,
-    },
-    mobile: {
-        breakpoint: { max: 464, min: 0 },
-        items: 1,
-    }
-};
 
 const Image = styled('img')(({ theme }) => ({
     width: '100%',
@@ -44,19 +22,10 @@ const Image = styled('img')(({ theme }) => ({
 }));
 
 const ElectronicsPage = () => {
-    const [searchParams] = useSearchParams();
-    const categoryData = searchParams.get("category")
     const { allProducts, isLoading } = useSelector(state => state?.products)
-    const { allSubSubCategory } = useSelector(state => state.subSubCategory)
-    const [data, setData] = useState([])
-    const [loader, setLoader] = useState(false)
-    const [filterSubcategory, setFilterSubCategory] = useState([])
     const [filterProduct, setFilterProduct] = useState([])
-
     const { allBanner } = useSelector(state => state.banner)
     const mainbanner = allBanner?.filter(banner => banner?.bannerType === "Main Banner" && banner?.resourceType === 'Electronics')
-
-
 
     const navigate = useNavigate();
 
@@ -88,29 +57,9 @@ const ElectronicsPage = () => {
         setFilterProduct(filterData)
     }, [allProducts])
 
-    useEffect(() => {
-        const filterData = allSubSubCategory && allSubSubCategory?.filter(cat => cat.mainCategory.trim() === "Electronics")
-        setFilterSubCategory(filterData)
-    }, [allSubSubCategory])
-
-
     const handleSubmit = (name) => {
         navigate(`/products?subCategory=${encodeURIComponent(name.trim())}`)
     }
-
-    useEffect(() => {
-        setLoader(true)
-        if (categoryData === null) {
-            const d = allProducts
-            setData(d)
-        } else {
-            const d = allProducts && allProducts.filter((i) => i.category === categoryData)
-            setData(d)
-
-        }
-        setLoader(false)
-    }, [allProducts, categoryData])
-
 
     const responsive = {
         desktop: {

@@ -14,7 +14,7 @@ import ProtectedRoute from './routes/ProtectedRoutes';
 import { ShopHomePage } from './ShopRoutes'
 import SellerProtectedRoute from './routes/SellerProtectedRoute';
 import {
-  ShopAllCupon, ShopAllEvent, ShopAllOrders, ShopAllProducts, ShopCreateEvent, ShopCreateProduct, ShopDashboardPage,
+   ShopAllEvent, ShopAllOrders, ShopAllProducts, ShopCreateEvent, ShopCreateProduct, ShopDashboardPage,
   ShopPreviewPage, ShopOrderDetails, ShopAllRefunds, ShopSettingsPage, ShopWithDrawMoneyPage, ShopInboxPage, ShopAllCupoun,
   ShopBannerPage,
   ShopProductView,
@@ -30,7 +30,9 @@ import {
   OrderReportPage,
   ProductReortPage,
   TransactionReportPage,
-  ShippedOrderPage
+  ShippedOrderPage,
+  ProcessingRefundPage,
+  RefundDetailsPage
 } from './routes/ShopRoutes';
 import { getAllProducts } from './redux/actions/product';
 import { getAllEvents } from './redux/actions/event';
@@ -49,7 +51,6 @@ import {
 } from './routes/AdminRoutes';
 
 import ProtectedAdminRoute from './routes/ProtectedAdminRoute';
-import ShopHomeLayout from './pages/Shop/ShopHomeLayout.jsx';
 import { getAllCategories } from './redux/actions/category.js';
 
 import { getAllSubCategories } from './redux/actions/subCategory.js';
@@ -70,7 +71,6 @@ import ElectronicsPage from './pages/ElectronicsPage.jsx';
 import FurniturePage from './pages/FurniturePage.jsx';
 import CraftsPaintings from './pages/CraftsPaintings.jsx';
 import UserAllOrder from './pages/UserAllOrder.jsx';
-import Usercard from './components/Profile/Usercard.jsx';
 import UserCardPage from './pages/UserCardPage.jsx';
 import UserAddressPage from './pages/UserAddressPage.jsx';
 import ContactUsPage from './pages/ContactUsPage.jsx';
@@ -92,7 +92,7 @@ import ShopConfirmedOrderPage from './pages/Shop/ShopConfirmedOrderPage.jsx';
 const App = ({ data }) => {
   const clientId = "466795580109-447vuuk7t5e63d2tuagn1443d0lvfhdq.apps.googleusercontent.com"
   const [stripeApikey, setStripeApiKey] = useState("");
-  const [fcmToken, setFcmToken] = useState("");
+
   const [showConsent, setShowConsent] = useState(false);
   const { user, isAuthenticated } = useSelector(state => state.user)
 
@@ -129,7 +129,7 @@ const App = ({ data }) => {
       setShowConsent(false);
       try {
         const token = await requestFCMToken();
-        setFcmToken(token);
+        
 
         // Make API call to update deviceToken
         if (isAuthenticated && !user?.deviceToken) {
@@ -162,7 +162,6 @@ const App = ({ data }) => {
         console.log('Service Worker registered with scope:', registration.scope);
 
         const token = await requestFCMToken();
-        setFcmToken(token);
 
         // Make API call to update deviceToken
         if (isAuthenticated && !user?.deviceToken) {
@@ -277,7 +276,7 @@ const App = ({ data }) => {
           <Route path='/dashboard/approved/product' element={<SellerProtectedRoute ><ApprovedProductPage /></SellerProtectedRoute>} />
           <Route path='/dashboard/pending/product' element={<SellerProtectedRoute ><PendingProductPage /></SellerProtectedRoute>} />
           <Route path='/dashboard/bank-information' element={<SellerProtectedRoute ><ShopBankInformationPage /></SellerProtectedRoute>} />
-         
+          <Route path='/dashboard/processing-refund/order' element={<SellerProtectedRoute ><ProcessingRefundPage /></SellerProtectedRoute>} />
           <Route path='/dashboard/order-report' element={<SellerProtectedRoute ><OrderReportPage /></SellerProtectedRoute>} /> <Route path='/dashboard/order-report' element={<SellerProtectedRoute ><OrderReportPage /></SellerProtectedRoute>} />
           <Route path='/dashboard/product-report' element={<SellerProtectedRoute ><ProductReortPage /></SellerProtectedRoute>} />
           <Route path='/dashboard/transaction-report' element={<SellerProtectedRoute ><TransactionReportPage /></SellerProtectedRoute>} />
@@ -292,6 +291,7 @@ const App = ({ data }) => {
           <Route path="/settings" element={<SellerProtectedRoute ><ShopSettingsPage /></SellerProtectedRoute>} />
           <Route path='/dashboard-orders' element={<SellerProtectedRoute ><ShopAllOrders /></SellerProtectedRoute>} />
           <Route path='/order/:id' element={<SellerProtectedRoute ><ShopOrderDetails /></SellerProtectedRoute>} />
+          <Route path='/seller/refund/order/:id' element={<SellerProtectedRoute ><RefundDetailsPage /></SellerProtectedRoute>} />
           <Route path="/dashboard-withdraw-money" element={<SellerProtectedRoute> <ShopWithDrawMoneyPage /> </SellerProtectedRoute>} />
           <Route path="/dashboard-messages" element={<SellerProtectedRoute> <ShopInboxPage /> </SellerProtectedRoute>} />
 

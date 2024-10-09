@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, {  useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { backend_url, server } from "../../server";
+import { server } from "../../server";
 import { AiOutlineCamera } from "react-icons/ai";
-import styles from "../../styles/styles";
+
 import axios from "axios";
 import { loadSeller } from "../../redux/actions/user";
 import { toast } from "react-toastify";
@@ -21,35 +21,6 @@ const ShopSettings = () => {
   const [zipCode, setZipcode] = useState(seller && seller.zipCode);
   const [imageLoading, setImageLoading] = useState(false);
   const dispatch = useDispatch();
-
-
-
-  // const handleImage = async (e) => {
-  //   const reader = new FileReader();
-
-  //   reader.onload = () => {
-  //     if (reader.readyState === 2) {
-  //       setAvatar(reader.result);
-  //       axios
-  //         .put(
-  //           `${server}/shop/update-shop-avatar`,
-  //           { avatar: reader.result },
-  //           {
-  //             withCredentials: true,
-  //           }
-  //         )
-  //         .then((res) => {
-  //           dispatch(loadSeller());
-  //           toast.success("Avatar updated successfully!");
-  //         })
-  //         .catch((error) => {
-  //           toast.error(error?.response?.data?.message);
-  //         });
-  //     }
-  //   };
-
-  //   reader.readAsDataURL(e?.target?.files[0]);
-  // };
 
   const handleImage = async (e) => {
     const file = e.target.files[0];

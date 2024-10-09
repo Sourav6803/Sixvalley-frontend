@@ -2,7 +2,7 @@
 
 import { FiInbox, FiUsers } from "react-icons/fi";
 
-import { BiCard, BiMapPin, BiSolidOffer, BiUser } from "react-icons/bi";
+import {  BiMapPin, BiSolidOffer, BiUser } from "react-icons/bi";
 // import mainLogo from "../../main_logo3.jpg";
 
 import { IoIosNotificationsOutline } from "react-icons/io";
@@ -23,7 +23,7 @@ import { BsHousesFill } from "react-icons/bs";
 import { SlOrganization, SlNotebook } from "react-icons/sl";
 import { TiMessages } from "react-icons/ti";
 import { RiCustomerService2Fill, RiCustomerServiceFill } from "react-icons/ri";
-import { AiOutlineOrderedList, AiOutlineQrcode } from "react-icons/ai";
+import {  AiOutlineQrcode } from "react-icons/ai";
 import { FaQuestionCircle } from "react-icons/fa";
 
 export const navItems = [
@@ -614,7 +614,7 @@ export const productData = [
     rating: 5,
     total_sell: 80,
     stock: 10,
-    category: "Mobile & Tablets"
+   
   },
   {
     id: 1,
@@ -645,7 +645,7 @@ export const productData = [
     rating: 4,
     total_sell: 75,
     stock: 10,
-    category: "Computers & Laptop"
+    
   },
   {
     id: 4,
@@ -707,7 +707,7 @@ export const productData = [
     rating: 5,
     total_sell: 49,
     stock: 10,
-    category: "Shoes"
+    
   },
   {
     id: 1,
@@ -1317,11 +1317,7 @@ export const ProfileMenu = [
     link: "/user/order",
     active: 2
   },
-  {
-    title: "Saved Card",
-    icon: <FaCcMastercard/>,
-    link: "/user/card",
-  },
+  
   {
     title: "Saved Addresses",
     icon: <BiMapPin/>,

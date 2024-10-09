@@ -1,8 +1,6 @@
 import React, { useState } from 'react'
 import DashboardHeader from '../../components/Shop/Layout/DashboardHeader'
 import DashboardSideBar from '../../components/Shop/Layout/DashboardSidebar'
-import PackagingOrders from '../../components/Shop/PackagingOrders'
-import OutForDelivery from '../../components/Shop/OutForDelivery'
 import OrderReport from '../../components/Shop/OrderReport'
 
 const OrderReportPage = () => {

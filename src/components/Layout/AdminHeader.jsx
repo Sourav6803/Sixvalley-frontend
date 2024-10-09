@@ -1,72 +1,4 @@
-// import React from 'react'
-// import { AiOutlineGift } from 'react-icons/ai'
-// import { BiMessageSquareDetail } from 'react-icons/bi'
-// import { FiPackage, FiShoppingBag } from 'react-icons/fi'
-// import { MdOutlineLocalOffer } from 'react-icons/md'
-// import { useSelector } from 'react-redux'
-// import { Link } from 'react-router-dom'
-// import mainLogo from "../main_logo3.jpg"
 
-
-// const AdminHeader = () => {
-//   const { user } = useSelector((state) => state?.user);
-
-//   return (
-//     <div className="w-full h-[80px] bg-blue-500 shadow sticky top-0 left-0 z-30 flex items-center justify-between px-4  ">
-//       <div className='border-red-800 border-2'>
-//         <Link to="/">
-//           <img
-//             src={mainLogo}
-//             alt=""
-//           />
-//         </Link>
-//       </div>
-//       <div className="flex items-center">
-//         <div className="flex items-center mr-4">
-//           <Link to="/dashboard-coupouns" className="800px:block hidden">
-//             <AiOutlineGift
-//               color="#555"
-//               size={30}
-//               className="mx-5 cursor-pointer"
-//             />
-//           </Link>
-
-//           <Link to="/dashboard-events" className="800px:block hidden">
-//             <MdOutlineLocalOffer
-//               color="#555"
-//               size={30}
-//               className="mx-5 cursor-pointer"
-//             />
-//           </Link>
-//           <Link to="/dashboard-products" className="800px:block hidden">
-//             <FiShoppingBag
-//               color="#555"
-//               size={30}
-//               className="mx-5 cursor-pointer"
-//             />
-//           </Link>
-//           <Link to="/dashboard-orders" className="800px:block hidden">
-//             <FiPackage color="#555" size={30} className="mx-5 cursor-pointer" />
-//           </Link>
-//           <Link to="/dashboard-messages" className="800px:block hidden">
-//             <BiMessageSquareDetail
-//               color="#555"
-//               size={30}
-//               className="mx-5 cursor-pointer"
-//             />
-//           </Link>
-//           <img
-//             src={`${user?.avatar}`}
-//             alt=""
-//             className="w-[50px] h-[50px] rounded-full object-cover"
-//           />
-//         </div>
-//       </div>
-//     </div>
-//   )
-// }
-
-// export default AdminHeader
 
 import React, { useState } from "react";
 
@@ -78,7 +10,6 @@ import { GiHamburgerMenu } from "react-icons/gi";
 import { RxCross1 } from "react-icons/rx";
 import { BsSearch, BsChevronDown } from "react-icons/bs";
 import { IoMdNotificationsOutline, } from "react-icons/io";
-import { MdOutlineAdminPanelSettings } from "react-icons/md";
 import { adminSubMenus } from "../../static/data";
 
 

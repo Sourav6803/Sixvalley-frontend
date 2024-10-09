@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import styles from "../../styles/styles";
+
 import { useEffect } from "react";
 import {
   CardNumberElement,
@@ -16,12 +16,9 @@ import { server } from "../../server";
 import { toast } from "react-toastify";
 import { RxCross1 } from "react-icons/rx";
 import { FaPaypal, FaCcMastercard, FaWallet } from "react-icons/fa6";
-import { IoTimerOutline } from "react-icons/io5";
+
 import { PiBankDuotone } from "react-icons/pi";
 import { FaCreditCard } from 'react-icons/fa';
-import Lottie from "react-lottie";
-import animationData from "../../Assests/Animation/animation_lnb4mz5t.json";
-import { useLocation } from "react-router-dom";
 import socketIO from "socket.io-client";
 
 const ENDPOINT = "http://localhost:4000";
@@ -96,11 +93,7 @@ const Payment = () => {
 
 
   const paypalPaymentHandler = async (paymentInfo) => {
-    const config = {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
+   
 
     try {
       // Set the loading state
@@ -113,8 +106,7 @@ const Payment = () => {
         type: "Paypal",
       };
 
-      // Make the POST request to create the order
-      const response = await axios.post(`${server}/order/create-order`, order, config);
+
 
       // If successful, proceed with order completion actions
       setOpen(false);

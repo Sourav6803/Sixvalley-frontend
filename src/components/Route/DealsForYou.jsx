@@ -45,11 +45,7 @@ const DealsForYou = () => {
           </div>
         ))}
       </div>
-      <div className="mt-4">
-        <a href="#" className="text-teal-600 hover:underline">
-          See all deals
-        </a>
-      </div>
+      
     </div>
   );
 };

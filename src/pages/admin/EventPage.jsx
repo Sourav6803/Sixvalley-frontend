@@ -1,10 +1,8 @@
 import React from 'react'
 import AdminHeader from '../../components/Layout/AdminHeader'
 import AdminSideBar from '../../components/Admin/Layout/AdminSidebar'
-import Category from '../../components/Admin/Category'
 import { useState } from 'react'
-import AllCoupons from '../../components/Shop/AllCupons'
-import Coupon from '../../components/Admin/Coupon'
+
 import Event from '../../components/Admin/Event'
 
 const EventPage = () => {

@@ -1,23 +1,12 @@
 import React, { useState } from 'react'
 import DashboardHeader from '../../components/Shop/Layout/DashboardHeader'
 import AllOrders from "../../components/Shop/AllOrders";
-import DashboardSideBar from '../../components/Shop/Layout/DashboardSidebar';
 import DemoSideBar from '../../components/Shop/Layout/DemoSidebar';
 
 const ShopAllOrders = () => {
   const [navOpen, setNavOpen] = useState(false);
   return (
-    // <div>
-    //     <DashboardHeader navOpen = {navOpen} setNavOpen= {setNavOpen}/>
-    //     <div className="flex justify-between w-full">
-    //         <div className="w-[80px] 800px:w-[330px]">
-    //           <DemoSideBar active={2} navOpen = {navOpen} setNavOpen= {setNavOpen}/>
-    //         </div>
-    //         <div className="w-full justify-center flex">
-    //            <AllOrders />
-    //         </div>
-    //       </div>
-    // </div>
+    
 
     <main className='relative'>
       <DashboardHeader navOpen={navOpen} setNavOpen={setNavOpen} />

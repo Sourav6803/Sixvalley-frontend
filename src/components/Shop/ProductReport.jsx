@@ -4,12 +4,11 @@ import productImage from "./icon/package-box.png"
 import ReactApexChart from 'react-apexcharts';
 import axios from "axios";
 import { server } from "../../server";
-import { toast } from "react-toastify";
-import { Chart } from "react-google-charts";
+
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllOrdersOfShop } from '../../redux/actions/order';
-import { AiFillDelete, AiOutlineDownload, AiOutlineEye, AiOutlinePlus } from 'react-icons/ai';
+import { AiFillDelete, AiOutlineEye, AiOutlinePlus } from 'react-icons/ai';
 import { getAllProductsShop } from '../../redux/actions/product';
 import { Switch } from '@mui/material';
 

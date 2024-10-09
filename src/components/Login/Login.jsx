@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { AiFillGithub, AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
-import styles from "../../styles/styles"
+import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
+
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { server } from '../../server';

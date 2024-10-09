@@ -18,7 +18,6 @@ import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a lo
 import { Carousel } from 'react-responsive-carousel';
 import { Rating, ThinStar } from '@smastrom/react-rating'
 import Loader from "../../pages/Loader"
-
 import '@smastrom/react-rating/style.css'
 import insurence from "../../Assests/insurance.png"
 
@@ -39,8 +38,6 @@ const ProductDetails = ({ data }) => {
     const [currentVariant, setCurrentVariant] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [allCoupons, setAllCoupons] = useState([]);
-    const [loadingCouponCode, setLoadingCouponCode] = useState(null);
-
 
     const productArr = [data]
 
@@ -56,7 +53,7 @@ const ProductDetails = ({ data }) => {
 
     useEffect(() => {
         const fetchCoupons = async () => {
-            setLoadingCouponCode(null);
+            
             try {
                 const res = await axios.get(`${server}/cupon/active`, { withCredentials: true });
                 setAllCoupons(res.data);
@@ -245,6 +242,31 @@ const ProductDetails = ({ data }) => {
         logProductView();
     }, [data?._id, user?._id]);
 
+    useEffect(() => {
+        // Set a timer to log the view event after 6 seconds (6000ms)
+        const timer = setTimeout(() => {
+          logProductView();
+        }, 6000);
+    
+        // Function to log the product view
+        const logProductView = async () => {
+            if (data?._id && user?._id) {  // Check if product and user data exist
+                try {
+                    await axios.post(`${server}/activity/logActivity`, {
+                        userId: user?._id,
+                        type: 'view',
+                        productId: data?._id
+                    });
+                } catch (error) {
+                    console.error('Error logging product view:', error.message);
+                }
+            }
+        };
+    
+        // Clean up the timer if the user leaves the page before 6 seconds
+        return () => clearTimeout(timer);
+      }, [data?._id, user?._id]);
+
 
     return (
         <div className='bg-white '>
@@ -346,10 +368,10 @@ const ProductDetails = ({ data }) => {
                                                                             {key === 'Color' ? (
                                                                                 <span
                                                                                     className="w-5 h-5 !rounded-full"
-                                                                                    style={{ backgroundColor: value }}
+                                                                                    style={{ backgroundColor: value?.toLowerCase() }}
                                                                                 />
                                                                             ) : (
-                                                                                value
+                                                                                value?.toLowerCase()
                                                                             )}
                                                                         </button>
                                                                     ))}

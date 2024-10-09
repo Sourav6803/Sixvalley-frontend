@@ -1,10 +1,10 @@
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { BsFillBagFill } from "react-icons/bs";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllOrdersOfShop } from "../../redux/actions/order";
-import { backend_url, server } from "../../server";
+import {  server } from "../../server";
 import axios from "axios";
 import { toast } from "react-toastify";
 import styles from "../../styles/styles"; // Ensure the styles are updated accordingly
@@ -16,11 +16,11 @@ const ENDPOINT = "http://localhost:4000";
 const socketId = socketIO(ENDPOINT, { transports: ["websocket"] });
 
 
-const OrderDetails = () => {
+const RefundDetails = () => {
     const { orders } = useSelector((state) => state.order);
     const { seller } = useSelector((state) => state.seller);
     const dispatch = useDispatch();
-    const [status, setStatus] = useState("");
+    
     const navigate = useNavigate();
     const { id } = useParams();
 
@@ -32,44 +32,25 @@ const OrderDetails = () => {
 
     const data = orders?.find((item) => item._id === id);
 
-    const orderUpdateHandler = async () => {
+    const refundOrderUpdateHandler = async (status) => {
         try {
-            // Update order status in the backend
-            await axios.put(`${server}/order/update-order-status/${id}`, { status }, { withCredentials: true });
-            toast.success("Order status updated successfully!");
+            await axios.put(`${server}/order/order-refund-success/${id}`, { status }, { withCredentials: true });
+            toast.success("Refund approved successfully!");
+            dispatch(getAllOrdersOfShop(seller?._id));
 
-            // Define a function to map order status to notification details
             const getNotificationDetails = (status) => {
                 switch (status) {
-                    case "Shipped":
+                    case "Refund Success":
                         return {
-                            title: "Your Order has been Shipped",
-                            content: `Your order with ID #${data?._id?.slice(0, 8)} has been shipped. It will reach you soon!`,
+                            title: "Your Retuen Approved",
+                            content: `Your order with ID #${data?._id?.slice(0, 8)} has been approved. It will reach you soon!`,
                             image: data?.cart[0]?.images[0]?.url || "/default-shipped-image.jpg", // Replace with a default image if none is available
                         };
-                    case "Out for delivery":
+                    case "Rejected":
                         return {
-                            title: "Your Order is Out for Delivery",
-                            content: `Your order with ID #${data?._id?.slice(0, 8)} is out for delivery. Please be available to receive it.`,
+                            title: "Your return rejected",
+                            content: `Your order with ID #${data?._id?.slice(0, 8)} rejected. `,
                             image: data?.cart[0]?.images[0]?.url || "/default-out-for-delivery-image.jpg",
-                        };
-                    case "Delivered":
-                        return {
-                            title: "Your Order has been Delivered",
-                            content: `Your order with ID #${data?._id?.slice(0, 8)} has been delivered. We hope you enjoy your purchase!`,
-                            image: data?.cart[0]?.images[0]?.url || "/default-delivered-image.jpg",
-                        };
-                    case "Returned":
-                        return {
-                            title: "Your Order has been Returned",
-                            content: `Your order with ID #${data?._id?.slice(0, 8)} has been successfully returned.`,
-                            image: data?.cart[0]?.images[0]?.url || "/default-returned-image.jpg",
-                        };
-                    case "Canceled":
-                        return {
-                            title: "Your Order has been Canceled",
-                            content: `Your order with ID #${data?._id?.slice(0, 8)} has been canceled.`,
-                            image: data?.cart[0]?.images[0]?.url || "/default-canceled-image.jpg",
                         };
                     default:
                         return {
@@ -92,17 +73,7 @@ const OrderDetails = () => {
 
             // Redirect to the orders page
             navigate("/dashboard-orders");
-        } catch (error) {
-            toast.error(error.response?.data?.message || "Failed to update order status");
-        }
-    };
 
-
-    const refundOrderUpdateHandler = async () => {
-        try {
-            await axios.put(`${server}/order/order-refund-success/${id}`, { status }, { withCredentials: true });
-            toast.success("Refund process updated successfully!");
-            dispatch(getAllOrdersOfShop(seller._id));
         } catch (error) {
             toast.error(error.response?.data?.message || "Failed to update refund status");
         }
@@ -116,7 +87,7 @@ const OrderDetails = () => {
                     <h1 className="pl-3 text-[20px] text-slate-700 font-semibold">Order Details</h1>
                 </div>
                 <Link to="/dashboard-orders">
-                    <button className={` bg-pink-100 text-pink-600 h-[45px] text-[18px] px-5 rounded-md`}>
+                    <button className={` bg-pink-100 text-pink-600 h-[40px] text-[18px] px-5 rounded-md`}>
                         Back to Orders
                     </button>
                 </Link>
@@ -126,14 +97,34 @@ const OrderDetails = () => {
                 <div className="flex flex-col">
                     <h5 className="text-gray-500">Order ID: <span className="font-semibold">#{data?._id}</span></h5>
                     <h5 className="text-gray-500">Placed on: <span className="font-semibold">{formatMongoDate(new Date(data?.createdAt))} {formatTime(data?.createdAt)}</span></h5>
+                    <p className="text-gray-500">Order Status : <span className={`${data?.status === "Processing refund" || "Approved" || "Refund Success" ? 'text-pink-600 font-bold' : "text-gray-500"}`}>{data?.status}</span></p>
                 </div>
 
                 <div className="lg:w-1/3 bg-slate-50 p-2 rounded-md">
                     <h4 className="font-semibold text-lg">Payment Info</h4>
                     <p className="text-gray-500">Method : {data?.paymentInfo?.type || "Not Paid"}</p>
                     <p className="text-gray-500">Payment Status : <span className={`${data?.paymentInfo?.status === "Succeeded" ? 'text-green-600 font-bold' : 'text-red-400 font-semibold'}`}>{data?.paymentInfo?.status || "Not Paid"}</span></p>
-                    <p className="text-gray-500">Order Status : {data?.status }</p>
+
                 </div>
+
+                {data?.deliveredAt && (
+                    <div className="text-center bg-green-100 text-green-700 py-2 rounded-lg mt-4 font-semibold">
+                        Your product Delivered on {formatMongoDate(new Date(data?.deliveredAt))}.
+                    </div>
+                )}
+
+                {data?.returnRequestedAt && (
+                    <div className="text-center bg-yellow-100 text-yellow-700 py-2 rounded-lg mt-4 font-semibold">
+                        Your return request accepted on {formatMongoDate(new Date(data?.returnRequestedAt))} {formatTime(data?.createdAt)}.
+                    </div>
+                )}
+
+                {data?.returnRequestedAt && data.returnReason && (
+                    <div className=" p-2 rounded-lg mt-4 border   ">
+                        <h1 className="text-slate-900 text-xl font-bold">Refund reason by customer</h1>
+                        <p className="text-slate-700 mt-3">{data?.returnReason}</p>
+                    </div>
+                )}
 
                 {/* Order items */}
                 <div className="bg-white shadow-sm rounded-lg p-4">
@@ -141,7 +132,7 @@ const OrderDetails = () => {
                         <div key={index} className="flex items-start space-x-4 mb-5">
                             <img src={item?.images[0]?.url} alt={item.name} className="w-[80px] h-[80px] object-cover rounded-lg" />
                             <div className="flex-1">
-                                <h5 className="text-md text-slate-600 font-medium">{item?.name}</h5>
+                                <h5 className="text-md text-slate-600 font-medium">{item?.name?.length > 50 ? item?.name?.slice(0, 50) : item?.name}</h5>
                                 <p className="text-gray-500">₹{item.afterDiscountPrice} x {item.qty}</p>
                                 {
                                     item?.attributes && item?.attributes?.map((attribute, index) => (
@@ -206,7 +197,7 @@ const OrderDetails = () => {
                         <p className="text-gray-500">Phone: {data?.user?.phoneNumber}</p>
                     </div>
 
-                    
+
                 </div>
 
                 {/* Total price */}
@@ -215,7 +206,7 @@ const OrderDetails = () => {
                 </div>
 
                 {/* Order Status Update */}
-                <div>
+                {/* <div>
                     <h4 className="font-semibold text-lg">Order Status:</h4>
                     {data?.status !== "Processing refund" && data?.status !== "Refund Success" ? (
                         <select
@@ -256,21 +247,28 @@ const OrderDetails = () => {
                                 ))}
                         </select>
                     )}
+                </div> */}
+
+
+                <div className="flex gap-4 mt-2">
+                    <button
+                        className="bg-green-500 text-white font-semibold py-2 px-4 rounded-md"
+                        onClick={() => refundOrderUpdateHandler("Refund Success")}
+                    >
+                        Approve Refund
+                    </button>
+                    <button
+                        className="bg-red-500 text-white font-semibold py-2 px-4 rounded-md"
+                        onClick={() => refundOrderUpdateHandler("Rejected")}
+                    >
+                        Reject Refund
+                    </button>
                 </div>
 
-
-
-                {/* Update button */}
-                <button
-                    className="bg-red-500 text-white font-semibold py-2 px-6 rounded-md mt-4"
-                    onClick={data?.status !== "Processing refund" ? orderUpdateHandler : refundOrderUpdateHandler}
-                >
-                    Update Status
-                </button>
             </div>
         </div>
     );
 };
 
-export default OrderDetails;
+export default RefundDetails;
 

@@ -7,20 +7,20 @@ import Footer from '../components/Layout/Footer'
 
 const SignupPage = () => {
 
-  const {isAuthenticated} = useSelector(state=>state.user)
+  const { isAuthenticated } = useSelector(state => state.user)
   const navigate = useNavigate()
 
-  useEffect(()=>{
-      if(isAuthenticated === true){
-          navigate('/')
-      }
+  useEffect(() => {
+    if (isAuthenticated === true) {
+      navigate('/')
+    }
   })
   return (
     <>
-        <Header />
-        <Signup />
+      <Header />
+      <Signup />
 
-        <Footer />
+      <Footer />
 
     </>
   )

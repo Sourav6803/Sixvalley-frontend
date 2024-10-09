@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { server } from '../../server';
 import { useDispatch, useSelector } from 'react-redux';
-import { AiOutlineArrowRight, AiOutlineCamera, AiOutlineDelete } from 'react-icons/ai';
+import { AiOutlineArrowRight, AiOutlineCamera } from 'react-icons/ai';
 import { MdTrackChanges } from 'react-icons/md'
 import styles from '../../styles/styles';
 import { Link } from 'react-router-dom'
@@ -22,10 +22,7 @@ const ProfileContent = ({ active }) => {
   const [name, setName] = useState(user && user?.name)
   const [email, setEmail] = useState(user && user?.email)
   const [phoneNumber, setPhoneNumber] = useState(user && user?.phoneNumber)
-
-  const [avatar, setAvatar] = useState()
   const dispatch = useDispatch()
-
   const [loading, setLoading] = useState(false); // To manage loading state
   const [imageLoading, setImageLoading] = useState(false); // For image upload
 
@@ -60,7 +57,7 @@ const ProfileContent = ({ active }) => {
 
   const handleImage = async (e) => {
     const file = e.target.files[0];
-    setAvatar(file);
+
     const formData = new FormData();
     formData.append("avatar", file);
 
@@ -121,7 +118,7 @@ const ProfileContent = ({ active }) => {
           <br />
           <br />
           <div className="w-full px-5">
-            <form onSubmit={handleSubmit} aria-required={true}>
+            <form onSubmit={handleSubmit}>
               <div className="w-full 800px:flex block pb-3">
                 <div className=" w-[100%] 800px:w-[50%]">
                   <label className="block pb-2">Full Name</label>

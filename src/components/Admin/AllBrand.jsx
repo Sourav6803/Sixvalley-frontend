@@ -3,7 +3,6 @@ import Layout from "./icon/layout.png";
 import axios from "axios";
 import { server } from '../../server';
 import { toast } from 'react-toastify';
-import Loader from '../../pages/Loader';
 import {  useSelector } from 'react-redux';
 import { Link } from "react-router-dom";
 import Modal from '../../utils/Modal';
@@ -11,7 +10,7 @@ import { AiFillDelete } from "react-icons/ai";
 
 
 const AllBrand = () => {
-    const { success, error, allBrand } = useSelector((state) => state?.brand);
+    const { allBrand } = useSelector((state) => state?.brand);
     const [allBrands, setAllBrand] = useState([]);
 
     const [open, setOpen] = useState(false);

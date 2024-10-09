@@ -17,8 +17,8 @@ const CartProduct = () => {
   // https://i.pinimg.com/1200x/3b/73/3d/3b733d7ff58aa5478e8b53accc9511ee.jpg
 
   return (
-    
-      data?.length && <div className={`mt-3 pb-2`} style={{ backgroundImage: "url('https://i.pinimg.com/1200x/3b/73/3d/3b733d7ff58aa5478e8b53accc9511ee.jpg')", backgroundSize: "cover", backgroundRepeat: "no-repeat" }}>
+
+    data?.length && <div className={`mt-3 pb-2`} style={{ backgroundImage: "url('https://i.pinimg.com/1200x/3b/73/3d/3b733d7ff58aa5478e8b53accc9511ee.jpg')", backgroundSize: "cover", backgroundRepeat: "no-repeat" }}>
       <div className={`${styles.section}`}>
         <div className="  pb-1 flex justify-between">
           <div className=' mt-2'>
@@ -38,8 +38,8 @@ const CartProduct = () => {
           }
         </div>
       </div>
-    </div> 
-    
+    </div>
+
   );
 };
 

@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
+import React  from 'react'
 import Header from '../components/Layout/Header'
-import styles from '../styles/styles'
+
 
 import AllOrder from '../components/Profile/AllOrder'
-import { AllOrders } from '../components/Profile/ProfileContent'
+
 
 const UserAllOrder = () => {
 

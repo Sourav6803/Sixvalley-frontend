@@ -28,6 +28,8 @@ import ShopBankInformationPage from "../pages/Shop/ShopBankInformationPage.jsx";
 import OrderReportPage from "../pages/Shop/OrderReportPage.jsx";
 import ProductReortPage from "../pages/Shop/ProductReportPage.jsx";
 import TransactionReportPage from "../pages/Shop/TransactionReportPage.jsx";
+import ProcessingRefundPage from "../pages/Shop/ProcessingRefundPage.jsx";
+import RefundDetailsPage from "../pages/Shop/RefundDetailsPage.jsx";
 
 export {
     ShopDashboardPage,
@@ -58,5 +60,7 @@ export {
     OrderReportPage,
     ProductReortPage,
     TransactionReportPage,
-    ShippedOrderPage
+    ShippedOrderPage,
+    ProcessingRefundPage,
+    RefundDetailsPage
 }

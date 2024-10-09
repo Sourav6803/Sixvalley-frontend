@@ -3,8 +3,7 @@ import styles from '../../styles/styles'
 import ShopInfo from "../../components/Shop/ShopInfo";
 import ShopProfileData from "../../components/Shop/ShopProfileData";
 import DashboardHeader from '../../components/Shop/Layout/DashboardHeader';
-import VendorSidebar from '../../components/Shop/Layout/VendorSidebar';
-import DemoSideBar from '../../components/Shop/Layout/DemoSidebar';
+
 
 const ShopHomePage = () => {
   const [navOpen, setNavOpen] = useState(false);
@@ -22,21 +21,7 @@ const ShopHomePage = () => {
       </div>
     </div>  
 
-    // <main className='relative'>
-    //   <DashboardHeader navOpen={navOpen} setNavOpen={setNavOpen} />
-
-    //   <div className='flex  w-full'>
-
-    //     <DemoSideBar active={5} navOpen={navOpen} setNavOpen={setNavOpen} />
-
-    //     <section className='flex w-full min-h-screen  flex-1 flex-col px-0 pb-5 pt-1 max-md:pb-14 sm:px-0'>
-    //       <div className='w-full'>
-    //         < />
-    //       </div>
-
-    //     </section>
-    //   </div>
-    // </main>
+    
 
   )
 }

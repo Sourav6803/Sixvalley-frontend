@@ -6,6 +6,8 @@ import { useParams, useSearchParams } from 'react-router-dom'
 import SuggestedProduct from '../components/Products/SuggestedProduct'
 import { useSelector } from 'react-redux'
 import Loader from './Loader'
+import SimilarProductFromStore from '../components/Products/SimilarProductFromStore'
+import RecentClicked from '../components/Route/RecentClicked'
 
 
 const ProductDetailsPage = () => {
@@ -36,6 +38,9 @@ const ProductDetailsPage = () => {
               <ProductDetails data={data} />
 
               <SuggestedProduct data={data} eventData={eventData} />
+              <RecentClicked />
+
+              <SimilarProductFromStore data={data} />
 
               <Footer />
             </div>

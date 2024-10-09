@@ -25,7 +25,7 @@ const ShopCreate = () => {
     const [loading, setLoading] = useState(false)
 
 
-    const navigate = useNavigate()
+   
 
     const handleFileinputChange = (e) => {
         const file = e.target.files[0]

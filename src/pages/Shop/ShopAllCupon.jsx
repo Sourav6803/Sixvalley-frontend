@@ -1,8 +1,5 @@
 import React, { useState } from 'react'
 import DashboardHeader from '../../components/Shop/Layout/DashboardHeader'
-
-import DashboardSideBar from '../../components/Shop/Layout/DashboardSidebar';
-import AllCupons from '../../components/Shop/AllCupons';
 import DemoSideBar from '../../components/Shop/Layout/DemoSidebar';
 import Coupon from '../../components/Admin/Coupon';
 
@@ -10,18 +7,7 @@ import Coupon from '../../components/Admin/Coupon';
 const ShopAllCupoun = () => {
   const [navOpen, setNavOpen] = useState(false);
   return (
-    // <div>
-    //   <DashboardHeader navOpen = {navOpen} setNavOpen= {setNavOpen} />
-
-    //   <div className="flex justify-between w-full">
-    //     <div className="w-[80px] 800px:w-[330px]">
-    //       <DemoSideBar  active={9} navOpen = {navOpen} setNavOpen= {setNavOpen} />
-    //     </div>
-    //     <div className="w-full justify-center flex">
-    //       <Coupon/>
-    //     </div>
-    //   </div>
-    // </div>
+    
 
     <main className='relative'>
       <DashboardHeader navOpen={navOpen} setNavOpen={setNavOpen} />

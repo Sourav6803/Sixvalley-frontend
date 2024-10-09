@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import DashboardHeader from '../../components/Shop/Layout/DashboardHeader'
 import DashboardSideBar from '../../components/Shop/Layout/DashboardSidebar'
-import ProductView from '../../components/Shop/ProductView'
+import RefundDetails from '../../components/Shop/RefundDetails'
 
-const ShopProductView = () => {
+const RefundDetailsPage = () => {
     const [navOpen, setNavOpen] = useState(false);
     return (
         <main className='relative'>
@@ -15,13 +15,12 @@ const ShopProductView = () => {
 
                 <section className='flex w-full min-h-screen  flex-1 flex-col px-0 pb-5 pt-1 max-md:pb-14 sm:px-0'>
                     <div className='w-full'>
-                        <ProductView />
+                        <RefundDetails />
                     </div>
-
                 </section>
             </div>
         </main>
     )
 }
 
-export default ShopProductView
+export default RefundDetailsPage

@@ -6,10 +6,10 @@ import axios from "axios";
 import { server } from "../../server";
 import { toast } from "react-toastify";
 import { Chart } from "react-google-charts";
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllOrdersOfShop } from '../../redux/actions/order';
-import { AiOutlineDownload, AiOutlineEye } from 'react-icons/ai';
+
 
 const OrderReport = () => {
     const [isLoading, setIsLoading] = useState(false)

@@ -17,9 +17,8 @@ const allResource = ["Product",  "Shop", ];
 
 const ShopBanner = () => {
     const { allProducts } = useSelector((state) => state?.products);
-    const { allBrand } = useSelector((state) => state?.brand);
-    const { Allsellers, seller } = useSelector((state) => state?.seller);
-    const { error, allCategory } = useSelector((state) => state?.category);
+    const {  seller } = useSelector((state) => state?.seller);
+    const { error,  } = useSelector((state) => state?.category);
     const { allBanner, success } = useSelector((state) => state?.banner);
 
     const dispatch = useDispatch();

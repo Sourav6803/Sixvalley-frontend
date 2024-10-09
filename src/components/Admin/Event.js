@@ -53,20 +53,7 @@ const Event = () => {
   }, [dispatch, error, success, navigate]);
 
   const handleImageChange = (e) => {
-    // const files = Array.from(e.target.files);
-
-    // setImages([]);
-
-    // files.forEach((file) => {
-    //   const reader = new FileReader();
-
-    //   reader.onload = () => {
-    //     if (reader.readyState === 2) {
-    //       setImages((old) => [...old, reader.result]);
-    //     }
-    //   };
-    //   reader.readAsDataURL(file);
-    // });
+   
 
     e.preventDefault()
     const files = Array.from(e?.target?.files);
@@ -85,19 +72,7 @@ const Event = () => {
     }
     );
 
-    // const data = {
-    //   name,
-    //   description,
-    //   category,
-    //   tags,
-    //   originalPrice,
-    //   discountPrice,
-    //   stock,
-    //   images,
-    //   shopId: seller._id,
-    //   start_Date: startDate?.toISOString(),
-    //   Finish_Date: endDate?.toISOString(),
-    // };
+    
 
         newForm.append("name", name);
         newForm.append("description", description);

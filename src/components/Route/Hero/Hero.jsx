@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
-import styles from '../../../styles/styles';
+import React from 'react';
+
 import { Link } from 'react-router-dom';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { useSelector } from 'react-redux';
 import Navbar from '../Navbar/Navbar';
 // import BannerImg from "./upto50ff.jpg"
 import Banner from './Banner';

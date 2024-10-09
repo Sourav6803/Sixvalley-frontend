@@ -2,7 +2,7 @@ import axios from "axios";
 import React, { useRef, useState } from "react";
 import { useEffect } from "react";
 import { server } from "../../server";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineArrowRight, AiOutlineSend } from "react-icons/ai";
 import styles from "../../styles/styles";
@@ -13,7 +13,6 @@ import { toast } from "react-toastify";
 import { newMessages, uploadFile } from "../../service/api";
 import { MdDownloadForOffline } from "react-icons/md";
 import { downloadMedia } from "../../utils/common-utils";
-import { LuCheckCheck } from "react-icons/lu";
 
 // const ENDPOINT = "https://multivendor-socket.onrender.com"
 const ENDPOINT = "http://localhost:4000"

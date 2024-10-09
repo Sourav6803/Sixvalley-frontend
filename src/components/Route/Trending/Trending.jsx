@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import styles from "../../../styles/styles";
-import Loader from "../../../pages/Loader";
+
 import Carousel from 'react-multi-carousel';
 import "react-multi-carousel/lib/styles.css";
 import { Link } from "react-router-dom";
-import Countdown from 'react-countdown';
+
 
 
 
 const Trending = () => {
   const [data, setData] = useState([]);
-  const { allProducts, isLoading } = useSelector((state) => state?.products)
+  const { allProducts } = useSelector((state) => state?.products)
   const [loading, setLoading] = useState(false)
 
   const responsive = {

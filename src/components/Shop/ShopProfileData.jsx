@@ -4,11 +4,11 @@ import { Link, useParams } from "react-router-dom";
 //import { getAllProductsShop } from "../../redux/actions/product";
 import styles from "../../styles/styles";
 import ProductCard from "../Route/ProductCard/ProductCard";
-import { productData } from "../../static/data";
+
 import Ratings from "../Products/Ratings";
 import { getAllEventsShop } from "../../redux/actions/event";
 import { getAllProductsShop } from "../../redux/actions/product";
-import { backend_url } from "../../server";
+
 
 
 const ShopProfileData = ({ isOwner }) => {

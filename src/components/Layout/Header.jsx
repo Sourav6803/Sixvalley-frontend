@@ -167,7 +167,6 @@ const Header = ({ activeHeading }) => {
         }
     };
 
-    const dispatch = useDispatch()
 
     const userId = user?._id
 
@@ -527,8 +526,6 @@ const Header = ({ activeHeading }) => {
                                 <div className='w-full justify-between flex pr-3 bg-blue-500 mb-2'>
 
                                     <div >
-
-
                                         <Link to="/">
                                             <img
                                                 src={Logo}

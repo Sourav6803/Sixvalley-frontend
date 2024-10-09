@@ -5,14 +5,14 @@ import { useSelector } from 'react-redux'
 
 const ShopLoginPage = () => {
 
-  const { isSeller, seller, isLoading } = useSelector(state => state.seller)
+  const { isSeller,  isLoading } = useSelector(state => state.seller)
   const navigate = useNavigate()
 
   useEffect(() => {
     if (isSeller === true) {
       navigate(`/dashboard`)
     }
-  }, [isLoading, isSeller])
+  }, [isLoading, isSeller, navigate])
   return (
     <div>
       <ShopLogin />

@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import DashboardHeader from '../../components/Shop/Layout/DashboardHeader'
 import WithdrawMoney from "../../components/Shop/WithdrawMoney";
-import DashboardSideBar from '../../components/Shop/Layout/DashboardSidebar';
 import DemoSideBar from '../../components/Shop/Layout/DemoSidebar';
 
 const ShopWithDrawMoneyPage = () => {

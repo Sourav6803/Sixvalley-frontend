@@ -1,8 +1,6 @@
 import React, { useState } from "react";
-import Footer from "../../components/Layout/Footer";
 import ShopSettings from "../../components/Shop/ShopSettings";
 import DashboardHeader from "../../components/Shop/Layout/DashboardHeader";
-import DashboardSidebar from "../../components/Shop/Layout/DashboardSidebar";
 import DemoSideBar from "../../components/Shop/Layout/DemoSidebar";
 
 const ShopSettingsPage = () => {

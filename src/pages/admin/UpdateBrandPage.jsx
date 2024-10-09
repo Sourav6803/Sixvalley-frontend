@@ -1,7 +1,7 @@
 import React from 'react'
 import AdminHeader from '../../components/Layout/AdminHeader'
 import AdminSideBar from '../../components/Admin/Layout/AdminSidebar'
-import Category from '../../components/Admin/Category'
+
 import { useState } from 'react'
 
 import UpdateBrand from '../../components/Admin/UpdateBrand'

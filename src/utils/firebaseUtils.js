@@ -37,3 +37,8 @@ export const requestFCMToken = async () => {
 
 }
 
+// Listen for foreground messages
+onMessage(messaging, (payload) => {
+    console.log('Message received. ', payload);
+    // You can also do additional processing on the payload here if needed
+  });

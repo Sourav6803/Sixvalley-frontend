@@ -15,19 +15,18 @@ import SingleBanner from '../components/Route/Hero/SIngleBannner';
 import CartProduct from '../components/Route/CartProduct/CartProduct';
 import { useSelector } from 'react-redux';
 import Trending from '../components/Route/Trending/Trending';
-
 import MensFashion from '../components/Route/MensFashion';
 import DealsForYou from '../components/Route/DealsForYou';
 import KitchenDining from '../components/Route/Kitchen&Dining';
 import RecentView from '../components/Route/RecentView';
 import WomensFashion from '../components/Route/WomensFashion';
 import HarDinUtsav from '../components/Route/HarDinUtsav';
+import RecentClicked from '../components/Route/RecentClicked';
 
 
 const HomePage = () => {
   const [data, setData] = useState([])
   const { allProducts } = useSelector((state) => state?.products)
-  const {user} = useSelector((state) => state?.user)
   const categoryData = "Canvas"
   
 
@@ -57,12 +56,11 @@ const HomePage = () => {
       <BestDeals />
       <WomensFashion />
       <SingleBanner />
-      
-
       <Slider />
       <Events />
       <KitchenDining />
       <MensFashion />
+      <RecentClicked />
       <FeaturedProduct />
       <MidSection />
       <TopDeals />

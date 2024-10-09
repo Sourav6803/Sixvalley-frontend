@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';
 import Modal from '../../utils/Modal';
 import { AiFillDelete } from 'react-icons/ai';
-import { Link } from 'react-router-dom';
+
 import { Switch } from '@mui/material';
 
 const DealOfTheDay = () => {
@@ -137,7 +137,7 @@ const DealOfTheDay = () => {
 
       <div className="w-full mt-2 bg-white p-3 rounded-md">
         {
-          isSubmitting ? (
+          isSubmitting || isLoading ? (
             <div className='w-full h-full flex items-start justify-center'>
               <Loader />
             </div>

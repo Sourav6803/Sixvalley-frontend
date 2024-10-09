@@ -11,14 +11,14 @@ const SuggestedProduct = ({data}) => {
 
     useEffect(()=>{
         const d = allProducts && allProducts?.filter((i)=> i.category === data?.category || i.name === data?.name || i.tags === data?.tags)
-        setProductData(d)
+        setProductData(d?.slice(0,6))
     },[allProducts, data?.category, data?.name, data?.tags])
     
   return (
     <div>
         {
             data ? (
-                <div className={`p-4 ${styles.section} !w-full !bg-[#d85de3] `} style={{backgroundImage: "https://media.istockphoto.com/id/1180447175/vector/rangoli-dark-red-maroon-colored-grunge-background-diwali-greeting-with-one-small-diya-at-the.jpg?s=2048x2048&w=is&k=20&c=f7wcjVwr8LK45i26-wI7TuHTVeUEylfDN36IXhqq5fM=" , backgroundSize: "cover", backgroundRepeat: "no-repeat"}}>
+                <div className={`p-4 ${styles.section} !w-full  `} >
                     <p className={` text-[14px] font-[500] border-b mb-5 `}>
                         Suggested Products 
                     </p>

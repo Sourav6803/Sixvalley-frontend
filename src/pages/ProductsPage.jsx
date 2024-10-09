@@ -1,17 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import Header from '../components/Layout/Header';
-import styles from '../styles/styles';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { paintingSubCategoriesdata } from '../static/data';
 import ProductCard from '../components/Route/ProductCard/ProductCard';
-import { useDispatch, useSelector } from 'react-redux';
-import { getAllProducts } from '../redux/actions/product';
+import { useSelector } from 'react-redux';
 import Footer from '../components/Layout/Footer';
-import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
-import PaintingSubCat from '../components/Route/Navbar/PaintingSubCat';
-import axios from 'axios';
-import { server } from '../server';
 import Loader from './Loader';
 
 
@@ -38,16 +31,6 @@ const ProductsPage = () => {
         setFilterSubCategory(filterData)
     }, [allSubSubCategory, categoryData])
 
- 
-
-
-    const bannerData = [
-        { id: 2, url: 'https://rukminim1.flixcart.com/flap/3376/560/image/57267a180af306fe.jpg?q=50', shopId: "653bd40414a4f73899732e0c" },
-        { id: 3, url: 'https://rukminim1.flixcart.com/flap/3376/560/image/ae9966569097a8b7.jpg?q=50' },
-        { id: 4, url: 'https://rukminim1.flixcart.com/flap/3376/560/image/f6202f13b6f89b03.jpg?q=50' }
-    ]
-
-
     useEffect(() => {
         setLoader(true)
         if (categoryData === null) {
@@ -62,26 +45,13 @@ const ProductsPage = () => {
     }, [allProducts, categoryData])
 
 
-    const responsive = {
-        desktop: {
-            breakpoint: { max: 3000, min: 1024 },
-            items: 1,
-        },
-        tablet: {
-            breakpoint: { max: 1024, min: 464 },
-            items: 1,
-        },
-        mobile: {
-            breakpoint: { max: 464, min: 0 },
-            items: 1,
-        }
-    };
+   
 
     return (
         <div>
             <Header activeHeading={3} />
 
-            {isLoading && <div className='flex justify-center items-center h-screen'><Loader /></div>}
+            {(isLoading || loader) && <div className='flex justify-center items-center h-screen'><Loader /></div>}
             <div className={` !m-0 !p-0 !w-full `}>
 
 

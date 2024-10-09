@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import DashboardHeader from '../../components/Shop/Layout/DashboardHeader'
 import DashboardSideBar from '../../components/Shop/Layout/DashboardSidebar'
 import CreateProduct from '../../components/Shop/CreateProduct'
-import DemoSideBar from '../../components/Shop/Layout/DemoSidebar'
+
 
 const ShopCreateProduct = () => {
   const [navOpen, setNavOpen] = useState(false);

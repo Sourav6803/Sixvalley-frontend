@@ -87,7 +87,7 @@ const DashboardHeader = ({ navOpen, setNavOpen }) => {
       subHeader: true,
       subHeading: "PRODUCT MANAGEMENT",
       submenuItems: [
-        { title: "Pending", notication: 8, link: "#" },
+        { title: "Pending", notication: 8, link: "/dashboard/processing-refund/order" },
         { title: "Approved", notication: 12, link: "/dashboard-orders" },
         { title: "Refunded", notication: 47, link: "/dashboard-refunds" },
         { title: "Rejected", notication: 23, link: "#" },
