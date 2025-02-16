@@ -1,8 +1,7 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getSingleProducts } from '../../redux/actions/product';
-import { toast } from 'react-toastify';
 import { Carousel } from 'react-responsive-carousel';
 
 const ProductView = () => {
@@ -15,26 +14,22 @@ const ProductView = () => {
 
     console.log("singleProduct;", singleProduct)
 
-    const [images, setImages] = useState([]);
+    // const [images, setImages] = useState([]);
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
-    const [mainCategory, setMainCategory] = useState("")
-    const [subCategory, setSubCategory] = useState("");
-    const [subSubCategory, setSubSubCategory] = useState("");
-    const [brand, setBrand] = useState("");
-    const [productType, setProductType] = useState("")
-    const [sku, setSku] = useState("")
-    const [unit, setUnit] = useState("");
-    const [tags, setTags] = useState("");
-    const [customize, setCustomize] = useState('')
-    const [originalPrice, setOriginalPrice] = useState();
-    const [discountType, setDiscountType] = useState("")
-    const [discountPrice, setDiscountPrice] = useState();
-    const [stock, setStock] = useState();
-    const [taxAmount, setTaxAmount] = useState();
-    const [shippingCost, setShippingCost] = useState("")
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [isDisabled, setIsDisabled] = useState(true);
+    // const [mainCategory, setMainCategory] = useState("")
+    // const [subCategory, setSubCategory] = useState("");
+    // const [brand, setBrand] = useState("");
+    // const [productType, setProductType] = useState("")
+    // const [sku, setSku] = useState("")
+    // const [unit, setUnit] = useState("");
+
+    // const [discountType, setDiscountType] = useState("")
+    // const [discountPrice, setDiscountPrice] = useState();
+    // const [stock, setStock] = useState();
+    // const [taxAmount, setTaxAmount] = useState();
+    // const [shippingCost, setShippingCost] = useState("")
+    // const [isDisabled, setIsDisabled] = useState(true);
 
     // Fetch category on mount
     useEffect(() => {
@@ -50,29 +45,29 @@ const ProductView = () => {
         if (singleProduct) {
             setName(singleProduct?.name);
             setDescription(singleProduct?.description);
-            setBrand(singleProduct?.brand)
-            setMainCategory(singleProduct.category)
-            setSubCategory(singleProduct.subcategory)
-            setProductType(singleProduct?.productType)
-            setSku(singleProduct?.sku)
-            setDiscountPrice(singleProduct?.afterDiscountPrice)
-            setDiscountType(singleProduct?.discountType)
-            setUnit(singleProduct?.unit)
-            setStock(singleProduct?.stock)
-            setTaxAmount(singleProduct?.taxAmount)
-            setShippingCost(singleProduct?.shippingCost)
-            setImages(singleProduct?.images.map(img => img.url))
+            // setBrand(singleProduct?.brand)
+            // setMainCategory(singleProduct.category)
+            // setSubCategory(singleProduct.subcategory)
+            // setProductType(singleProduct?.productType)
+            // setSku(singleProduct?.sku)
+            // setDiscountPrice(singleProduct?.afterDiscountPrice)
+            // setDiscountType(singleProduct?.discountType)
+            // setUnit(singleProduct?.unit)
+            // setStock(singleProduct?.stock)
+            // setTaxAmount(singleProduct?.taxAmount)
+            // setShippingCost(singleProduct?.shippingCost)
+            // setImages(singleProduct?.images.map(img => img.url))
         }
     }, [singleProduct]);
 
     // Enable or disable submit button based on form validation
-    useEffect(() => {
-        if (name.length > 1 && images) {
-            setIsDisabled(false);
-        } else {
-            setIsDisabled(true);
-        }
-    }, [name, images]);
+    // useEffect(() => {
+    //     if (name.length > 1 && images) {
+    //         setIsDisabled(false);
+    //     } else {
+    //         setIsDisabled(true);
+    //     }
+    // }, [name, images]);
 
     
 

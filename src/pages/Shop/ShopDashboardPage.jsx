@@ -1,34 +1,19 @@
-import React, { useState } from 'react'
-import DashboardHeader from '../../components/Shop/Layout/DashboardHeader'
-import DashboardHero from '../../components/Shop/DashboardHero'
-
-import DemoSideBar from '../../components/Shop/Layout/DemoSidebar'
+import React, { useState } from "react";
+import DashboardHeader from "../../components/Shop/Layout/DashboardHeader";
+import DashboardHero from "../../components/Shop/DashboardHero";
+import DemoSideBar from "../../components/Shop/Layout/DemoSidebar";
 
 const ShopDashboardPage = ({ active }) => {
-    const [navOpen, setNavOpen] = useState(false);
-    return (
-        <>
-            
+  const [navOpen, setNavOpen] = useState(false);
+  const [open, setOpen] = useState(true);
 
-            <main className='relative'>
-                <DashboardHeader navOpen={navOpen} setNavOpen={setNavOpen} />
+  return (
+    <div className="flex h-screen overflow-hidden">
+      <DashboardHeader navOpen={navOpen} setNavOpen={setNavOpen} />
+      <DemoSideBar open={open} setOpen={setOpen} />
+      <DashboardHero open={open} setOpen={setOpen} />
+    </div>
+  );
+};
 
-                <div className='flex  w-full'>
-
-                    <DemoSideBar active={5} navOpen={navOpen} setNavOpen={setNavOpen} />
-
-                    <section className='flex w-full min-h-screen  flex-1 flex-col px-0 pb-5 pt-1 max-md:pb-14 sm:px-0'>
-                        <div className='w-full'>
-                            <DashboardHero />
-                        </div>
-
-                    </section>
-                </div>
-            </main>
-
-
-        </>
-    )
-}
-
-export default ShopDashboardPage
+export default ShopDashboardPage;

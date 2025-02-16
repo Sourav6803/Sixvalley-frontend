@@ -20,7 +20,7 @@ const ENDPOINT = "http://localhost:4000"
 const socketId = socketIO(ENDPOINT, { transports: ["websocket"] });
 
 
-const DashboardMessages = () => {
+const DashboardMessages = ({sidebarOpen}) => {
   const { seller, isLoading } = useSelector((state) => state.seller);
   const [conversations, setConversations] = useState([]);
   const [arrivalMessage, setArrivalMessage] = useState(null);
@@ -244,7 +244,11 @@ const DashboardMessages = () => {
   }, [messages]);
 
   return (
-    <div className="w-full bg-white m-2 h-[90vh] overflow-y-scroll rounded">
+    <div
+      className={`w-full  ${
+        sidebarOpen ? "md:ml-72" : "md:ml-20"
+      } mt-20 h-[calc(100vh-80px)] overflow-y-auto p-1 md:p-3`}
+    >
       {!open && (
         <>
           <h1 className="text-center text-[30px] py-3 font-Poppins">

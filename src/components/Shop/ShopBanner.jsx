@@ -15,7 +15,7 @@ import { Switch } from '@mui/material';
 const allBannerType = ["Main Banner",];
 const allResource = ["Product",  "Shop", ];
 
-const ShopBanner = () => {
+const ShopBanner = ({sidebarOpen}) => {
     const { allProducts } = useSelector((state) => state?.products);
     const {  seller } = useSelector((state) => state?.seller);
     const { error,  } = useSelector((state) => state?.category);
@@ -56,33 +56,6 @@ const ShopBanner = () => {
     const bannerTypeChange = useCallback((e) => {
         setBannerType(e.target.value);
     }, []);
-
-    //const filterResourceValue = useFilterResourceValue(resourceType, shopWiseProducts, seller);
-
-    // const bannerResourceChange = useCallback((e) => {
-    //     const selectedResourceType = e.target.value;
-    //     setResourceType(selectedResourceType);
-
-    //     let filteredResourceValue = [];
-    //     switch (selectedResourceType) {
-    //         case "Product":
-    //             filteredResourceValue = shopWiseProducts;
-    //             break;
-    //         case "Category":
-    //             filteredResourceValue = allCategory;
-    //             break;
-    //         case "Brand":
-    //             filteredResourceValue = allBrand;
-    //             break;
-    //         case "Shop":
-    //             filteredResourceValue = [{ name: seller?.name }];
-    //             break;
-    //         default:
-    //             break;
-    //     }
-    //     setFilterResourceValue(filteredResourceValue);
-    //     setResourceValue("");
-    // }, [shopWiseProducts, allCategory, allBrand, seller]);
 
      const bannerResourceChange = useCallback((e) => {
         const selectedResourceType = e.target.value;
@@ -162,7 +135,6 @@ const ShopBanner = () => {
         setIsModalOpen(true);
     };
 
-
     useEffect(() => {
         if (error) {
             setIsSubmitting(false);
@@ -197,160 +169,11 @@ const ShopBanner = () => {
             setSearchData(filterBanner);
         }
     };
-
-
-
-
-    // const { allProducts } = useSelector((state) => state?.products);
-    // const { allBrand } = useSelector((state) => state?.brand);
-    // const { Allsellers, seller } = useSelector((state) => state?.seller);
-    // const { error, allCategory } = useSelector((state) => state?.category);
-    // const { allBanner, success } = useSelector((state) => state?.banner);
-
-    // const dispatch = useDispatch();
-    // const [open, setOpen] = useState(false);
-    // const [image, setImage] = useState(null);
-    // const [isSubmitting, setIsSubmitting] = useState(false);
-    // const [bannerId, setBannerId] = useState("");
-    // const [isDelete, setIsDelete] = useState(false);
-    // const [searchTerm, setSearchTerm] = useState("");
-    // const [searchData, setSearchData] = useState(null);
-    // const [bannerOpen, setBannerOpen] = useState(false);
-    // const [bannerType, setBannerType] = useState("");
-    // const [resourceType, setResourceType] = useState("Product");
-    // const [resourceValue, setResourceValue] = useState("");
-    // const [filterResourceValue, setFilterResourceValue] = useState([]);
-    // const [isPublished, setIsPublished] = useState(false);
-
-    // // Set filtered resource values based on resource type
-    // useEffect(() => {
-    //     if (resourceType === "Product") {
-    //         setFilterResourceValue(allProducts?.filter(products => products?.shopId === seller?._id));
-    //     } else if (resourceType === "Shop") {
-    //         setFilterResourceValue([{ name: seller?.name }]);
-    //     }
-    // }, [allProducts, resourceType, seller]);
-
-    // // Fetch all banners on component mount
-    // useEffect(() => {
-    //     dispatch(getAllBanner());
-    // }, [dispatch]);
-
-    // // Handle success and error states
-    // useEffect(() => {
-    //     if (error) {
-    //         setIsSubmitting(false);
-    //         toast.error(error);
-    //     }
-    //     if (success) {
-    //         setIsSubmitting(false);
-    //         toast.success("Banner created successfully!");
-    //         dispatch(getAllBanner());
-    //     }
-    // }, [error, success, dispatch]);
-
-    //  const shopWiseBanner = allBanner && allBanner?.filter(banner=>banner?.sellerId === seller?._id)
-
-    // const bannerTypeChange = useCallback((e) => {
-    //     setBannerType(e.target.value);
-    // }, []);
-
-    // const bannerResourceChange = useCallback((e) => {
-    //     const selectedResourceType = e.target.value;
-    //     setResourceType(selectedResourceType);
-
-    //     let filteredResourceValue = [];
-    //     switch (selectedResourceType) {
-    //         case "Product":
-    //             filteredResourceValue = allProducts?.filter(products => products?.shopId === seller?._id);
-    //             break;
-    //         case "Category":
-    //             filteredResourceValue = allCategory;
-    //             break;
-    //         case "Brand":
-    //             filteredResourceValue = allBrand;
-    //             break;
-    //         case "Shop":
-    //             filteredResourceValue = [{ name: seller?.name }];
-    //             break;
-    //         default:
-    //             break;
-    //     }
-    //     setFilterResourceValue(filteredResourceValue);
-    //     setResourceValue("");
-    // }, [allProducts, allCategory, allBrand, seller]);
-
-    // const handleFileInputChange = useCallback((e) => {
-    //     const file = e.target.files[0];
-    //     setImage(file);
-    // }, []);
-
-    // const handleSubmit = useCallback((e) => {
-    //     e.preventDefault();
-
-    //     if (!bannerType || !resourceType || !resourceValue || !image) {
-    //         toast.error("Please fill in all required fields.");
-    //         return;
-    //     }
-
-    //     setIsSubmitting(true);
-
-    //     const newForm = new FormData();
-    //     newForm.append("bannerType", bannerType);
-    //     newForm.append("resourceType", resourceType);
-    //     newForm.append("resourceValue", resourceValue);
-    //     if (image) {
-    //         newForm.append("bannerImg", image);
-    //     }
-
-    //     dispatch(createBanner(newForm));
-    // }, [bannerType, resourceType, resourceValue, image, dispatch]);
-
-    // const handleDelete = useCallback(async (id) => {
-    //     try {
-    //         setIsDelete(true);
-    //         const res = await axios.delete(`${server}/banner/delete-banner/${id}`, { withCredentials: true });
-
-    //         toast.success(res.data.message || "Banner Deleted");
-    //         setIsDelete(false);
-    //         setOpen(false);
-    //         setTimeout(() => window.location.reload(), 1000);
-    //     } catch (err) {
-    //         toast.error("Error deleting banner");
-    //         setIsDelete(false);
-    //     }
-    // }, []);
-
-    // const handlePublishedUpdate = async (id) => {
-    //     const res = await axios.put(`${server}/banner/update-banner-status/${id}`, { isPublished }, { withCredentials: true });
-    //     if (res.data.success) {
-    //         toast.success("Banner updated successfully!");
-    //     }
-
-    //     setTimeout(() => {
-    //         window.location.reload();
-    //     }, 500);
-    // };
-
-    // const handleUpdate = (banner) => {
-    //     // Open the modal with banner data
-    //     // Add logic to handle updates
-    // };
-
-    // const handleSearch = (e) => {
-    //     e.preventDefault();
-    //     if (searchTerm === "All") {
-    //         setSearchData(allBanner);
-    //     } else {
-    //         const filterBanner = allBanner.filter((banner) =>
-    //             banner.bannerType.toLowerCase().includes(searchTerm.toLowerCase())
-    //         );
-    //         setSearchData(filterBanner);
-    //     }
-    // };
-
+   
     return (
-        <div className='w-full p-2 bg-gray-200'>
+        <div className={`w-full  ${
+            sidebarOpen ? "md:ml-72" : "md:ml-20"
+          } mt-20 h-[calc(100vh-80px)] overflow-y-auto p-1 md:p-3`}>
             <div className='flex items-center gap-2'>
                 <img src={Layout} alt='layout' className='h-5' />
                 <h3 className="text-[20px] text-slate-600 font-Poppins font-semibold">Banner Setup</h3>

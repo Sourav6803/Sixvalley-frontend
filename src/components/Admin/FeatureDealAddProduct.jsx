@@ -36,7 +36,7 @@ const FeatureDealAddProduct = () => {
     }, [id]);
 
 
-    const productOptions = allProducts.filter(product => !selectedProducts.some(selected => selected.value === product._id))
+    const productOptions = allProducts?.filter(product => !selectedProducts.some(selected => selected.value === product._id))
         .map(product => ({
             value: product._id,
             label: (
@@ -47,9 +47,9 @@ const FeatureDealAddProduct = () => {
                         className="w-15 h-20 mr-4"
                     />
                     <div>
-                        <div>{product.name}</div>
-                        <div className="text-gray-500">Shop name: {product.shop.name}</div>
-                        <div className="text-green-600">Price: {product.originalPrice} ₹</div>
+                        <div className="text-green-600">{product?.name}</div>
+                        <div className="text-gray-500">Shop name: {product?.shop?.shopName}</div>
+                        <div className="text-green-600">Price: ₹{product?.originalPrice} </div>
                     </div>
                 </div>
             ),
@@ -105,6 +105,7 @@ const FeatureDealAddProduct = () => {
             setIsDelete(false);
         }
     }, [id, productId]);
+
     return (
         <div className='w-full 800px:p-5 p-2 bg-gray-200'>
             <div className='flex items-center gap-2'>

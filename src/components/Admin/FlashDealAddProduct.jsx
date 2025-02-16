@@ -35,8 +35,7 @@ const FlashDealAddProduct = () => {
             });
     }, [id]);
 
-    const productOptions = allProducts
-        .filter(product => !selectedProducts.some(selected => selected.value === product._id))
+    const productOptions = allProducts?.filter(product => !selectedProducts.some(selected => selected.value === product._id))
         .map(product => ({
             value: product._id,
             label: (
@@ -48,8 +47,8 @@ const FlashDealAddProduct = () => {
                     />
                     <div>
                         <div>{product.name}</div>
-                        <div className="text-gray-500">Shop name: {product.shop.name}</div>
-                        <div className="text-green-600">Price: {product.originalPrice} ₹</div>
+                        <div className="text-gray-500">Shop name: {product?.shop?.shopName}</div>
+                        <div className="text-gray-600">Price:  <span className='text-green-600'>₹{product?.originalPrice}</span></div>
                     </div>
                 </div>
             ),
@@ -130,14 +129,31 @@ const FlashDealAddProduct = () => {
                                     isClearable
                                 />
                                 {selectedProducts?.length > 0 && (
-                                    <div className="mt-5 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 border rounded-md">
+                                    <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                                         {selectedProducts.map(product => (
-                                            <div key={product.value} className='mt-2 m-1 p-2 border rounded-md border-blue-600 flex justify-between'>
-                                                <div>{product.label}</div>
+                                            <div
+                                                key={product.value}
+                                                className="p-4 border rounded-lg shadow-sm flex items-center justify-between bg-white hover:shadow-lg transition-shadow duration-200"
+                                            >
+                                                <div className="flex items-center">
+                                                    <img
+                                                        src={product.data.images[0].url}
+                                                        alt={product.data.name}
+                                                        className="w-12 h-12 rounded-lg mr-4"
+                                                    />
+                                                    <div>
+                                                        <div className="font-semibold text-gray-700">{product.data.name}</div>
+                                                        <div className="text-sm text-gray-500">Shop: {product.data?.shop?.shopName}</div>
+                                                        <div className="text-sm text-gray-600">
+                                                            Price: <span className="text-green-600 font-semibold">₹{product.data.originalPrice}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                                 <div
                                                     onClick={() => handleRemove(product)}
-                                                    className="cursor-pointer text-red-600 hover:text-red-800">
-                                                    <FaTimes />
+                                                    className="cursor-pointer text-red-500 hover:text-red-700 transition-colors duration-200"
+                                                >
+                                                    <FaTimes size={16} />
                                                 </div>
                                             </div>
                                         ))}
@@ -167,12 +183,12 @@ const FlashDealAddProduct = () => {
                 </div>
 
                 <div className='w-full bg-white'>
-                    <section className="container px-4 mt-2">
-                        <div className="flex flex-col mt-6">
-                            <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                    <section className=" mt-2 w-full">
+                        <div className="flex flex-col mt-6 w-full">
+                            <div className=" -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                                 <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-                                    <div className="overflow-hidden border border-gray-200 dark:border-gray-700 md:rounded-lg">
-                                        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                    <div className="overflow-hidden border  border-gray-200 dark:border-gray-700 md:rounded-lg">
+                                        <table className="min-w-full divide-y divide-gray-200  dark:divide-gray-700">
                                             <thead className="bg-gray-50 dark:bg-gray-800">
                                                 <tr>
                                                     <th scope="col" className="py-3.5 px-4 text-sm font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
@@ -205,13 +221,13 @@ const FlashDealAddProduct = () => {
                                                             <img className="object-cover w-10 h-10 rounded-full" src={product?.images[0]?.url} alt={product?.name} />
                                                         </td>
                                                         <td className="px-4 py-2 text-center">
-                                                            <h2 className="font-medium text-gray-800 dark:text-white">{product?.name?.length > 30 ? product?.name.slice(0, 29) + "..." : product?.name}</h2>
+                                                            <h2 className="font-medium text-gray-800 dark:text-white">{product?.name?.length > 20 ? product?.name.slice(0, 20) + "..." : product?.name}</h2>
                                                         </td>
                                                         <td className="px-4 py-4 text-sm text-center">
-                                                            <h4 className="text-gray-700 dark:text-gray-200">{product?.shop?.name}</h4>
+                                                            <h4 className="text-gray-700 dark:text-gray-200">{product?.shop?.shopName}</h4>
                                                         </td>
                                                         <td className="px-4 py-4 text-sm text-center">
-                                                            <h4 className="text-gray-700 dark:text-gray-200">{product?.originalPrice} ₹</h4>
+                                                            <h4 className="text-gray-700 dark:text-gray-200">₹{product?.originalPrice} </h4>
                                                         </td>
                                                         <td className="px-4 py-4 text-sm text-center">
                                                             <button

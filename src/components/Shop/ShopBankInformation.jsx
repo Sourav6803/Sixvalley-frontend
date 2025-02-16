@@ -10,7 +10,7 @@ import { toast } from 'react-toastify';
 import { loadSeller } from '../../redux/actions/user';
 import { useDispatch, useSelector } from 'react-redux';
 
-const ShopBankInformation = ({ initialData }) => {
+const ShopBankInformation = ({ initialData , sidebarOpen}) => {
     const [bankName, setBankName] = useState(initialData?.bankName || '');
     const [accountHolder, setAccountHolder] = useState(initialData?.accountHolder || '');
     const [accountNumber, setAccountNumber] = useState(initialData?.accountNumber || '');
@@ -24,7 +24,6 @@ const ShopBankInformation = ({ initialData }) => {
     const [selectedBankId, setSelectedBankId] = useState(null);
 
     const { seller } = useSelector((state) => state.seller);
-
 
     const handleAddBankClick = () => {
         setShowAddBankModal(true);
@@ -151,13 +150,13 @@ const ShopBankInformation = ({ initialData }) => {
     };
 
 
-
     return (
 
-
-
-
-
+        <div
+          className={`w-full  ${
+            sidebarOpen ? "md:ml-72" : "md:ml-20"
+          } mt-20 h-[calc(100vh-80px)] overflow-y-auto p-1 md:p-3`}
+        >
         <div className="w-full min-h-screen flex flex-col items-center bg-gray-100 py-10 px-4">
             <h2 className="text-3xl font-bold text-gray-800 mb-8">Bank Information</h2>
 
@@ -358,6 +357,7 @@ const ShopBankInformation = ({ initialData }) => {
                     </div>
                 </div>
             )}
+        </div>
         </div>
 
     );

@@ -1,0 +1,1751 @@
+import React, { useState, useEffect, useCallback } from "react";
+import { AiOutlinePlusCircle } from "react-icons/ai";
+import { MdInfo, MdRemove } from "react-icons/md";
+import { toast } from "react-toastify";
+import Select from "react-select";
+import AttributeInputs from "./AttributesInputs";
+import PricingDetails from "./PricingDetails";
+import GeneralInfo from "./GeneralInfo";
+import { FcAddImage } from "react-icons/fc";
+import ImageModal from "../../../utils/ImageModal";
+import { server } from "../../../server";
+import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { createProduct } from "../../../redux/actions/product";
+import socketIO from "socket.io-client";
+import { LoadingModal } from "./LoadingModal";
+import { FaQuestionCircle } from "react-icons/fa";
+
+const ENDPOINT = "http://localhost:4000";
+const socketId = socketIO(ENDPOINT, { transports: ["websocket"] });
+
+const ProductForm = ({ selectedCategory, primaryImage }) => {
+  const { seller } = useSelector((state) => state.seller);
+  const { isLoading, success, error } = useSelector((state) => state.products);
+  const { product } = useSelector((state) => state?.products);
+  const [attributes, setAttributes] = useState([]);
+  const [images, setImages] = useState([]);
+  const [name, setName] = useState("");
+  const [styleCode, setStyleCode] = useState("");
+  const [weight, setWeight] = useState("");
+  const [size, setSize] = useState([]);
+  const [sizeOptions, setSizeOptions] = useState([]);
+  const [brand, setBrand] = useState("");
+  const [description, setDescription] = useState("");
+  const [importerDetails, setImporterDetails] = useState("");
+  const [originalPrice, setOriginalPrice] = useState();
+  const [discountType, setDiscountType] = useState("");
+  const [discountPrice, setDiscountPrice] = useState();
+  const [afterDiscountPrice, setAfterDiscountPrice] = useState();
+  const [stock, setStock] = useState();
+  const [color, setColor] = useState("");
+  const [colorOptions, setColorOptions] = useState([]);
+  const [showColor, setShowColor] = useState(false);
+  const [warrentyPeriod, setWarrentyPeriod] = useState();
+  const [sku, setSku] = useState("");
+  const [tags, setTags] = useState("");
+  const [maxPurchaseLimit, setMaxPurchaseLimit] = useState("");
+  const [otherDetails, setOtherDetails] = useState([{ key: "", value: "" }]);
+  const [dimensions, setDimensions] = useState({
+    length: "",
+    width: "",
+    height: "",
+  });
+  const [isDimensinonOpen, setIsDimensionOpen] = useState(false); // To toggle the collapsible input
+  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
+  const [variations, setVariations] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [open, setOpen] = useState(false);
+  const [errors, setErrors] = useState({});
+  // const [imageUploadLoading, setImageUploadLoading] = useState(false);
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  // const handleInputChange = (setter, fieldName) => (e) => {
+  //   const value = e.target.value;
+  //   setter(value);
+
+  //   // Remove error dynamically if it exists
+  //   if (errors[fieldName] || false) {
+  //     setErrors((prevErrors) => {
+  //       const { [fieldName]: _, ...rest } = prevErrors; // Remove specific error
+  //       return rest;
+  //     });
+  //   }
+  // };
+
+  const handleInputChange =
+    (setter, fieldName, isNested = false) =>
+    (e) => {
+      const value = e.target.value;
+
+      if (isNested) {
+        // For handling nested state objects like dimensions
+        setter((prev) => ({
+          ...prev,
+          [fieldName]: value,
+        }));
+      } else {
+        // For handling simple state values
+        setter(value);
+      }
+
+      // Remove error dynamically if it exists
+      if (errors[fieldName]) {
+        setErrors((prevErrors) => {
+          const { [fieldName]: _, ...rest } = prevErrors; // Remove specific error
+          return rest;
+        });
+      }
+    };
+
+  useEffect(() => {
+    if (primaryImage) {
+      setImages((prevImages) => {
+        const updatedImages = prevImages.filter((img) => img !== primaryImage);
+        return [primaryImage, ...updatedImages].slice(0, 5); // Ensure max 5 images
+      });
+    }
+  }, [primaryImage]);
+
+  const handleImageClick = (image) => {
+    setSelectedImage(image);
+    setOpen(true);
+    setModalOpen(true);
+  };
+
+  const handleImageChange = (e) => {
+    e.preventDefault();
+    const files = Array.from(e.target.files);
+
+    // Check if total images exceed 5
+    if (images.length + files.length > 5) {
+      toast.info("You can upload a maximum of 5 images.");
+      return;
+    }
+
+    setImages((prevImages) => [...prevImages, ...files]);
+  };
+
+  // Remove uploaded image
+  const removeImage = (index) => {
+    setImages((prevImages) => prevImages.filter((_, i) => i !== index));
+  };
+
+  // Initialize attributes dynamically when category changes
+  useEffect(() => {
+    if (selectedCategory) {
+      const initialAttributes =
+        selectedCategory.attributes?.map((attr) => ({
+          name: attr.name,
+          type: attr.type,
+          value: attr.type === "boolean" ? false : "",
+          unit: attr.unit || "",
+        })) || [];
+      setAttributes(initialAttributes);
+    }
+  }, [selectedCategory]);
+
+  // Handle attribute value changes dynamically
+  const handleAttributeChange = (e, index) => {
+    const updatedAttributes = [...attributes];
+    let value = e.target.value;
+
+    if (updatedAttributes[index].type === "number") {
+      value = parseFloat(value) || "";
+    } else if (updatedAttributes[index].type === "boolean") {
+      value = e.target.checked;
+    }
+
+    updatedAttributes[index].value = value;
+    setAttributes(updatedAttributes);
+
+      // Remove error dynamically
+    setErrors((prevErrors) => {
+      const { [`attribute_${index}`]: _, ...rest } = prevErrors;
+      return rest;
+    });
+  };
+
+  useEffect(() => {
+    if (!selectedCategory) return;
+
+    const categoryName = selectedCategory.name.toLowerCase();
+
+    // Size options based on category
+    let sizes = [];
+    if (
+      categoryName.includes("saree") ||
+      categoryName.includes("jewelry") ||
+      categoryName.includes("metal") ||
+      categoryName.includes("watch") ||
+      categoryName.includes("handbag") ||
+      categoryName.includes("belt")
+    ) {
+      sizes = [{ value: "Free Size", label: "Free Size" }];
+    } else if (
+      categoryName.includes("shoes") ||
+      categoryName.includes("sandals") ||
+      categoryName.includes("heels")
+    ) {
+      sizes = ["6", "7", "8", "9", "10", "11", "Free Size"].map((s) => ({
+        value: s,
+        label: s,
+      }));
+    } else if (
+      categoryName.includes("t-shirt") ||
+      categoryName.includes("shirt") ||
+      categoryName.includes("jacket") ||
+      categoryName.includes("sweater") ||
+      categoryName.includes("hoodie") ||
+      categoryName.includes("wallet")
+    ) {
+      sizes = [
+        "S",
+        "M",
+        "L",
+        "XL",
+        "XXL",
+        "36",
+        "38",
+        "40",
+        "42",
+        "44",
+        "Free Size",
+      ].map((s) => ({ value: s, label: s }));
+    } else if (
+      categoryName.includes("trouser") ||
+      categoryName.includes("jeans") ||
+      categoryName.includes("shorts") ||
+      categoryName.includes("leggings") ||
+      categoryName.includes("wallet")
+    ) {
+      sizes = ["28", "30", "32", "34", "36", "38", "Free Size"].map((s) => ({
+        value: s,
+        label: s,
+      }));
+    } else if (
+      categoryName.includes("bra") ||
+      categoryName.includes("lingerie")
+    ) {
+      sizes = ["32A", "32B", "34B", "34C", "36B", "36C", "38D"].map((s) => ({
+        value: s,
+        label: s,
+      }));
+    } else if (
+      categoryName.includes("bed") ||
+      categoryName.includes("mattress")
+    ) {
+      sizes = ["Single", "Double", "Queen", "King"].map((s) => ({
+        value: s,
+        label: s,
+      }));
+    } else {
+      sizes = [{ value: "Free Size", label: "Free Size" }];
+    }
+
+    setSizeOptions(sizes);
+
+    // Color options based on category
+    const categoriesWithColor = [
+      "t-shirt",
+      "shirt",
+      "jacket",
+      "sweater",
+      "hoodie",
+      "shoes",
+      "sandals",
+      "heels",
+      "trouser",
+      "jeans",
+      "shorts",
+      "leggings",
+      "bra",
+      "lingerie",
+    ];
+
+    if (categoriesWithColor.some((cat) => categoryName.includes(cat))) {
+      setShowColor(true);
+      setColorOptions(
+        [
+          "Red",
+          "Blue",
+          "Green",
+          "Yellow",
+          "Black",
+          "White",
+          "Gray",
+          "Pink",
+          "Purple",
+          "Brown",
+          "Orange",
+          "Beige",
+        ].map((c) => ({ value: c, label: c }))
+      );
+    } else {
+      setShowColor(false);
+      setColorOptions([]);
+    }
+  }, [selectedCategory]);
+
+  useEffect(() => {
+    if (discountType === "Flat") {
+      setAfterDiscountPrice(originalPrice - discountPrice);
+    } else {
+      setAfterDiscountPrice(
+        originalPrice - Math.ceil((discountPrice / 100) * originalPrice)
+      );
+    }
+  }, [discountPrice, originalPrice, discountType]);
+
+  const handleDimensionChange = (e) => {
+    const { name, value } = e.target;
+    setDimensions((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const existingSKUs = new Set();
+
+  const generateSKU = () => {
+    const length = 8;
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let sku = "";
+
+    while (sku.length < length) {
+      const randomIndex = Math.floor(Math.random() * chars.length);
+      sku += chars[randomIndex];
+    }
+
+    // Ensure uniqueness
+    if (existingSKUs.has(sku)) {
+      return generateSKU();
+    }
+
+    existingSKUs.add(sku);
+    // return sku;
+    // setSku(sku);
+
+    handleInputChange(setSku, "sku");
+  };
+
+  const handleAddField = () => {
+    setOtherDetails([...otherDetails, { key: "", value: "" }]);
+  };
+
+  const handleRemoveField = (index) => {
+    const newDetails = otherDetails.filter((_, i) => i !== index);
+    setOtherDetails(newDetails);
+  };
+
+  const handleOtherDetailsChange = (index, field, value) => {
+    const newDetails = otherDetails.map((detail, i) =>
+      i === index ? { ...detail, [field]: value } : detail
+    );
+    setOtherDetails(newDetails);
+  };
+
+  const generateVariations = () => {
+    let newVariations = [];
+
+    const isFreeSize = size.length === 1 && size[0] === "Free Size";
+
+    if (isFreeSize && color.length > 0) {
+      color.forEach((clr) => {
+        newVariations.push({
+          color: clr,
+          originalPrice: 0,
+          discountType: "",
+          discountAmount: 0,
+          afterDiscountPrice: 0,
+          stock: 0,
+          sku: `FS-${clr}`,
+          images: [],
+        });
+      });
+    } else if (!isFreeSize && size.length > 0 && color.length > 0) {
+      size.forEach((sz) => {
+        color.forEach((clr) => {
+          newVariations.push({
+            size: sz,
+            color: clr,
+            originalPrice: 0,
+            discountType: "",
+            discountAmount: 0,
+            afterDiscountPrice: 0,
+            stock: 0,
+            sku: `${sz}-${clr}`,
+            images: [],
+          });
+        });
+      });
+    } else if (!isFreeSize && size.length > 0) {
+      size.forEach((sz) => {
+        newVariations.push({
+          size: sz,
+          originalPrice: 0,
+          discountType: "",
+          discountAmount: 0,
+          afterDiscountPrice: 0,
+          stock: 0,
+          sku: sz,
+          images: [],
+        });
+      });
+    } else if (color.length > 0) {
+      color.forEach((clr) => {
+        newVariations.push({
+          color: clr,
+          originalPrice: 0,
+          discountType: "",
+          discountAmount: 0,
+          afterDiscountPrice: 0,
+          stock: 0,
+          sku: clr,
+          images: [],
+        });
+      });
+    }
+
+    setVariations(newVariations); // ✅ Now variations will always be an array
+  };
+
+  useEffect(() => {
+    generateVariations();
+  }, [size, color]);
+
+  const handleVariationChange = (key, field, value) => {
+    setVariations((prev) => {
+      const updatedVariation = { ...prev[key], [field]: value };
+
+      // Ensure numeric values are parsed correctly
+      const originalPrice = Number(updatedVariation.originalPrice) || 0;
+      const discountAmount = Number(updatedVariation.discountAmount) || 0;
+      const discountType = updatedVariation.discountType;
+
+      // Calculate afterDiscountPrice dynamically
+      if (discountType === "Flat") {
+        updatedVariation.afterDiscountPrice = Math.max(
+          originalPrice - discountAmount,
+          0
+        );
+      } else if (discountType === "Percent") {
+        updatedVariation.afterDiscountPrice = Math.max(
+          originalPrice - Math.ceil((discountAmount / 100) * originalPrice),
+          0
+        );
+      }
+
+      return { ...prev, [key]: updatedVariation };
+      
+    });
+  };
+
+  // const handleVariationChange = (key, field, value) => {
+  //   setVariations((prev) => {
+  //     const updatedVariation = { ...prev[key], [field]: value };
+  
+  //     // Ensure numeric values are parsed correctly
+  //     const originalPrice = Number(updatedVariation.originalPrice) || 0;
+  //     const discountAmount = Number(updatedVariation.discountAmount) || 0;
+  //     const discountType = updatedVariation.discountType;
+  
+  //     // Calculate afterDiscountPrice dynamically
+  //     if (discountType === "Flat") {
+  //       updatedVariation.afterDiscountPrice = Math.max(
+  //         originalPrice - discountAmount,
+  //         0
+  //       );
+  //     } else if (discountType === "Percent") {
+  //       updatedVariation.afterDiscountPrice = Math.max(
+  //         originalPrice - Math.ceil((discountAmount / 100) * originalPrice),
+  //         0
+  //       );
+  //     }
+  
+  //     return { ...prev, [key]: updatedVariation };
+  //   });
+  
+  //   // Ensure handleInputChange is called correctly
+   
+  //     // handleInputChange(`variation_${key}_${field}`, value);
+    
+  
+  //   // Remove errors dynamically
+  //   // setErrors((prevErrors) => {
+  //   //   if (prevErrors[`variation_${key}_${field}`]) {
+  //   //     const { [`variation_${key}_${field}`]: _, ...rest } = prevErrors;
+  //   //     return rest;
+  //   //   }
+  //   //   return prevErrors;
+  //   // });
+  // };
+  
+  const handleAddVariation = () => {
+    if (!selectedSize) return;
+
+    let variationKey = "";
+
+    // Determine if the product has both size & color
+    if (selectedSize !== "Free Size" && selectedSize?.length && selectedColor) {
+      variationKey = `${selectedSize}-${selectedColor}`;
+    } else if (selectedSize && selectedSize !== "Free Size") {
+      variationKey = `${selectedSize}`;
+    } else if (selectedColor && selectedSize === "Free Size") {
+      variationKey = `${selectedColor}`;
+    }
+
+    const newVariation = {
+      originalPrice: 0,
+      discountType: "",
+      discountAmount: 0,
+      afterDiscountPrice: "",
+      stock: 0,
+      sku: `${selectedSize}-${selectedColor}`,
+      images: [],
+    };
+
+    // Only add size if it's not "Free Size"
+    if (selectedSize && selectedSize !== "Free Size") {
+      newVariation.size = selectedSize;
+    }
+
+    if (selectedColor) {
+      newVariation.color = selectedColor;
+    }
+
+    setVariations((prev) => {
+      const variationsArray = Array.isArray(prev) ? prev : []; // Ensure prev is an array
+      // if (variationsArray.some((v) => v.id === newVariation.id)) {
+      //   toast.info("This variation already exists.");
+      //   return variationsArray;
+      // }
+      return [...variationsArray, newVariation];
+    });
+
+    // Clear the selected size & color
+    setSelectedSize("");
+    setSelectedColor("");
+  };
+
+  // const handleImageUpload = (size, color, event) => {
+  //   const files = Array.from(event.target.files);
+
+  //   setVariations((prev) =>
+      
+  //     prev.map((variation) => {
+  //       const isMatch =
+  //         (!("size" in variation) || variation.size === size) &&
+  //         (!("color" in variation) || variation.color === color);
+
+  //       if (isMatch) {
+  //         // Ensure images are only updated for the selected variation
+  //         return {
+  //           ...variation,
+  //           images: [...(variation.images || []), ...files].slice(0, 3), // Keep max 3 images
+  //         };
+  //       }
+  //       return variation; // Keep other variations unchanged
+  //     })
+  //   );
+  // };
+
+
+  const handleImageUpload = (size, color, event) => {
+    const files = Array.from(event.target.files);
+  
+    setVariations((prev) => {
+      // Ensure prev is always an array
+      if (!Array.isArray(prev) || !prev) return prev || [];
+  
+      return prev.map((variation) => {
+        const isMatch =
+          (!("size" in variation) || variation.size === size) &&
+          (!("color" in variation) || variation.color === color);
+  
+        if (isMatch) {
+          return {
+            ...variation,
+            images: [...(variation.images || []), ...files].slice(0, 3), // Keep max 3 images
+          };
+        }
+        return variation;
+      });
+    });
+  };
+  
+  
+  const removeVariationImage = (id, index) => {
+    setVariations((prev) =>
+      prev.map((variation) =>
+        variation.id === id
+          ? {
+              ...variation,
+              images: variation.images.filter((_, i) => i !== index),
+            }
+          : variation
+      )
+    );
+  };
+
+  const hasSize = Object.values(variations).some(
+    (v) => "size" in v && v.size !== "Free Size"
+  );
+
+  const hasColor = Object.values(variations).some(
+    (v) => "color" in v && v.color
+  );
+
+  const validateProductForm = () => {
+    const maxLimit = parseInt(maxPurchaseLimit, 10);
+    
+    let newErrors = {};
+
+    // Validate product attributes
+    attributes.forEach((attr, index) => {
+      if (!attr.value || attr.value === "") {
+        newErrors[`attribute_${index}`] = `${attr.name} is required.`;
+      }
+    });
+
+    if (!name.trim()) {
+      newErrors.name = "Product name is required.";
+    }
+
+    if (!weight.trim()) {
+      newErrors.weight = "Weight is required";
+    }
+
+    if (!sku.trim()) {
+      newErrors.sku = "SKU is required.";
+    }
+
+    if (!description.trim()) {
+      newErrors.description = "Description is required.";
+    }
+
+    if (!warrentyPeriod || isNaN(warrentyPeriod) || warrentyPeriod < 0) {
+      newErrors.warrentyPeriod = "Warranty period must be a valid number.";
+    }
+
+    if (
+      typeof maxLimit !== "number" ||
+      isNaN(maxLimit) ||
+      maxLimit < 0 ||
+      maxLimit > 5
+    ) {
+      newErrors.maxPurchaseLimit =
+        "Max PurchaseLimit must be a number between 0 and 5.";
+    }
+
+    if (
+      dimensions.length === "" ||
+      dimensions.width === "" ||
+      dimensions.height === ""
+    ) {
+      newErrors.dimensions =
+        "All dimensions (length, width, height) are required.";
+    }
+
+    if (!tags) {
+      newErrors.tags = "Tags are required";
+    }
+
+    if (!importerDetails.trim()) {
+      newErrors.importerDetails = "Importer details are required";
+    }
+
+    if (variations.length === 0) {
+      if (!originalPrice || isNaN(originalPrice) || originalPrice <= 0) {
+        errors.originalPrice = "Original price must be greater than 0.";
+      }
+
+      if (
+        discountType &&
+        (!discountPrice || isNaN(discountPrice) || discountPrice < 0)
+      ) {
+        errors.discountPrice = "Invalid discount value.";
+      }
+
+      if (!stock || isNaN(stock) || stock < 1) {
+        errors.stock = "Stock must be at least 1.";
+      }
+    }
+
+    // if (variations.length > 0) {
+    //   variations.forEach((variation, index) => {
+    //     if (
+    //       !variation.originalPrice ||
+    //       isNaN(variation.originalPrice) ||
+    //       variation.originalPrice <= 0
+    //     ) {
+    //       errors[`variation_${index}_price`] = `Variation ${
+    //         index + 1
+    //       }: Invalid original price.`;
+    //     }
+    //     if (!variation.stock || isNaN(variation.stock) || variation.stock < 1) {
+    //       errors[`variation_${index}_stock`] = `Variation ${
+    //         index + 1
+    //       }: Stock must be at least 1.`;
+    //     }
+    //     if (!variation.sku.trim()) {
+    //       errors[`variation_${index}_sku`] = `Variation ${
+    //         index + 1
+    //       }: SKU is required.`;
+    //     }
+    //   });
+    // }
+
+    if (variations.length > 0) {
+      variations.forEach((variation, index) => {
+        if (!variation.originalPrice || isNaN(variation.originalPrice) || variation.originalPrice <= 0) {
+          newErrors[`variation_${index}_price`] = `Invalid original price.`;
+        }
+        if (!variation.discountType ) {
+          newErrors[`variation_${index}_discountType`] = `Select discount type`;
+        }
+        if (!variation.stock || isNaN(variation.stock) || variation.stock < 1) {
+          newErrors[`variation_${index}_stock`] = ` Stock must be at least 1.`;
+        }
+        if (!variation.sku || variation.sku.trim() === "") {
+          newErrors[`variation_${index}_sku`] = ` SKU is required.`;
+        }
+        if (
+          variation.discountType &&
+          (!variation.discountPrice || isNaN(variation.discountPrice) || variation.discountPrice < 0)
+        ) {
+          newErrors[`variation_${index}_discountPrice`] = `Variation ${index + 1}: Invalid discount value.`;
+        }
+      });
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0; // Return true if no errors
+  };
+
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+
+      const isValid = validateProductForm(); // Now correctly gets a boolean
+
+      if (!isValid) {
+        toast.error("Please fill all required fields before submitting.");
+        return;
+      }
+
+      setLoading(true);
+
+      try {
+        const newForm = new FormData();
+
+        const variationsArray = Array.isArray(variations)
+          ? variations
+          : Object.values(variations);
+
+        // Format attributes
+        const formattedAttributes = attributes
+          .filter((attr) => attr.value)
+          .map((attr) => ({
+            name: attr.name,
+            type: attr.type,
+            value:
+              attr.type === "number"
+                ? Number(attr.value)
+                : attr.type === "boolean"
+                ? Boolean(attr.value)
+                : attr.value,
+            unit: attr.unit || "",
+          }));
+
+        // Upload images
+        const uploadImages = async (imageFiles) => {
+          if (!imageFiles.length) return [];
+          const formData = new FormData();
+          imageFiles.forEach((image) => formData.append("images", image));
+
+          const response = await axios.post(
+            `${server}/product/uploadImages`,
+            formData,
+            {
+              headers: { "Content-Type": "multipart/form-data" },
+            }
+          );
+
+          return response?.data || [];
+        };
+
+        const [uploadedMainImages, variantsData] = await Promise.all([
+          uploadImages(images),
+          Promise.all(
+            variationsArray.map(async (variation) => {
+              const {
+                size,
+                color,
+                originalPrice,
+                discountType,
+                discountAmount,
+                afterDiscountPrice,
+                sku,
+                stock,
+                images,
+              } = variation;
+              const uploadedVariantImages = await uploadImages(images || []);
+
+              return {
+                size,
+                originalPrice,
+                discountType,
+                discountAmount,
+                afterDiscountPrice,
+                sku,
+                stock,
+                images: uploadedVariantImages,
+                ...(color && { color }),
+              };
+            })
+          ),
+        ]);
+
+        if (!uploadedMainImages.length || !variantsData.length) {
+          toast.error("Image upload failed.");
+          setLoading(false);
+          return;
+        }
+
+        // Append product details
+        newForm.append("name", name);
+        newForm.append("description", description);
+        newForm.append("categoryId", selectedCategory?._id);
+        newForm.append("brand", brand);
+        newForm.append("sku", sku);
+        newForm.append("tags", tags);
+        newForm.append("originalPrice", originalPrice);
+        newForm.append("dicountType", discountType);
+        newForm.append("discountAmount", discountPrice);
+        newForm.append("stock", stock);
+        newForm.append("maxPurchaseLimit", maxPurchaseLimit);
+        newForm.append("dimension", dimensions);
+        newForm.append("variants", JSON.stringify(variantsData));
+        newForm.append("images", JSON.stringify(uploadedMainImages));
+        newForm.append("attributes", JSON.stringify(formattedAttributes));
+
+        if (seller) {
+          newForm.append("shopId", seller._id);
+          newForm.append("productSource", "Seller");
+        }
+
+        newForm.append(
+          "otherDetails",
+          JSON.stringify(
+            otherDetails.map((detail) => ({
+              key: detail.key,
+              value: detail.value,
+            }))
+          )
+        );
+
+        await dispatch(createProduct(newForm));
+      } catch (error) {
+        console.error("Error in handleSubmit:", error);
+        toast.error(error.response?.data?.message || error.message);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [
+      images,
+      variations,
+      seller,
+      name,
+      description,
+      selectedCategory?._id,
+      brand,
+      sku,
+      tags,
+      originalPrice,
+      discountType,
+      discountPrice,
+      stock,
+      maxPurchaseLimit,
+      dimensions,
+      otherDetails,
+      attributes,
+      dispatch,
+      server,
+    ]
+  );
+
+  
+  console.log("variations-->", variations);
+
+  useEffect(() => {
+    // Handle error toast
+    if (error) {
+      toast.error(error);
+    }
+
+    // Handle success logic
+    if (success) {
+      toast.success("Product created successfully!");
+
+      const adminTitle = "New product approval request";
+      const adminContent = `A new product "${name}" has been created by ${seller?.shopName}. Please review and approve.`;
+
+      // Emit socket notification to the admin
+      socketId.emit("notification", {
+        title: adminTitle,
+        content: adminContent,
+        image: product ? product?.images[0].url : "", // Ensure safe access to image URL
+      });
+
+      // Navigate to the dashboard after success and cleanup socket
+      // setTimeout(() => {
+      //   navigate("/dashboard-products");
+      // }, 800);
+
+      // Clean up function to remove socket listener
+      return () => {
+        socketId.off("notification");
+      };
+    }
+
+    // Dependency array
+  }, [
+    dispatch,
+    error,
+    success,
+    isLoading,
+    navigate,
+    name,
+    seller?.shopName,
+    product,
+  ]);
+
+  return (
+    <div className="w-full  bg-white rounded-lg shadow-lg mt-3">
+      <LoadingModal loading={loading} />
+
+      {/* Primary Image Display */}
+      {primaryImage && (
+        <div className="mt-3 bg-gray-100 rounded-lg p-2 flex flex-col md:flex-row gap-4">
+          {/* Left Section - Image Upload & Preview */}
+          <div className="w-full md:w-[65%] bg-white p-4 rounded-lg shadow-md border border-gray-200">
+            <label className="pb-2 block text-sm font-medium text-gray-600">
+              Upload Images <span className="text-red-500">*</span>
+            </label>
+
+            {/* Hidden File Input */}
+            <input
+              type="file"
+              id="upload"
+              className="hidden"
+              multiple
+              onChange={handleImageChange}
+            />
+
+            {/* Upload Button */}
+            <label
+              htmlFor="upload"
+              className="cursor-pointer inline-block mb-3"
+            >
+              <AiOutlinePlusCircle
+                size={35}
+                className="text-gray-600 hover:text-gray-800 transition"
+              />
+            </label>
+
+            {/* Image Scrollable Container */}
+            <div className="w-full overflow-x-auto flex gap-3 p-2">
+              {images.map((i, index) => (
+                <div key={index} className="relative flex-shrink-0">
+                  <img
+                    src={typeof i === "string" ? i : URL.createObjectURL(i)}
+                    alt={`Image ${index + 1}`}
+                    onClick={(e) => handleImageClick(URL.createObjectURL(i))}
+                    className="object-cover cursor-pointer rounded-md border-2
+                        h-[80px] w-[70px] 
+                        sm:h-[90px] sm:w-[80px] 
+                        md:h-[110px] md:w-[100px] 
+                        lg:h-[130px] lg:w-[120px]"
+                  />
+                  {/* Remove Button */}
+                  <button
+                    onClick={() => removeImage(index)}
+                    className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full text-xs shadow"
+                  >
+                    <MdRemove />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right Section - Guidelines */}
+          <div className="w-full md:w-[35%]">
+            {/* Warning Box */}
+            <div className="p-3 rounded-lg bg-yellow-100 flex items-start gap-3 border-l-4 border-yellow-500 shadow-sm">
+              <MdInfo className="text-yellow-600 text-xl" />
+              <p className="text-sm text-gray-700 font-medium">
+                Follow guidelines to reduce quality check failure.
+              </p>
+            </div>
+
+            {/* Guidelines Box */}
+            <div className="mt-4 bg-white p-4 rounded-lg shadow-md border border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-800 border-b pb-2">
+                Image Guidelines
+              </h2>
+              <ul className="mt-2 space-y-1 text-xs text-gray-700 list-disc pl-5">
+                <li>You can upload between 1 and 5 images.</li>
+                <li>Primary images should not contain text or watermarks.</li>
+                <li>Product images should be clear and well-lit.</li>
+                <li>Avoid any additional text in product images.</li>
+                <li>Provide a clear view of the product from all angle.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="flex items-center p-2">
+        <div className="w-full">
+          <h2 className="text-lg text-slate-700 font-semibold mb-4 mt-5">
+            Product, Inventory, & Size
+          </h2>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 md:gap-4 gap-2 md:p-6 p-2 bg-white rounded-lg shadow-lg">
+            {/* Product Name */}
+            <div>
+              <label className="text-sm font-medium text-gray-700">
+                Product Name <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="name"
+                value={name}
+                onChange={handleInputChange(setName, "name")}
+                placeholder="Enter product name"
+                className={`mt-2 w-full text-xs p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 ${
+                  errors.name ? "border-red-500" : "border-gray-300"
+                }`}
+              />
+              {errors.name && (
+                <p className="text-red-500 text-sm">{errors.name}</p>
+              )}
+            </div>
+
+            {/* Product Weight */}
+            <div>
+              <label className="text-sm font-medium text-gray-700">
+                Product Weight <span className="text-gray-500">(gm)</span>
+                <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                name="weight"
+                value={weight}
+                // onChange={(e) => setWeight(e.target.value)}
+                onChange={handleInputChange(setWeight, "weight")}
+                placeholder="Enter weight in gm"
+                className={`mt-2 text-xs w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 ${
+                  errors.weight ? "border-red-500" : "border-gray-300"
+                }`}
+              />
+              {errors.weight && (
+                <p className="text-red-500 text-sm">{errors.weight}</p>
+              )}
+            </div>
+
+            {/* Style Code */}
+            <div>
+              <label className="text-sm font-medium text-gray-700">
+                Style Code <span className="text-gray-500">(Optional)</span>
+              </label>
+              <input
+                type="text"
+                name="styleCode"
+                value={styleCode}
+                onChange={(e) => setStyleCode(e.target.value)}
+                placeholder="Enter style-code or ID"
+                className="mt-2 text-xs w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+
+            <div className="">
+              <label className="flex items-center justify-between mx-2  text-slate-700 font-medium text-sm">
+                <div className="">
+                  {" "}
+                  SKU <span className="text-red-500">*</span>
+                </div>
+                <div
+                  className="text-blue-500 cursor-pointer text-sm hover:text-blue-600"
+                  onClick={generateSKU}
+                >
+                  Generate sku
+                </div>
+              </label>
+              <input
+                type="text"
+                name="sku"
+                defaultValue={sku}
+                className={`mt-2 text-xs appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
+                  errors.name ? "border-red-500" : "border-gray-300"
+                }`}
+                // onChange={(e) => setS(e.target.value)}
+                placeholder="Ex: 254677"
+              />
+
+              {errors.sku && (
+                <p className="text-red-500 text-sm">{errors.sku}</p>
+              )}
+            </div>
+
+            {/* Size Selection */}
+            <div className="mb-4">
+              <label className="text-sm font-medium text-gray-700">
+                Size <span className="text-red-500">*</span>
+              </label>
+              <Select
+                options={sizeOptions}
+                value={
+                  sizeOptions.find((option) => option.value === selectedSize) ||
+                  null
+                }
+                onChange={(selected) => setSelectedSize(selected?.value || "")}
+                placeholder="Select Size"
+                className="mt-2 text-xs"
+              />
+            </div>
+
+            {/* Color Selection (Shown only for relevant categories) */}
+            {showColor && (
+              <div className="mb-4">
+                <label className="text-sm font-medium text-gray-700">
+                  Color <span className="text-red-500">*</span>
+                </label>
+                <Select
+                  options={colorOptions}
+                  value={
+                    colorOptions.find(
+                      (option) => option.value === selectedColor
+                    ) || null
+                  }
+                  onChange={(selected) =>
+                    setSelectedColor(selected?.value || "")
+                  }
+                  placeholder="Select Color"
+                  className="mt-2 text-xs"
+                />
+              </div>
+            )}
+
+            {((selectedSize && selectedSize !== "Free Size") ||
+              (selectedSize === "Free Size" && selectedColor)) && (
+              <div className="col-span-2 md:col-span-4 flex justify-end">
+                <button
+                  onClick={handleAddVariation}
+                  disabled={!selectedSize || (showColor && !selectedColor)}
+                  className="mt-2 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 disabled:bg-gray-400"
+                >
+                  Add Variation
+                </button>
+              </div>
+            )}
+          </div>
+
+          {Object.keys(variations).length > 0 && (
+            <div className="border-2 mt-3 md:w-full w-full rounded-md overflow-x-auto">
+              <table className="w-full border-collapse border border-gray-300  shadow-lg rounded-lg overflow-hidden">
+                <thead className="bg-gray-100 text-gray-700 text-sm md:text-base uppercase tracking-wide">
+                  <tr>
+                    {hasSize && (
+                      <th className="px-3 border py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Size
+                      </th>
+                    )}
+
+                    {hasColor && (
+                      <th className="px-3 border py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Color
+                      </th>
+                    )}
+                    <th className="px-3 border py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Original Price
+                    </th>
+                    <th className="px-3 border py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Discount Type
+                    </th>
+                    <th className="px-3 border py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Discount Amount
+                    </th>
+                    <th className="px-3 border py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Final Price
+                    </th>
+                    <th className="px-3 border py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Stock
+                    </th>
+                    <th className="px-3 border py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      SKU
+                    </th>
+                    {hasColor && (
+                      <th className="px-3 border py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Image
+                      </th>
+                    )}
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {Object.keys(variations)?.map((key, index) => {
+                    const variation = variations[key];
+                    return (
+                      <tr
+                        key={key}
+                        className="border bg-white hover:bg-gray-50 transition"
+                      >
+                        {hasSize && (
+                          <td className="border px-3 py-2 md:px-4 md:py-3">
+                            {hasSize ? variation.size : null}
+                          </td>
+                        )}
+                        {hasColor && (
+                          <td className=" px-3 py-2 md:px-4 md:py-3">
+                            {hasColor ? variation.color : null}
+                          </td>
+                        )}
+                        
+                        <td className="border px-1 py-4 whitespace-nowrap text-sm text-gray-700">
+                          <div className="relative flex items-center">
+                            {/* Currency Symbol */}
+                            <span className="absolute left-3 text-gray-500 text-sm">
+                              ₹
+                            </span>
+
+                            {/* Input Field */}
+                            <input
+                              type="number"
+                              className={`w-[180px] border rounded-lg py-2 pl-8 pr-2 text-gray-700 focus:outline-none focus:ring-1 ${
+                                errors[`variation_${key}_price`]
+                                  ? "border-red-500 focus:ring-red-400"
+                                  : "border-gray-300 focus:ring-blue-400"
+                              }`}
+                              placeholder="Enter price"
+                              value={variation.originalPrice}
+                              onChange={(e) =>
+                                handleVariationChange(
+                                  key,
+                                  "originalPrice",
+                                  e.target.value
+                                )
+                              }
+                            />
+
+                            {/* Error Message */}
+                            {/* {errors[`variation_${key}_price`] && (
+                              <p className="text-red-500 text-xs absolute -bottom-5 left-1">
+                                {errors[`variation_${key}_price`]}
+                              </p>
+                            )} */}
+                          </div>
+                        </td>
+                        <td className="border px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <select
+                            value={variation.discountType}
+                            onChange={(e) =>
+                              handleVariationChange(
+                                key,
+                                "discountType",
+                                e.target.value
+                              )
+                            }
+                            className={`appearance-none block  w-[130px] px-3 h-[30px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${errors[`variation_${key}_discountType`]
+                              ? "border-red-500 focus:ring-red-400"
+                              : "border-gray-300 focus:ring-blue-400"} `}
+                          >
+                            <option value="" disabled>
+                              Choose Type
+                            </option>
+                            <option value="Flat">Flat</option>
+                            <option value="Percent">Percentage</option>
+                          </select>
+                          {/* Error Message */}
+                          {/* {errors[`variation_${key}_price`] && (
+                              <p className="text-red-500 text-xs absolute -bottom-5 left-1">
+                                {errors[`variation_${key}_discountType`]}
+                              </p>
+                            )} */}
+                        </td>
+                        <td className="border px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <div className="relative">
+                            <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500">
+                              ₹
+                            </span>
+                            <input
+                              type="number"
+                              className={`border w-[180px] rounded px-4 py-1 pl-7 ${ errors[`variation_${key}_discountAmount`]
+                                ? "border-red-500 focus:ring-red-400"
+                                : "border-gray-300 focus:ring-blue-400"}`}
+                              placeholder="Discount amount"
+                              value={variation.discountAmount}
+                              onChange={(e) =>
+                                handleVariationChange(
+                                  key,
+                                  "discountAmount",
+                                  e.target.value
+                                )
+                              }
+                            />
+                            {errors[`variation_${key}_discountAmount`] && (
+                              <p className="text-red-500 text-xs absolute -bottom-5 left-1">
+                                {errors[`variation_${key}_discountAmount`]}
+                              </p>
+                            )}
+                          </div>
+                        </td>
+                        <td className="border px-3 py-4  whitespace-nowrap text-sm text-gray-500">
+                          <input
+                            type="number"
+                            placeholder="Ex: 500"
+                            defaultValue={variation.afterDiscountPrice}
+                            readOnly
+                            className="border  w-[100px] rounded px-2 py-1 bg-gray-100"
+                          />
+                        </td>
+                        <td className="border px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <input
+                            type="number"
+                            className=" border  w-[100px] rounded px-2 py-1"
+                            value={variation.stock}
+                            placeholder="Ex. 35"
+                            onChange={(e) =>
+                              handleVariationChange(
+                                key,
+                                "stock",
+                                e.target.value
+                              )
+                            }
+                          />
+                        </td>
+                        <td className="border px-3 py-2 md:px-4 md:py-3">
+                          <input
+                            type="text"
+                            className="border  w-[100px] rounded px-2 py-1"
+                            value={variation.sku}
+                            onChange={(e) =>
+                              handleVariationChange(key, "sku", e.target.value)
+                            }
+                          />
+                        </td>
+
+                        {hasColor && (
+                          <td className="px-4 whitespace-nowrap text-gray-500">
+                            {variation.color && (
+                              <div className="flex flex-col items-center gap-2 p-2">
+                                {/* Hidden File Input */}
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  multiple
+                                  ref={(ref) => (variation.fileInputRef = ref)}
+                                  // onChange={(e) =>
+                                  //   handleImageUpload(variation.id, e)
+                                  // }
+                                  onChange={(e) =>
+                                    handleImageUpload(
+                                      variation?.size,
+                                      variation?.color,
+                                      e
+                                    )
+                                  }
+                                  disabled={variation.images.length >= 3}
+                                  className="hidden"
+                                />
+
+                                {/* Image Upload Button */}
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    variation.fileInputRef?.click()
+                                  }
+                                  disabled={variation.images.length >= 3}
+                                  className="text-3xl cursor-pointer"
+                                >
+                                  <FcAddImage />
+                                </button>
+
+                                {/* Display Uploaded Images */}
+                                <div className="mt-2 w-full  overflow-x-auto flex gap-2">
+                                  {variation.images.map((img, imgIndex) => (
+                                    <div
+                                      key={imgIndex}
+                                      className="relative group "
+                                    >
+                                      <img
+                                        src={URL.createObjectURL(img)}
+                                        alt="Uploaded"
+                                        onClick={(e) =>
+                                          handleImageClick(
+                                            URL.createObjectURL(img)
+                                          )
+                                        }
+                                        className="w-12 cursor-pointer h-12 md:w-16 md:h-16 object-cover border rounded-md shadow-sm"
+                                      />
+                                      <button
+                                        onClick={() =>
+                                          removeVariationImage(
+                                            variation.id,
+                                            imgIndex
+                                          )
+                                        }
+                                        className="absolute top-1 right-1 bg-red-500 text-white text-xs px-1 rounded opacity-0 group-hover:opacity-100 transition"
+                                      >
+                                        X
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </td>
+                        )}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          <h2 className="text-lg text-slate-700 font-semibold mb-4 mt-5">
+            Product Details
+          </h2>
+          {/* Dynamic Attribute Inputs */}
+
+          <AttributeInputs
+            attributes={attributes}
+            handleAttributeChange={handleAttributeChange}
+            selectedCategory={selectedCategory}
+            handleInputChange={handleInputChange}
+            errors={errors}
+          />
+
+          {variations?.length === 0 && (
+            <PricingDetails
+              originalPrice={originalPrice}
+              setOriginalPrice={setOriginalPrice}
+              discountType={discountType}
+              setDiscountType={setDiscountType}
+              discountPrice={discountPrice}
+              setDiscountPrice={setDiscountPrice}
+              afterDiscountPrice={afterDiscountPrice}
+              stock={stock}
+              setStock={setStock}
+            />
+          )}
+
+          <h2 className="text-lg text-slate-700 font-semibold mb-4 mt-5">
+            General Details
+          </h2>
+
+          {/* <GeneralInfo
+            maxPurchaseLimit={maxPurchaseLimit}
+            setMaxPurchaseLimit={setMaxPurchaseLimit}
+            dimensions={dimensions}
+            handleDimensionChange={handleDimensionChange}
+            isDimensionOpen={isDimensinonOpen}
+            setIsDimensionOpen={setIsDimensionOpen}
+            warrantyPeriod={warrentyPeriod}
+            setWarrantyPeriod={setWarrentyPeriod}
+            description={description}
+            setDescription={setDescription}
+            brand={brand}
+            setBrand={setBrand}
+            tags={tags}
+            setTags={setTags}
+            importerDetails={importerDetails}
+            setImporterDetails={setImporterDetails}
+            handleInputChange={handleInputChange}
+            errors={errors}
+          /> */}
+
+          <div className="grid grid-cols-2 md:grid-cols-4 md:gap-4 gap-2 md:p-6 p-2 bg-white rounded-lg shadow-lg">
+            <div>
+              <label className="text-sm font-medium text-gray-700">
+                Max Purchase Limit <span className="text-gray-500">(gm)</span>
+                <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                name="maxPurchaseLimit"
+                value={maxPurchaseLimit}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (/^\d*$/.test(value)) {
+                    // Allow only whole numbers (digits only)
+                    setMaxPurchaseLimit(value);
+                  }
+                }}
+                min={0}
+                max={5}
+                step={1} // Prevents decimal inputs
+                placeholder="Ex. 3"
+                className={`mt-2 w-full text-xs p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 ${
+                  errors.maxPurchaseLimit ? "border-red-500" : "border-gray-300"
+                }`}
+              />
+              {errors.maxPurchaseLimit && (
+                <p className="text-red-500 text-sm">
+                  {errors.maxPurchaseLimit}
+                </p>
+              )}
+            </div>
+
+            <div className="relative">
+              <label className="text-xs font-semibold text-gray-700">
+                Dimension
+              </label>
+              <span className="text-red-500">*</span>
+              <div
+                className={`cursor-pointer bg-gray-50 border mt-2  rounded-md p-2 flex items-center justify-between text-xs ${
+                  errors.dimensions ? "border-red-500" : "border-gray-300"
+                }`}
+                onClick={() => setIsDimensionOpen(!isDimensinonOpen)}
+              >
+                <span className="text-gray-700 font-medium">
+                  Package Dimensions
+                </span>
+                <span className="text-gray-500">
+                  {isDimensinonOpen ? "▲" : "▼"}
+                </span>
+              </div>
+
+              {isDimensinonOpen && (
+                <div className="absolute top-15 z-20 left-0 mt-2 border border-gray-300 rounded-lg p-3 bg-white shadow-sm transition-all">
+                  {["Length", "Width", "Height"].map((dim) => (
+                    <div
+                      key={dim}
+                      className="flex items-center justify-between mb-2"
+                    >
+                      <label className="w-1/4 text-xs font-medium text-gray-600">
+                        {dim}
+                      </label>
+                      <div className="flex items-center w-3/4">
+                        <input
+                          type="number"
+                          name={dim.toLowerCase()}
+                          value={dimensions[dim.toLowerCase()]}
+                          // onChange={handleDimensionChange}
+                          onChange={handleInputChange(
+                            setDimensions,
+                            dim.toLowerCase(),
+                            true
+                          )}
+                          placeholder={`${dim} (cm)`}
+                          className={`border border-gray-300 text-xs px-2 py-1 w-full rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 ${
+                            errors.dimensions
+                              ? "border-red-500"
+                              : "border-gray-300"
+                          }`}
+                        />
+                      </div>
+                      {errors.dimensions && (
+                        <p className="text-red-500 text-sm">
+                          {errors.dimensions}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-gray-700">
+                Product Description <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="description"
+                value={description}
+                onChange={handleInputChange(setDescription, "description")}
+                placeholder="Enter product description"
+                className={`mt-2 w-full text-xs p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 ${
+                  errors.description ? "border-red-500" : "border-gray-300"
+                }`}
+              />
+              {errors.name && (
+                <p className="text-red-500 text-sm">{errors.description}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-gray-700">Brand</label>
+              <input
+                type="text"
+                name="brand"
+                value={brand}
+                onChange={(e) => setBrand(e.target.value)}
+                placeholder="Enter brand"
+                className={`mt-2 w-full text-xs p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 ${
+                  errors.brand ? "border-red-500" : "border-gray-300"
+                }`}
+              />
+              {errors.brand && (
+                <p className="text-red-500 text-sm">{errors.brand}</p>
+              )}
+            </div>
+
+            <div className="relative">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-gray-700">
+                  Search Tags <span className="text-red-500">*</span>
+                </label>
+
+                <div className="relative group">
+                  <FaQuestionCircle className="cursor-pointer text-gray-600" />
+                  <div className="absolute left-1/2 transform -translate-x-1/2 bottom-full mb-2 bg-gray-900 text-white text-xs rounded-md px-3 py-1 opacity-0 invisible transition-opacity duration-300 group-hover:opacity-100 group-hover:visible">
+                    Enter keywords separated by commas. It helps to improve
+                    product search.
+                    <div className="absolute left-1/2 transform -translate-x-1/2 top-full w-2 h-2 bg-gray-900 rotate-45"></div>
+                  </div>
+                </div>
+              </div>
+              <input
+                type="text"
+                value={tags}
+                onChange={(e) => setTags(e.target.value)}
+                placeholder="Enter your product tags..."
+                className="mt-2 block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-gray-700">
+                Importer Details <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="importerDetails"
+                value={importerDetails}
+                onChange={handleInputChange(
+                  setImporterDetails,
+                  "importerDetails"
+                )}
+                placeholder="Enter Importer details"
+                className={`mt-2 w-full text-xs p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 ${
+                  errors.importerDetails ? "border-red-500" : "border-gray-300"
+                }`}
+              />
+              {errors.name && (
+                <p className="text-red-500 text-sm">{errors.importerDetails}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-gray-700">
+                Warrenty Period
+              </label>
+              
+              <div className="border border-gray-300 rounded-[3px] mt-2">
+                <select
+                  className="ml-2 text-xs border-none text-slate-700 rounded-[3px] h-[35px] px-2"
+                  value={warrentyPeriod}
+                  onChange={(e) => setWarrentyPeriod(e.target.value)}
+                >
+                  {["No warranty", "3 Month", "6 Month", "1 year"].map((option, index) => (
+                    <option key={index} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <h2 className="text-lg text-slate-700 font-semibold mb-4 mt-5">
+            Other detail Setup
+          </h2>
+
+          <div className="w-full mt-2 bg-white  rounded-md ">
+            {otherDetails.map((detail, index) => (
+              <div className="flex items-center gap-3 mt-3" key={index}>
+                <div className="flex-1">
+                  <label className="pb-2 text-slate-700 font-medium text-md">
+                    Enter key <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={detail.key}
+                    onChange={(e) =>
+                      handleOtherDetailsChange(index, "key", e.target.value)
+                    }
+                    className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    placeholder="Ex: Model"
+                  />
+                </div>
+
+                <div className="flex-1">
+                  <label className="pb-2 text-slate-700 font-medium text-md">
+                    Value <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={detail.value}
+                    onChange={(e) =>
+                      handleOtherDetailsChange(index, "value", e.target.value)
+                    }
+                    className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    placeholder="Ex: M2 pro"
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  className="mt-7 bg-red-500 text-white rounded-md px-3 py-1 h-[35px]"
+                  onClick={() => handleRemoveField(index)}
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+
+            <div className="mt-3">
+              <button
+                type="button"
+                className="bg-blue-500 text-white rounded-md px-3 py-2"
+                onClick={handleAddField}
+              >
+                Add another detail
+              </button>
+            </div>
+          </div>
+
+          <div className="w-full  flex items-center justify-end mt-5">
+            <button
+              className="mt-1 px-4 py-2 bg-blue-500 text-white rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 "
+              onClick={handleSubmit}
+            >
+              Submit
+            </button>
+          </div>
+        </div>
+      </div>
+      {modalOpen && (
+        <ImageModal
+          open={open}
+          onClose={() => setOpen(false)}
+          image={selectedImage}
+        />
+      )}
+    </div>
+  );
+};
+
+export default ProductForm;

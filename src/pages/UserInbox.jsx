@@ -315,12 +315,7 @@ const MessageList = ({ data, index, setOpen, setCurrentChat, me, setUserData, us
 
 const SellerInbox = ({ setOpen, value, groupTitle, data,setImgLoading, imgLoading, setValue, onFileChange, sendMessageHandler, messages, sellerId, userData, activeStatus, scrollRef, isError, errorMessage }) => {
 
-const [emoji , setEmoji] = useState(false)
 
-const emojiClick = ((e, emojiObj)=>{
-  setValue(prevInput => prevInput + emojiObj.emoji)
-  setEmoji(false)
-})
 
   return (
     <div className="w-[full] min-h-full flex flex-col justify-between p-5">

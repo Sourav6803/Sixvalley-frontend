@@ -7,7 +7,6 @@ import { toast } from 'react-toastify';
 import Loader from '../../pages/Loader';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from "react-router-dom";
-import { createCategory } from '../../redux/actions/category';
 import Modal from '../../utils/Modal';
 import { AiFillDelete } from "react-icons/ai";
 import AllBrand from './AllBrand';

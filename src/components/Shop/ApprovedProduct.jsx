@@ -126,8 +126,6 @@ const ApproveProducts = () => {
   }, [allSubSubCategory]);
 
 
-
-
   useEffect(() => {
     if (searchTearm) {
       const filterProduct = approveProducts?.filter((product) =>

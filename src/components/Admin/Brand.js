@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { createBrand } from '../../redux/actions/brand';
 import Loader from '../../pages/Loader';
 
-const Brand = () => {
+const Brand = ({sidebarOpen}) => {
 
   const { success, error } = useSelector((state) => state?.brand);
   const { allCategory } = useSelector((state) => state?.category);
@@ -77,7 +77,11 @@ const Brand = () => {
   }, [dispatch, error, success,]);
 
   return (
-    <div className="md:p-6 p-1 bg-gray-200 min-h-screen">
+    <div
+          className={`w-full  ${
+            sidebarOpen ? "md:ml-72" : "md:ml-20"
+          } mt-20 h-[calc(100vh-80px)] overflow-y-auto p-1 md:p-3`}
+        >
 
       <div className=''>
         <div className='flex ml-3 items-center gap-2'>

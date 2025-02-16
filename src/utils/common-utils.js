@@ -66,3 +66,28 @@ export const formatMongoDate = (date) => {
 }
 
 
+export function extractTimeFromDate(mongoDate) {
+    if (!(mongoDate instanceof Date)) {
+      throw new Error(
+        "Invalid date. Please provide a valid MongoDB Date object."
+      );
+    }
+
+    // Extract hours and minutes
+    let hours = mongoDate.getHours();
+    const minutes = String(mongoDate.getMinutes()).padStart(2, "0");
+
+    // Determine AM/PM
+    const ampm = hours >= 12 ? "PM" : "AM";
+
+    // Convert hours to 12-hour format
+    hours = hours % 12;
+    hours = hours ? hours : 12; // The hour '0' should be '12'
+
+    // Format the time as hh:mm AM/PM
+    const formattedTime = `${String(hours).padStart(
+      2,
+      "0"
+    )}:${minutes} ${ampm}`;
+    return formattedTime;
+  }

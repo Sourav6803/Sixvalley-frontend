@@ -4,7 +4,8 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux';
 import { server } from '../../server';
-import {  useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import Loader from '../../pages/Loader';
 
 const RecentView = () => {
     const { user } = useSelector((state) => state?.user)
@@ -15,6 +16,11 @@ const RecentView = () => {
     const [recommendations, setRecommendations] = useState([]);
 
     useEffect(() => {
+        if (!user?._id) {
+            // If user is not logged in, stop loading and don't fetch data
+            setIsLoading(false);
+            return;
+        }
         const fetchRecommendations = async () => {
             setIsLoading(true); // Set loading state to true when starting the fetch
             setError(null); // Reset error state before fetching
@@ -58,7 +64,22 @@ const RecentView = () => {
             <div className="mb-2 p-2">
                 <h2 className="text-lg text-slate-600 font-bold">Recent Searched Products</h2>
             </div>
- 
+
+            {/* Loading State */}
+            {isLoading && (
+                <div className="flex justify-center items-center py-6">
+                    <Loader />
+                    <p className="ml-2 text-sm text-gray-500">Loading product...</p>
+                </div>
+            )}
+
+            {/* Error State */}
+            {error && (
+                <div className="flex justify-center items-center py-6">
+                    <p className="text-red-500">{error}</p>
+                </div>
+            )}
+
             {/* Horizontal scrollable section */}
             <div className="flex gap-1 overflow-x-auto whitespace-nowrap p-1">
                 {
@@ -75,21 +96,19 @@ const RecentView = () => {
                             <p className="text-gray-500">Starting ₹99</p>
                         </div>
                     )) :
-
                         allProducts?.slice(10, 14).map((product) => (
-                            <div key={product?._id} className="rounded-lg flex flex-col items-center min-w-[150px] p-1" onClick={(e) => navigate(`/product/${product?.product?._id}`)}>
+                            <div key={product?._id} className="rounded-lg flex flex-col items-center min-w-[150px] p-1" onClick={(e) => navigate(`/product/${product?._id}`)}>
                                 {/* Fixed image size */}
                                 <img
-                                    src={product?.product?.images[0].url}
-                                    alt={product?.product?.category}
+                                    src={product?.images[0].url}
+                                    alt={product?.category}
                                     className="w-[150px] h-[150px] object-cover mb-2"
                                 />
-                                <h3 className="text-sm font-semibold">{product?.product?.category}</h3>
-                                <p className="text-gray-500">{product?.product?.subCategory}</p>
+                                <h3 className="text-sm font-semibold">{product?.category}</h3>
+                                <p className="text-gray-500 truncate">{product?.subCategory?.length > 15 ? product?.subCategory?.slice(0, 15) + "..." : product?.subCategory}</p>
                                 <p className="text-gray-500">Starting ₹99</p>
                             </div>
                         ))
-
                 }
             </div>
 

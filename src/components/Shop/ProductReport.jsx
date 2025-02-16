@@ -13,7 +13,7 @@ import { getAllProductsShop } from '../../redux/actions/product';
 import { Switch } from '@mui/material';
 
 
-const ProductReport = () => {
+const ProductReport = ({sidebarOpen}) => {
     const [isLoading, setIsLoading] = useState(false)
     const [searchDateType, setSearchDateType] = useState("")
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,9 +33,9 @@ const ProductReport = () => {
 
     const [isActiveModalOpen, setIsActiveModalOpen] = useState(false)
     const [isActiveModalTwoOpen, setIsActiveModalTwoOpen] = useState(false)
-    const [categoryId, setCategoryId] = useState("");
+    // const [categoryId, setCategoryId] = useState("");
     const [open, setOpen] = useState(false);
-
+    
     const navigate = useNavigate()
     const dispatch = useDispatch();
 
@@ -234,7 +234,9 @@ const ProductReport = () => {
             {isLoading ? (
                 <div className="flex items-center justify-center h-screen"><Loader /></div>
             ) : (
-                <div className='w-full p-2 md:p-5 bg-gray-200'>
+                <div  className={`w-full  ${
+                    sidebarOpen ? "md:ml-72" : "md:ml-20"
+                  } mt-20 h-[calc(100vh-80px)] overflow-y-auto p-1 md:p-3 `}>
 
                     <div className='flex items-center gap-2'>
                         <img src={productImage} alt='layout' className='h-8' />
@@ -567,7 +569,7 @@ const ProductReport = () => {
 
                                                                             <button
                                                                                 className="text-xl border-2 rounded-md p-1 border-red-500 transition-colors duration-200"
-                                                                                onClick={() => { setOpen(true); setCategoryId(product?._id) }}
+                                                                                onClick={() => { setOpen(true); }}
                                                                             >
                                                                                 <AiFillDelete className="text-red-500" />
                                                                             </button>

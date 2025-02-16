@@ -1,5 +1,5 @@
 import { Typography, Box, styled } from '@mui/material'; 
-import { categoriesData, paintingSubCategoriesdata } from '../../../static/data';
+import { paintingSubCategoriesdata } from '../../../static/data';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { server } from '../../../server';

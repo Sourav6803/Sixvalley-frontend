@@ -32,12 +32,23 @@ import {
   TransactionReportPage,
   ShippedOrderPage,
   ProcessingRefundPage,
-  RefundDetailsPage
+  RefundDetailsPage,
+  ShopHeroPage,
+  SellOnlinePage,
+  ShopCommissionPage,
+  ShopShippingReturnPage,
+  ActivateProfilePage,
+  ShopPendingOrderPage,
+  CampaignHeroPage,
+  CreateCampaignPage,
+  PromotionPage,
+  ParticipateDealPage,
+  BusinessDashboardPage,
+  UploadProductPage
 } from './routes/ShopRoutes';
 import { getAllProducts } from './redux/actions/product';
 import { getAllEvents } from './redux/actions/event';
-
-import CheckoutPage from './pages/CheckoutPage';
+import CheckoutPage from './pages/User/CheckoutPage.jsx';
 import axios from 'axios';
 import { server } from './server';
 import { Elements } from "@stripe/react-stripe-js";
@@ -47,14 +58,15 @@ import {
   AdminDashboardProducts, AdminDashboardSellers, AdminDashboardUsers, AdminDashboardWithdraw,
   CategoryPage, UpdateCategoryPage, SubCategoryPage, SubSubCategoryPage, UpdateSubSubCategoryPage, BrandPage, AllBrandPage, UpdateBrandPage,
   CreateProductPage, AttributePage, BannerPage, CouponPage, FlashDealsPage, FlashDealAddProductPage, DealOfTheDayPage, FeatureDealPage,
-  FeatureDealAddProductPage, NotificationPage, EventPage
+  FeatureDealAddProductPage, NotificationPage, EventPage,
+  AdminPendingProductPage
 } from './routes/AdminRoutes';
 
 import ProtectedAdminRoute from './routes/ProtectedAdminRoute';
 import { getAllCategories } from './redux/actions/category.js';
 
 import { getAllSubCategories } from './redux/actions/subCategory.js';
-import UpdateSubCategoryPage from './pages/admin/UpdateSubCategoryPage.jsx';
+import UpdateSubCategoryPage from './pages/admin/SubSubCategory/UpdateSubSubCategoryPage.jsx';
 import { getAllSubSubCategories } from './redux/actions/subSubCategory.js';
 import { getAllBrands } from './redux/actions/brand.js';
 import { getAllAttributes } from './redux/actions/attribute.js';
@@ -64,17 +76,19 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { requestFCMToken } from './utils/firebaseUtils.js';
 import CookieConsent from 'react-cookie-consent';
 import { useSelector } from 'react-redux';
-import FashionPage from './pages/FashionPage.jsx';
-import HomeAppliences from './pages/HomeAppliences.jsx';
-import GroceryPage from './pages/GroceryPage.jsx';
-import ElectronicsPage from './pages/ElectronicsPage.jsx';
-import FurniturePage from './pages/FurniturePage.jsx';
-import CraftsPaintings from './pages/CraftsPaintings.jsx';
+import FashionPage from './pages/User/FashionPage.jsx';
+import HomeAppliences from './pages/User/HomeAppliences.jsx';
+import GroceryPage from './pages/User/GroceryPage.jsx';
+import ElectronicsPage from './pages/User/ElectronicsPage.jsx';
+import FurniturePage from './pages/User/FurniturePage.jsx';
+import CraftsPaintings from './pages/User/CraftsPaintings.jsx';
 import UserAllOrder from './pages/UserAllOrder.jsx';
-import UserCardPage from './pages/UserCardPage.jsx';
-import UserAddressPage from './pages/UserAddressPage.jsx';
+import UserCardPage from './pages/User/UserCardPage.jsx';
+import UserAddressPage from './pages/User/UserAddressPage.jsx';
 import ContactUsPage from './pages/ContactUsPage.jsx';
 import ShopConfirmedOrderPage from './pages/Shop/ShopConfirmedOrderPage.jsx';
+import SellerCreate from './components/Shop/SellerCreate.jsx';
+import ShopCreate from './components/Shop/ShopCreate.jsx';
 
 
 
@@ -256,7 +270,16 @@ const App = ({ data }) => {
           <Route path='/user/track/order/:id' element={<ProtectedRoute ><TrackOrderPage /></ProtectedRoute>} />
 
 
-          <Route path='/shop-create' element={<ShopCreatePage />} />
+          {/* <Route path='/shop-create' element={<ShopCreatePage />} /> */}
+          <Route path='/shop-welcome' element={<ShopHeroPage />} />
+          <Route path='/shop/activate-profile' element={<ActivateProfilePage />} />
+          
+          <Route path='/shop/sell-online' element={<SellOnlinePage />} />
+          <Route path='/shop/shop-commission' element={<ShopCommissionPage />} />
+          <Route path='/shop/shipping-return' element={<ShopShippingReturnPage />} />
+
+          
+          <Route path='/shop-create' element={<ShopCreate />} />
           <Route path='/shop-login' element={<ShopLoginPage />} />
           <Route path='/shop/:id' element={<SellerProtectedRoute  ><ShopHomePage /></SellerProtectedRoute>} />
           <Route path='/dashboard' element={<SellerProtectedRoute  ><ShopDashboardPage /></SellerProtectedRoute>} />
@@ -264,7 +287,9 @@ const App = ({ data }) => {
           <Route path='/dashboard/brand' element={<SellerProtectedRoute ><BrandPage /></SellerProtectedRoute>} />
 
           <Route path='/dashboard-create-product' element={<SellerProtectedRoute ><ShopCreateProduct /></SellerProtectedRoute>} />
+          <Route path='/dashboard/catalog/upload-catalog' element={<SellerProtectedRoute ><UploadProductPage /></SellerProtectedRoute>} />
           <Route path='/dashboard-products' element={<SellerProtectedRoute ><ShopAllProducts /></SellerProtectedRoute>} />
+          <Route path='/dashboard/pending/order' element={<SellerProtectedRoute ><ShopPendingOrderPage /></SellerProtectedRoute>} />
           <Route path='/dashboard/confirmed/order' element={<SellerProtectedRoute ><ShopConfirmedOrderPage /></SellerProtectedRoute>} />
           <Route path='/dashboard/packaging/order' element={<SellerProtectedRoute ><ShopPackagingOrderPage /></SellerProtectedRoute>} />
           <Route path='/dashboard/shipped/order' element={<SellerProtectedRoute ><ShippedOrderPage /></SellerProtectedRoute>} />
@@ -294,6 +319,14 @@ const App = ({ data }) => {
           <Route path='/seller/refund/order/:id' element={<SellerProtectedRoute ><RefundDetailsPage /></SellerProtectedRoute>} />
           <Route path="/dashboard-withdraw-money" element={<SellerProtectedRoute> <ShopWithDrawMoneyPage /> </SellerProtectedRoute>} />
           <Route path="/dashboard-messages" element={<SellerProtectedRoute> <ShopInboxPage /> </SellerProtectedRoute>} />
+          <Route path="/dashboard/promotion" element={<SellerProtectedRoute ><PromotionPage /></SellerProtectedRoute>} />
+
+          {/* shop campaign */}
+          <Route path="/dashboard-add-campaign" element={<SellerProtectedRoute> <CampaignHeroPage /> </SellerProtectedRoute>} />
+          <Route path="/dashboard-create-campaign" element={<SellerProtectedRoute> <CreateCampaignPage /> </SellerProtectedRoute>} />
+          <Route path="/dashboard/participate-deal/:id" element={<SellerProtectedRoute> <ParticipateDealPage /> </SellerProtectedRoute>} />
+
+          <Route path="/shop/business-dashboard" element={<SellerProtectedRoute> <BusinessDashboardPage /> </SellerProtectedRoute>} />
 
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<ProtectedAdminRoute> <AdminDashboardPage /> </ProtectedAdminRoute>} />
@@ -326,6 +359,8 @@ const App = ({ data }) => {
           <Route path="/admin/dashboard/feature-deal/add-product/:id" element={<ProtectedAdminRoute> <FeatureDealAddProductPage /> </ProtectedAdminRoute>} />
           <Route path="/admin/dashboard/send-notification" element={<ProtectedAdminRoute> <NotificationPage /> </ProtectedAdminRoute>} />
           <Route path="/admin/dashboard/event" element={<ProtectedAdminRoute> <EventPage /> </ProtectedAdminRoute>} />
+
+          <Route path="/admin/dashboard/product/pending" element={<ProtectedAdminRoute> <AdminPendingProductPage /> </ProtectedAdminRoute>} />
 
         </Routes>
         <ToastContainer

@@ -26,7 +26,7 @@ const PendingProduct = () => {
   const navigate = useNavigate()
 
   useEffect(() => {
-    dispatch(getAllProductsShop(seller._id));
+    dispatch(getAllProductsShop(seller?._id));
   }, [dispatch, seller?._id]);
 
   const { allCategory } = useSelector((state) => state?.category);
@@ -71,7 +71,7 @@ const PendingProduct = () => {
       const res = await axios.delete(`${server}/subSubCategory/delete-subSubCategory/${id}`, { withCredentials: true });
       setIsDelete(false)
       toast.success(res.data.message || "Sub sub-Category Deleted");
-      setAllCategories(allSubSubCategory.filter(cat => cat._id !== id));
+      setAllCategories(allSubSubCategory.filter(cat => cat?._id !== id));
       setOpen(false);
       setTimeout(() => {
         window.location.reload()
@@ -99,7 +99,7 @@ const PendingProduct = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     const filterProduct = pendingProducts?.filter((product) =>
-      product?.name.toLowerCase().includes(searchTearm.toLowerCase())
+      product?.name.toLowerCase().includes(searchTearm?.toLowerCase())
     );
     setSearchData(filterProduct);
   };

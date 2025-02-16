@@ -1,30 +1,20 @@
-import React, { useState } from 'react'
-import DashboardHeader from '../../components/Shop/Layout/DashboardHeader'
-import DemoSideBar from '../../components/Shop/Layout/DemoSidebar';
-import Coupon from '../../components/Admin/Coupon';
-
+import React, { useState } from "react";
+import DashboardHeader from "../../components/Shop/Layout/DashboardHeader";
+import DemoSideBar from "../../components/Shop/Layout/DemoSidebar";
+import Coupon from "../../components/Admin/Coupon";
 
 const ShopAllCupoun = () => {
   const [navOpen, setNavOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   return (
-    
-
-    <main className='relative'>
+    <div className="flex h-screen overflow-hidden">
       <DashboardHeader navOpen={navOpen} setNavOpen={setNavOpen} />
+      <DemoSideBar active={5} navOpen={navOpen} setNavOpen={setNavOpen} open={open} setOpen={setOpen} />
+      <Coupon sidebarOpen={open} setSidebarOpen={setOpen}  />
+    </div>
+  );
+};
 
-      <div className='flex  w-full'>
+export default ShopAllCupoun;
 
-        <DemoSideBar active={5} navOpen={navOpen} setNavOpen={setNavOpen} />
 
-        <section className='flex w-full min-h-screen  flex-1 flex-col px-0 pb-5 pt-1 max-md:pb-14 sm:px-0'>
-          <div className='w-full'>
-            <Coupon />
-          </div>
-
-        </section>
-      </div>
-    </main>
-  )
-}
-
-export default ShopAllCupoun

@@ -88,8 +88,6 @@ const UpdateCategory = () => {
         }
     }, [error, success, navigate, uploadSuccess]);
 
-    
-
     return (
         <div className='w-full min-h-screen p-5 bg-gray-200 flex flex-col'>
             <div className='flex items-center gap-2'>

@@ -94,7 +94,7 @@ import "react-multi-carousel/lib/styles.css";
 import Countdown from 'react-countdown';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import styles from '../../../styles/styles';
+
 import axios from 'axios';
 import { server } from '../../../server';
 

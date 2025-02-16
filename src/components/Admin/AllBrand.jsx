@@ -214,6 +214,7 @@ const AllBrand = () => {
                 title="Delete Confirmation"
                 message="Are you sure you want to delete this Brand?"
                 isDelete={isDelete}
+                buttonText={"Confirm Delete!"}
             />
         </div>
     )

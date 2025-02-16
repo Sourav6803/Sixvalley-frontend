@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 import { loadSeller } from "../../redux/actions/user";
 import { AiOutlineDelete } from "react-icons/ai";
 
-const WithdrawMoney = () => {
+const WithdrawMoney = ({ sidebarOpen }) => {
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
   const { seller } = useSelector((state) => state.seller);
@@ -102,7 +102,11 @@ const WithdrawMoney = () => {
   const availableBalance = seller?.availableBalance?.toFixed(2);
 
   return (
-    <div className="w-full h-[90vh] p-8">
+    <div
+      className={`w-full  ${
+        sidebarOpen ? "md:ml-72" : "md:ml-20"
+      } mt-20 h-[calc(100vh-80px)] overflow-y-auto p-1 md:p-3`}
+    >
       <div className="w-full bg-white h-full rounded flex items-center justify-center flex-col">
         <h5 className="text-[20px] pb-4">
           Available Balance: ₹{availableBalance}

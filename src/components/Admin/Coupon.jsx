@@ -10,7 +10,7 @@ import Modal from '../../utils/Modal';
 import { AiFillDelete } from "react-icons/ai";
 
 
-const Coupon = () => {
+const Coupon = ({sidebarOpen}) => {
     const { allCategory } = useSelector((state) => state?.category);
 
     const { success, error } = useSelector((state) => state?.subSubCategory);
@@ -251,7 +251,9 @@ const Coupon = () => {
     };
 
     return (
-        <div className='w-full p-2 lg:p-5 bg-gray-200'>
+        <div  className={`w-full  ${
+            sidebarOpen ? "md:ml-72" : "md:ml-20"
+          } mt-20 h-[calc(100vh-80px)] overflow-y-auto p-1 md:p-3 `}>
             <div className='flex items-center gap-2'>
                 <img src={Layout} alt='layout' className='h-5' />
                 <h3 className="text-[20px] text-slate-600 font-Poppins font-semibold">Coupon Setup</h3>

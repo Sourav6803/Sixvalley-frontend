@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import {  useSearchParams } from "react-router-dom";
 import Footer from "../components/Layout/Footer";
 import Header from "../components/Layout/Header";
 import Loader from "../components/Layout/Loader";
@@ -12,7 +12,7 @@ const ProductSubcategoryPage = () => {
   const subCategoryData = searchParams.get("subCategory");
   const {allProducts,isLoading} = useSelector((state) => state.products);
   const [data, setData] = useState([]);
-  const navigate = useNavigate()
+ 
 
   useEffect(() => {
     if (subCategoryData === null) {
@@ -22,12 +22,9 @@ const ProductSubcategoryPage = () => {
       const d = allProducts && allProducts.filter((i) => i.subCategory === subCategoryData);
       setData(d);
     }
-  }, [allProducts]);
+  }, [allProducts, subCategoryData]);
 
-  const handleSubmit = async(i) => {
-        
-    navigate(`/productsss?subCategory=${i}`)
-}
+ 
 
   return (
   <>

@@ -33,6 +33,7 @@ const BestDeals = () => {
       .then(res => {
         const deals = res.data?.data || [];
         const activeDeal = deals.find(deal => deal.publish === true);
+        console.log(activeDeal)
         setDeal(activeDeal);
         setLoading(false);
       })
@@ -93,7 +94,7 @@ const BestDeals = () => {
           <Countdown date={new Date(deal.expireDate).getTime()} renderer={renderer} />
         </div>
       </div>
-      <Carousel 
+      <Carousel
         responsive={responsive}
         swipeable={true}
         draggable={true}

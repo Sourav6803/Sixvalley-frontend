@@ -14,6 +14,13 @@ const RecentClicked = () => {
     const [recommendations, setRecommendations] = useState([]);
 
     useEffect(() => {
+
+        if (!user?._id) {
+            // If user is not logged in, stop loading and don't fetch data
+            setIsLoading(false);
+            return;
+        }
+
         const fetchRecommendations = async () => {
             setIsLoading(true); // Set loading state to true when starting the fetch
             setError(null); // Reset error state before fetching
@@ -36,6 +43,8 @@ const RecentClicked = () => {
         }
     }, [user?._id]);
 
+
+
     const navigate = useNavigate()
 
     // const filterRecomendation = recommendations && recommendations.filter((product) => product.type === "search")
@@ -48,8 +57,6 @@ const RecentClicked = () => {
             }
             return acc;
         }, []);
-
-
 
     return (
         <div className="py-4">
@@ -74,7 +81,7 @@ const RecentClicked = () => {
 
             {/* Horizontal scrollable section */}
             <div className="flex gap-4 overflow-x-auto whitespace-nowrap px-4 py-2">
-                {filterRecomendation.length > 0 ? (
+                {filterRecomendation?.length > 0 ? (
                     filterRecomendation.map((product) => (
                         <div
                             key={product?._id}
@@ -97,23 +104,23 @@ const RecentClicked = () => {
                         </div>
                     ))
                 ) : (
-                    allProducts?.slice(10, 14).map((product) => (
+                    allProducts?.slice(10, 17).map((product) => (
                         <div
                             key={product?._id}
                             className="rounded-lg flex flex-col items-center min-w-[150px] p-2 shadow-md bg-white hover:shadow-lg transition-shadow"
-                            onClick={() => navigate(`/product/${product?.product?._id}`)}
+                            onClick={() => navigate(`/product/${product?._id}`)}
                         >
-                            {/* Fixed image size */}
+                            
                             <img
-                                src={product?.product?.images[0].url}
-                                alt={product?.product?.category}
+                                src={product?.images[0].url}
+                                alt={product?.category}
                                 className="w-[150px] h-[150px] object-cover mb-2 rounded-lg"
                             />
                             <h3 className="text-sm font-semibold text-center text-gray-700 truncate">
-                                {product?.product?.category}
+                                {product?.category}
                             </h3>
-                            <p className="text-sm text-gray-500 truncate  text-center">
-                                {product?.product?.subCategory}
+                            <p className="text-sm text-slate-500 truncate px-2 text-center">
+                                {product?.subCategory?.length > 15 ? product?.subCategory?.slice(0,15) + "..." : product?.subCategory }
                             </p>
                             <p className="text-sm text-gray-600 font-medium">Starting ₹99</p>
                         </div>

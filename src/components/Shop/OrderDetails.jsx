@@ -4,7 +4,7 @@ import { BsFillBagFill } from "react-icons/bs";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllOrdersOfShop } from "../../redux/actions/order";
-import { backend_url, server } from "../../server";
+import { server } from "../../server";
 import axios from "axios";
 import { toast } from "react-toastify";
 import styles from "../../styles/styles"; // Ensure the styles are updated accordingly
@@ -163,7 +163,6 @@ const OrderDetails = () => {
                 <div className="flex flex-col space-y-6 lg:flex-row lg:space-x-8 lg:space-y-0 ">
 
                     <div className="lg:w-2/3 bg-slate-50 p-2 rounded-md">
-
                         <h4 className="font-semibold text-lg ">Product Basic Info:</h4>
                         {
                             data?.cart?.map((product, index) => (
@@ -177,11 +176,9 @@ const OrderDetails = () => {
                                 </div>
                             ))
                         }
-
                     </div>
 
                     <div className="lg:w-2/3 bg-slate-50 p-2 rounded-md">
-
                         <h4 className="font-semibold text-lg ">Pricing Info:</h4>
                         {
                             data?.cart?.map((product) => (
@@ -198,15 +195,12 @@ const OrderDetails = () => {
                     </div>
 
                     <div className="lg:w-2/3 bg-slate-50 p-2 rounded-md">
-
                         <h4 className="font-semibold text-lg ">Shipping Address:</h4>
                         <p className="text-gray-500">{data?.shippingAddress?.address1}</p>
                         <p className="text-gray-500"> {data?.shippingAddress?.address2}</p>
                         <p className="text-gray-500">{data?.shippingAddress?.city}, {data?.shippingAddress?.country}</p>
                         <p className="text-gray-500">Phone: {data?.user?.phoneNumber}</p>
                     </div>
-
-                    
                 </div>
 
                 {/* Total price */}
@@ -224,12 +218,12 @@ const OrderDetails = () => {
                             className="w-full max-w-xs border rounded-md p-2 mt-2"
                         >
                             {[
-                                "Confirmed", "Packaging", "Shipped", "On the way",
+                                "Pending","Confirmed", "Packaging", "Shipped", "On the way",
                                 "Out for delivery", "Delivered", "Canceled", "Failed to Deliver", "Returned"
                             ]
                                 .slice(
                                     [
-                                        "Confirmed", "Packaging", "Shipped", "On the way",
+                                        "Pending","Confirmed", "Packaging", "Shipped", "On the way",
                                         "Out for delivery", "Delivered", "Canceled", "Failed to Deliver", "Returned"
                                     ].indexOf(data?.status)
                                 )

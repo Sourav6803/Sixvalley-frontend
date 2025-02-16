@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import DashboardHeader from '../../components/Shop/Layout/DashboardHeader'
 import CreateEvent from "../../components/Shop/CreateEvent";
-import DashboardSideBar from '../../components/Shop/Layout/DashboardSidebar';
 import DemoSideBar from '../../components/Shop/Layout/DemoSidebar';
 
 

@@ -1,7 +1,8 @@
+import React, { useState } from 'react';
 import { styled } from '@mui/material';
 import Carousel from 'react-multi-carousel';
 import { useSelector } from 'react-redux';
-import { useHistory, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 
 const responsive = {
@@ -21,10 +22,10 @@ const responsive = {
 
 const Image = styled('img')(({ theme }) => ({
     width: '100%',
-    height: 280,
+    height: 240,
     objectFit: 'cover',
     [theme.breakpoints.down('sm')]: {
-        height: 180,
+        height: 160,
     },
     loading: 'lazy' // Add lazy loading
 }));
@@ -33,63 +34,77 @@ const Banner = () => {
 
     const { allBanner } = useSelector(state => state.banner)
     const mainbanner = allBanner?.filter(banner => banner?.bannerType === "Main Banner")
+    const [loading, setLoading] = useState(false); // loading state
 
     const navigate = useNavigate();
 
     const handleBannerClick = (banner) => {
-       
-        switch (banner.resourceType) {
-            case 'Product':
-                navigate(`/product/${banner.resourceValue}`);
-                break;
-            case 'Category':
-                navigate(`/products/category/${banner.resourceValue}`);
-                break;
-            case 'Shop':
-                navigate(`/shop/${banner.resourceValue}`);
-                break;
-            case 'Brand':
-                navigate(`/brand/${banner.resourceValue}`);
-                break;
-            case 'URL':
-                window.location.href = banner.resourceValue;
-                break;
-            default:
-                break;
-        }
+        setLoading(true);
+        setTimeout(() => {
+            switch (banner.resourceType) {
+                case 'Product':
+                    navigate(`/product/${banner.resourceValue}`);
+                    break;
+                case 'Category':
+                    navigate(`/products/category/${banner.resourceValue}`);
+                    break;
+                case 'Shop':
+                    navigate(`/shop/${banner.resourceValue}`);
+                    break;
+                case 'Brand':
+                    navigate(`/brand/${banner.resourceValue}`);
+                    break;
+                case 'URL':
+                    window.location.href = banner.resourceValue;
+                    break;
+                default:
+                    break;
+            }
+            setLoading(false)
+        }, 2000)
+
     };
 
 
     return (
-        <div className='p-1 mt-[5px] bg-white'>
-            <Carousel
-                swipeable={true}
-                draggable={false}
-                responsive={responsive}
-                infinite={true}
-                autoPlay={true}
-                autoPlaySpeed={3000}
-                removeArrowOnDeviceType={["tablet", "mobile"]}
-                keyBoardControl={true}
-                showDots={true}
-                slidesToSlide={1}
-                containerClass="carousel-container"
-                dotListClass="custom-dot-list-style"
-                itemClass="carousel-item-padding-40-px"
-            >
-                {
-                    Array.isArray(mainbanner) && mainbanner?.map(banner => (
-                        <div key={banner?._id} onClick={() => handleBannerClick(banner)} style={{ cursor: 'pointer' }}>
-                            <Image
-                                src={banner?.bannerImg.url}
-                                alt="banner"
-                                id={banner?._id}
-                            />
-                        </div>
-                    ))
-                }
-            </Carousel>
+        <div className='relative mt-1'>
+            {loading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10">
+                    <div className="loader"></div>
+                </div>
+            )}
+
+            <div className='p-1 mt-[5px] bg-white'>
+                <Carousel
+                    swipeable={true}
+                    draggable={false}
+                    responsive={responsive}
+                    infinite={true}
+                    autoPlay={true}
+                    autoPlaySpeed={3000}
+                    removeArrowOnDeviceType={["tablet", "mobile"]}
+                    keyBoardControl={true}
+                    showDots={true}
+                    slidesToSlide={1}
+                    containerClass="carousel-container"
+                    dotListClass="custom-dot-list-style"
+                    itemClass="carousel-item-padding-40-px"
+                >
+                    {
+                        Array.isArray(mainbanner) && mainbanner?.map(banner => (
+                            <div key={banner?._id} onClick={() => handleBannerClick(banner)} style={{ cursor: 'pointer' }}>
+                                <Image
+                                    src={banner?.bannerImg.url}
+                                    alt="banner"
+                                    id={banner?._id}
+                                />
+                            </div>
+                        ))
+                    }
+                </Carousel>
+            </div>
         </div>
+
     )
 }
 

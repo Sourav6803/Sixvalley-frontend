@@ -16,7 +16,7 @@ const Cart = ({ setOpenCart , handleCartClose}) => {
     const { cart } = useSelector((state) => state?.cart);
     const [loading, setLoading] = useState(false)
     const dispatch = useDispatch();
-    console.log(cart)
+    
 
     const removeFromCartHandler = (data) => {
         dispatch(removeFromCart(data));
@@ -48,8 +48,7 @@ const Cart = ({ setOpenCart , handleCartClose}) => {
 
     const totalCartPrice = totalPrice + fixedDeliveryCharge 
 
-    console.log("total price :", totalPrice)
-    console.log("shipping :", shipping)
+  
 
 
     const quantityChangeHandler = (data) => {
@@ -216,7 +215,7 @@ const CartSingle = ({ data, quantityChangeHandler, removeFromCartHandler }) => {
         quantityChangeHandler(updateCartData);
     };
 
-    console.log(data)
+    
 
 
     return (

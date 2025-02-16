@@ -1,27 +1,19 @@
-import React, { useState } from 'react'
-import DashboardHeader from '../../components/Shop/Layout/DashboardHeader'
-import DashboardSideBar from '../../components/Shop/Layout/DashboardSidebar'
-
-import ProductReport from '../../components/Shop/ProductReport'
+import React, { useState } from "react";
+import DashboardHeader from "../../components/Shop/Layout/DashboardHeader";
+import ProductReport from "../../components/Shop/ProductReport";
+import DemoSideBar from "../../components/Shop/Layout/DemoSidebar";
 
 const ProductReortPage = () => {
-    const [navOpen, setNavOpen] = useState(false);
-    return (
-        <main className='relative'>
-            <DashboardHeader navOpen={navOpen} setNavOpen={setNavOpen} />
+  const [navOpen, setNavOpen] = useState(false);
+   const [open, setOpen] = useState(true);
+  return (
+    <div className="flex h-screen overflow-hidden">
+      <DashboardHeader navOpen={navOpen} setNavOpen={setNavOpen} />
+      <DemoSideBar active={4} navOpen={navOpen} setNavOpen={setNavOpen} open={open} setOpen={setOpen} />
 
-            <div className='flex  w-full'>
+      <ProductReport sidebarOpen={open} setOpen={setOpen} />
+    </div>
+  );
+};
 
-                <DashboardSideBar active={4} navOpen={navOpen} setNavOpen={setNavOpen} />
-
-                <section className='flex w-full min-h-screen  flex-1 flex-col px-0 pb-5 pt-1 max-md:pb-14 sm:px-0'>
-                    <div className='w-full'>
-                        <ProductReport />
-                    </div>
-                </section>
-            </div>
-        </main>
-    )
-}
-
-export default ProductReortPage
+export default ProductReortPage;

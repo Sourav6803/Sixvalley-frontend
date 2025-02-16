@@ -12,7 +12,7 @@ import { AiFillDelete, AiOutlinePlus } from "react-icons/ai";
 import { createBanner, getAllBanner } from '../../redux/actions/banner';
 import { Switch } from '@mui/material';
 
-const allBannerType = ["Header Banner","Main Banner", "Popup Banner", "Footer Banner", "Main Section Banner"];
+const allBannerType = ["Header Banner", "Main Banner", "Popup Banner", "Footer Banner", "Main Section Banner"];
 const allResource = ["Product", "Category", "Shop", "Brand", "Event", "Personal", "Informatoonal"];
 
 const Banner = () => {
@@ -134,7 +134,6 @@ const Banner = () => {
         // setIsModalOpen(true);
     };
 
-
     useEffect(() => {
         if (error) {
             setIsSubmitting(false);
@@ -171,7 +170,7 @@ const Banner = () => {
     };
 
     return (
-        <div className='w-full p-5 bg-gray-200'>
+        <div className='w-full p-2 bg-gray-200'>
             <div className='flex items-center gap-2'>
                 <img src={Layout} alt='layout' className='h-5' />
                 <h3 className="text-[20px] text-slate-600 font-Poppins font-semibold">Banner Setup</h3>
@@ -268,7 +267,7 @@ const Banner = () => {
                                         {image ? (
                                             <img src={URL.createObjectURL(image)} alt="avatar" className="h-full w-full object-cover" />
                                         ) : (
-                                            <img src="https://6valley.6amtech.com/public/assets/back-end/img/image-place-holder.png" alt="User" className="h-full w-full object-cover" />
+                                            <img src="https://6valley.6amtech.com/public/assets/back-end/img/image-place-holder.png" alt="User" className="h-full  object-cover" />
                                         )}
                                     </div>
                                 </div>
@@ -473,3 +472,98 @@ const Banner = () => {
 };
 
 export default Banner;
+
+
+// import React, { useState } from "react";
+
+// const Banner = () => {
+//   const [title, setTitle] = useState("");
+//   const [filters, setFilters] = useState({
+//     discount: 0,
+//     minPrice: 0,
+//     maxPrice: 0,
+//   });
+//   const [buttonText, setButtonText] = useState("");
+//   const [buttonLink, setButtonLink] = useState("");
+
+//   const handleSubmit = async () => {
+//     const payload = {
+//       title,
+//       filters: {
+//         discount: filters.discount,
+//         priceRange: { min: filters.minPrice, max: filters.maxPrice },
+//       },
+//       button: { text: buttonText, link: buttonLink },
+//     };
+
+//     await fetch("/api/admin/sections", {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify(payload),
+//     });
+//   };
+
+//   return (
+//     <div className="p-6 bg-white shadow-md rounded-lg">
+//       <h2 className="text-xl font-semibold mb-4">Configure Section</h2>
+
+//       <label>Section Title:</label>
+//       <input
+//         className="w-full p-2 border rounded mt-2"
+//         value={title}
+//         onChange={(e) => setTitle(e.target.value)}
+//         placeholder="e.g., Today's Price Crash"
+//       />
+
+//       <label>Minimum Discount:</label>
+//       <input
+//         className="w-full p-2 border rounded mt-2"
+//         type="number"
+//         value={filters.discount}
+//         onChange={(e) => setFilters({ ...filters, discount: e.target.value })}
+//       />
+
+//       <label>Price Range:</label>
+//       <div className="flex gap-4">
+//         <input
+//           className="w-1/2 p-2 border rounded mt-2"
+//           type="number"
+//           placeholder="Min Price"
+//           onChange={(e) => setFilters({ ...filters, minPrice: e.target.value })}
+//         />
+//         <input
+//           className="w-1/2 p-2 border rounded mt-2"
+//           type="number"
+//           placeholder="Max Price"
+//           onChange={(e) => setFilters({ ...filters, maxPrice: e.target.value })}
+//         />
+//       </div>
+
+//       <label>Button Text:</label>
+//       <input
+//         className="w-full p-2 border rounded mt-2"
+//         value={buttonText}
+//         onChange={(e) => setButtonText(e.target.value)}
+//         placeholder="e.g., Shop Now"
+//       />
+
+//       <label>Button Link:</label>
+//       <input
+//         className="w-full p-2 border rounded mt-2"
+//         value={buttonLink}
+//         onChange={(e) => setButtonLink(e.target.value)}
+//         placeholder="https://example.com"
+//       />
+
+//       <button
+//         className="mt-4 bg-blue-500 text-white p-2 rounded"
+//         onClick={handleSubmit}
+//       >
+//         Save Section
+//       </button>
+//     </div>
+//   );
+// };
+
+// export default Banner;
+

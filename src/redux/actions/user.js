@@ -33,7 +33,7 @@ export const loadSeller = () => async (dispatch) => {
       withCredentials: true,
     });
 
-    console.log("selelr from redux:",data)
+    
     dispatch({
       type: "LoadSellerSuccess",
       payload: data.seller,

@@ -90,10 +90,6 @@ const UpdateBrand = () => {
                 navigate("/admin/dashboard/all-brand")
                 window.location.reload()
             },200)
-
-            
-            
-            
         }
     }, [error, success, navigate, uploadSuccess]);
 

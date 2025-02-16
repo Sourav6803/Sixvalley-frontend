@@ -16,15 +16,15 @@ import { adminSubMenus } from "../../static/data";
 const AdminHeader = ({ navOpen, setNavOpen }) => {
   const { admin } = useSelector((state) => state.admin);
 
-  const [active, setActive] = useState(false)
+  // const [active, setActive] = useState(false)
 
-  window.addEventListener("scroll", () => {
-    if (window.scrollY > 70) {
-      setActive(true)
-    } else {
-      setActive(false)
-    }
-  })
+  // window.addEventListener("scroll", () => {
+  //   if (window.scrollY > 70) {
+  //     setActive(true)
+  //   } else {
+  //     setActive(false)
+  //   }
+  // })
 
   const [subMenuOpen, setSubMenuOpen] = useState(null);
 
@@ -41,7 +41,7 @@ const AdminHeader = ({ navOpen, setNavOpen }) => {
   return (
 
     <>
-      <div className="w-full  h-[80px] shadow sticky top-0 left-0 z-30 flex items-center justify-between px-4 bg-white border border-red-400">
+      <div className="w-full  h-[80px] shadow sticky top-0 left-0 z-30 flex items-center justify-between px-4 bg-white ">
         <div className=" flex items-center md:gap-5 gap-2">
           <div className="md:hidden">
             <GiHamburgerMenu size={30} onClick={() => setNavOpen(true)} />
@@ -51,8 +51,6 @@ const AdminHeader = ({ navOpen, setNavOpen }) => {
               <img src={mainLogo} alt="Main Logo" className="h-[50px]" />
             </Link>
           </div>
-
-
         </div>
 
         <div className="flex items-center">
