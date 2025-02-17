@@ -53,9 +53,6 @@ const ActivateProfilePage = () => {
     }
   };
 
-  // console.log("seller---", sellerData)
-
-
   const handleNextStep = () => {
     setCompletedSteps((prev) => Math.min(prev + 1, 4)); // Ensure the value doesn't exceed 4
   };
@@ -66,7 +63,7 @@ const ActivateProfilePage = () => {
 
    // Render components based on the current step
    const renderStep = () => {
-    switch (2)  {
+    switch (completedSteps)  {
       case 1:
         return <PickupDetails onNext={handleNextStep} completedSteps={1} onDataUpdate={(data) => handleDataUpdate("pickupAddress", data)} />;
       case 2:
