@@ -11,20 +11,38 @@ const CategorySelector = ({primaryImage , setPrimaryImage, selectedCategory, set
   const [suggestions, setSuggestions] = useState([]);
   const [allCategories, setAllCategories] = useState([]);
   const [path, setPath] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   // Fetch all categories when the component mounts
+  // useEffect(() => {
+  //   const fetchAllCategories = async () => {
+  //     setLoading(true);
+  //     try {
+  //       const response = await axios.get(
+  //         `${serverTwo}/category/all`
+  //       ); // Adjust endpoint as necessary
+  //       setAllCategories(response.data.categories);
+  //     } catch (error) {
+  //       console.error("Error fetching categories:", error);
+  //     }
+  //   };
+
+  //   fetchAllCategories();
+  // }, []);
+
   useEffect(() => {
     const fetchAllCategories = async () => {
+      setLoading(true);
       try {
-        const response = await axios.get(
-          `${serverTwo}/category/all`
-        ); // Adjust endpoint as necessary
-        setAllCategories(response.data.categories);
+        const { data } = await axios.get(`${serverTwo}/category/all`);
+        setAllCategories(data?.categories || []);
       } catch (error) {
-        console.error("Error fetching categories:", error);
+        console.error("Failed to fetch categories:", error);
+      } finally {
+        setLoading(false);
       }
     };
-
+  
     fetchAllCategories();
   }, []);
 
@@ -108,7 +126,7 @@ const CategorySelector = ({primaryImage , setPrimaryImage, selectedCategory, set
       </div>
 
       <div className="mt-6">
-        <MultilevelDropdown categories={allCategories} path={path} primaryImage={primaryImage} 
+        <MultilevelDropdown loading={loading} categories={allCategories} path={path} primaryImage={primaryImage} 
           setPrimaryImage={setPrimaryImage} selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} productFormOpen={productFormOpen} 
           setProductFormOpen={setProductFormOpen}  />
       </div>

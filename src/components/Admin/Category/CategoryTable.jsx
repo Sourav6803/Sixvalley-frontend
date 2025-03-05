@@ -9,6 +9,7 @@ import axios from "axios";
 import { serverTwo } from "../../../server";
 
 
+
 const CategoryTable = ({ categories, onSelect }) => {
   const [expanded, setExpanded] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -21,6 +22,15 @@ const CategoryTable = ({ categories, onSelect }) => {
   const [selectedAttribute, setSelectedAttribute] = useState(null);
 
   const [isFormValid, setIsFormValid] = useState(false);
+  const [newAttributeSections, setNewAttributeSections] = useState([
+    {
+      sectionName: "", // Name of the section
+      attributes: [
+        { name: "", type: "text", unit: "", values: [], options: [] },
+      ],
+    },
+  ]); // Now includes sections
+  
 
   const attributesRef = useRef(newAttributes);
 
@@ -29,24 +39,71 @@ const CategoryTable = ({ categories, onSelect }) => {
     attributesRef.current = newAttributes;
   }, [newAttributes]);
 
-  const addNewAttribute = () => {
-    setNewAttributes([
-      ...newAttributes,
-      { name: "", type: "text", unit: "", values: [], options: [] },
+  // const addNewAttribute = () => {
+  //   setNewAttributes([
+  //     ...newAttributes,
+  //     { name: "", type: "text", unit: "", values: [], options: [] },
+  //   ]);
+  // };
+
+  // Add New Section
+  const addNewSection = () => {
+    setNewAttributeSections([
+      ...newAttributeSections,
+      {
+        sectionName: "",
+        attributes: [{ name: "", type: "text", unit: "", values: [], options: [] }],
+      },
     ]);
+  }
+
+  // Add New Attribute inside a Section
+  const addNewAttribute = (sectionIndex) => {
+    const updatedSections = [...newAttributeSections];
+    updatedSections[sectionIndex].attributes.push({
+      name: "",
+      type: "text",
+      unit: "",
+      values: [],
+      options: [],
+    });
+    setNewAttributeSections(updatedSections);
   };
 
-  const handleAttributeChange = (index, key, value) => {
-    const updatedAttributes = [...newAttributes];
-    updatedAttributes[index][key] = value;
+  const attributeSectionsRef = useRef(newAttributeSections);
+
+  // Update the ref whenever attributes change
+  useEffect(() => {
+    attributeSectionsRef.current = newAttributeSections;
+  }, [newAttributeSections]);
+
+    // const handleAttributeChange = (index, key, value) => {
+    //   const updatedAttributes = [...newAttributes];
+    //   updatedAttributes[index][key] = value;
+
+    //   if (key === "type" && value === "select") {
+    //     updatedAttributes[index].options = [];
+    //   }
+    //   if (key === "type" && value !== "select") {
+    //     updatedAttributes[index].options = undefined;
+    //   }
+    //   setNewAttributes(updatedAttributes);
+    // };
+
+
+    // Handle Changes in Attributes
+  const handleAttributeChange = (sectionIndex, attrIndex, key, value) => {
+    const updatedSections = [...newAttributeSections];
+    updatedSections[sectionIndex].attributes[attrIndex][key] = value;
 
     if (key === "type" && value === "select") {
-      updatedAttributes[index].options = [];
+      updatedSections[sectionIndex].attributes[attrIndex].options = [];
     }
     if (key === "type" && value !== "select") {
-      updatedAttributes[index].options = undefined;
+      updatedSections[sectionIndex].attributes[attrIndex].options = undefined;
     }
-    setNewAttributes(updatedAttributes);
+    
+    setNewAttributeSections(updatedSections);
   };
 
   const toggleExpand = (id) => {
@@ -71,58 +128,110 @@ const CategoryTable = ({ categories, onSelect }) => {
     setIsFormOpen(true);
   };
 
-  const validateForm = () => {
-    const isValid = newAttributes.every((attr) => {
-      // Attribute Name should not be empty
-      if (attr.name.trim().length === 0) return false;
+  // const validateForm = () => {
+  //   const isValid = newAttributes.every((attr) => {
+  //     // Attribute Name should not be empty
+  //     if (attr.name.trim().length === 0) return false;
 
-      // If type is "select", there should be at least one option
-      if (
-        attr.type === "select" &&
-        (!attr.options || attr.options.length === 0)
-      ) {
-        return false;
-      }
+  //     // If type is "select", there should be at least one option
+  //     if (
+  //       attr.type === "select" &&
+  //       (!attr.options || attr.options.length === 0)
+  //     ) {
+  //       return false;
+  //     }
 
-      return true; // Valid attribute
-    });
+  //     return true; // Valid attribute
+  //   });
 
-    return isValid;
-  };
+  //   return isValid;
+  // };
 
   useEffect(() => {
     setIsFormValid(validateForm());
   }, [newAttributes]);
 
-  const handleFormSubmit = async (e) => {
-    const stringfyAtributes = JSON.stringify(newAttributes);
-    e.preventDefault();
-    try {
-      const res = await addAttributes({
-        categoryId: selectedCategory._id,
-        newAttributes: stringfyAtributes,
-      });
-
-      if (res.data) {
-        toast.success("Attributes added successfully");
+  // Validate Form Before Submission
+const validateForm = () => {
+  return newAttributeSections.every((section) =>
+    section.attributes.every((attr) => {
+      if (attr.name.trim().length === 0) return false;
+      if (attr.type === "select" && (!attr.options || attr.options.length === 0)) {
+        return false;
       }
+      return true;
+    })
+  );
+};
 
-      setIsFormOpen(false);
-      setNewAttributes([]);
+  // const handleFormSubmit = async (e) => {
+  //   const stringfyAtributes = JSON.stringify(newAttributes);
+  //   e.preventDefault();
+  //   try {
+  //     const res = await addAttributes({
+  //       categoryId: selectedCategory._id,
+  //       newAttributes: stringfyAtributes,
+  //     });
 
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
-    } catch (error) {
-      console.error("Failed to add attributes:", error);
-      toast.error("Failed to add attributes");
+  //     if (res.data) {
+  //       toast.success("Attributes added successfully");
+  //     }
+
+  //     setIsFormOpen(false);
+  //     setNewAttributes([]);
+
+  //     setTimeout(() => {
+  //       window.location.reload();
+  //     }, 1000);
+  //   } catch (error) {
+  //     console.error("Failed to add attributes:", error);
+  //     toast.error("Failed to add attributes");
+  //   }
+  // };
+
+  // const removeAttribute = (index) => {
+  //   const updatedAttributes = newAttributes.filter((_, i) => i !== index);
+  //   setNewAttributes(updatedAttributes);
+  // };
+
+
+  // Remove an Attribute from a Section
+
+// Handle Form Submission
+const handleFormSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    const res = await addAttributes({
+      categoryId: selectedCategory._id,
+      newAttributes: JSON.stringify(newAttributeSections),
+    });
+
+    if (res.data) {
+      toast.success("Attributes added successfully");
     }
-  };
 
-  const removeAttribute = (index) => {
-    const updatedAttributes = newAttributes.filter((_, i) => i !== index);
-    setNewAttributes(updatedAttributes);
-  };
+    setIsFormOpen(false);
+    setNewAttributeSections([]);
+
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
+  } catch (error) {
+    console.error("Failed to add attributes:", error);
+    toast.error("Failed to add attributes");
+  }
+};
+
+
+  const removeAttribute = (sectionIndex, attrIndex) => {
+  const updatedSections = [...newAttributeSections];
+  updatedSections[sectionIndex].attributes = updatedSections[sectionIndex].attributes.filter(
+    (_, i) => i !== attrIndex
+  );
+  setNewAttributeSections(updatedSections);
+};
+
+
 
   const handleRemoveAttribute = async () => {
     try {
@@ -144,7 +253,55 @@ const CategoryTable = ({ categories, onSelect }) => {
     }
   };
 
-  const renderAttributes = (category, attributes) => (
+  // const renderAttributes = (category, attributeSections) => (
+  //   <div className="p-2 sm:p-4 bg-gray-50 border rounded-lg shadow-sm w-full mx-auto">
+  //     <div className="flex justify-between items-center mb-2 sm:mb-4">
+  //       <h4 className="text-gray-800 font-semibold text-xs sm:text-sm">
+  //         Attributes
+  //       </h4>
+  //       <button
+  //         onClick={() => handleAddMoreClick(category)}
+  //         className="bg-blue-600 hover:bg-blue-700 text-white text-[10px] sm:text-xs py-1 px-2 sm:px-3 rounded"
+  //       >
+  //         + Add More
+  //       </button>
+  //     </div>
+
+  //     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
+  //       {attributeSections.map((attrSection, index) => (
+  //         <div
+  //           key={index}
+  //           className="relative p-2 sm:p-4 border rounded-md bg-white shadow-md text-xs sm:text-sm text-gray-800"
+  //         >
+  //           {/* Remove Button */}
+  //           <button
+  //             onClick={() => {
+  //               setIsRemoveModalOpen(true);
+  //               setSelectedAttribute(attr.name);
+  //               setSelectedCategory(category);
+  //             }}
+  //             className="absolute top-1 right-1 sm:top-2 sm:right-2 text-gray-500 hover:text-red-500"
+  //           >
+  //             <TiDelete className="text-[14px] sm:text-[18px]" />
+  //           </button>
+
+  //           {/* Attribute Details */}
+  //           <div className="truncate">
+  //             <span className="font-medium block text-gray-700">
+  //               {attr.name}
+  //             </span>
+  //           </div>
+  //           <div className="mt-1 text-gray-500">
+  //             <span>Type: {attr.type}</span>
+  //           </div>
+  //         </div>
+  //       ))}
+  //     </div>
+  //   </div>
+  // );
+
+
+  const renderAttributes = (category) => (
     <div className="p-2 sm:p-4 bg-gray-50 border rounded-lg shadow-sm w-full mx-auto">
       <div className="flex justify-between items-center mb-2 sm:mb-4">
         <h4 className="text-gray-800 font-semibold text-xs sm:text-sm">
@@ -157,40 +314,67 @@ const CategoryTable = ({ categories, onSelect }) => {
           + Add More
         </button>
       </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
-        {attributes.map((attr, index) => (
-          <div
-            key={index}
-            className="relative p-2 sm:p-4 border rounded-md bg-white shadow-md text-xs sm:text-sm text-gray-800"
-          >
-            {/* Remove Button */}
-            <button
-              onClick={() => {
-                setIsRemoveModalOpen(true);
-                setSelectedAttribute(attr.name);
-                setSelectedCategory(category);
-              }}
-              className="absolute top-1 right-1 sm:top-2 sm:right-2 text-gray-500 hover:text-red-500"
-            >
-              <TiDelete className="text-[14px] sm:text-[18px]" />
-            </button>
-
-            {/* Attribute Details */}
-            <div className="truncate">
-              <span className="font-medium block text-gray-700">
-                {attr.name}
-              </span>
-            </div>
-            <div className="mt-1 text-gray-500">
-              <span>Type: {attr.type}</span>
+  
+      {category.attributeSections && category.attributeSections.length > 0 ? (
+        category.attributeSections.map((section, sectionIndex) => (
+          <div key={sectionIndex} className="mb-4">
+            <h5 className="font-bold text-gray-700 text-xs sm:text-sm mb-2">
+              {section.sectionName}
+            </h5>
+  
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
+              {section.attributes.map((attr, attrIndex) => (
+                <div
+                  key={attrIndex}
+                  className="relative p-2 sm:p-4 border rounded-md bg-white shadow-md text-xs sm:text-sm text-gray-800"
+                >
+                  {/* Remove Button */}
+                  <button
+                    onClick={() => {
+                      setIsRemoveModalOpen(true);
+                      setSelectedAttribute(attr.name);
+                      setSelectedCategory(category);
+                    }}
+                    className="absolute top-1 right-1 sm:top-2 sm:right-2 text-gray-500 hover:text-red-500"
+                  >
+                    <TiDelete className="text-[14px] sm:text-[18px]" />
+                  </button>
+  
+                  {/* Attribute Details */}
+                  <div className="truncate">
+                    <span className="font-medium block text-gray-700 ">
+                      {attr.name}
+                    </span>
+                  </div>
+                  <div className="mt-1 text-gray-500">
+                    <span>Type: {attr.type}</span>
+                  </div>
+                  {attr.unit && (
+                    <div className="mt-1 text-gray-500">
+                      <span>Unit: {attr.unit}</span>
+                    </div>
+                  )}
+                  {attr.values && attr.values.length > 0 && (
+                    <div className="mt-1 text-gray-500">
+                      <span className="text-[12px]">Values: {attr.values.join(", ")}</span>
+                    </div>
+                  )}
+                  {attr.options && attr.options.length > 0 && (
+                    <div className="mt-1 text-gray-500">
+                      <span className="text-[12px]">Options: {attr.options.join(", ")}</span>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
-        ))}
-      </div>
+        ))
+      ) : (
+        <p className="text-gray-500 text-sm">No attributes available.</p>
+      )}
     </div>
   );
-
+  
   const renderCategoryRow = (category, level = 1) => (
     <div
       key={category._id}
@@ -198,7 +382,7 @@ const CategoryTable = ({ categories, onSelect }) => {
         level === 1 ? "bg-gray-100" : "bg-white"
       }`}
       style={{
-        paddingLeft: `${level * 10}px`,
+        paddingLeft: `${level * 60}px`,
       }}
     >
       <div
@@ -267,7 +451,7 @@ const CategoryTable = ({ categories, onSelect }) => {
         {renderCategoryRow(category, level)}
         {expanded[category._id] &&
           (category.isLeaf
-            ? renderAttributes(category, category.attributes)
+            ? renderAttributes(category, category?.attributeSections)
             : renderCategories(category.children, level + 1))}
       </React.Fragment>
     ));
@@ -276,8 +460,6 @@ const CategoryTable = ({ categories, onSelect }) => {
     <div className="w-full mx-auto mt-5 ">
       <div className="w-full flex items-center ">
         {/* <CategorySelector /> */}
-
-        
       </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden mt-5">
@@ -292,25 +474,25 @@ const CategoryTable = ({ categories, onSelect }) => {
 
       {/* Modal for Confirmation */}
 
-      <Modal
+      {/* <Modal
         isOpen={isModalOpen}
         onRequestClose={handleModalClose}
         ariaHideApp={false} // Optional if using React-Modal
         className="fixed inset-0 flex items-center justify-center z-50 p-4"
       >
-        {/* Backdrop */}
+       
         <div className="absolute inset-0 bg-black opacity-50"></div>
 
-        {/* Modal Content */}
+        
         <div className="relative bg-white rounded-lg shadow-lg w-full max-w-md sm:max-w-lg transition-transform transform scale-100">
-          {/* Header */}
+          
           <div className="p-5 border-b">
             <h2 className="text-xl sm:text-2xl font-semibold text-gray-800">
               Add More Attributes
             </h2>
           </div>
 
-          {/* Body */}
+          
           <div className="p-6">
             <p className="text-sm sm:text-base text-gray-600 mb-4">
               Are you sure you want to add more attributes to the category{" "}
@@ -326,7 +508,7 @@ const CategoryTable = ({ categories, onSelect }) => {
             </p>
           </div>
 
-          {/* Footer */}
+          
           <div className="flex justify-end items-center gap-3 p-5 border-t">
             <button
               onClick={handleModalClose}
@@ -342,7 +524,7 @@ const CategoryTable = ({ categories, onSelect }) => {
             </button>
           </div>
         </div>
-      </Modal>
+      </Modal> */}
 
       {/* Modal for Attribute Delete */}
       <Modal
@@ -386,12 +568,12 @@ const CategoryTable = ({ categories, onSelect }) => {
       </Modal>
 
       {/* Modal for Form */}
-      <Modal isOpen={isFormOpen} onRequestClose={() => setIsFormOpen(false)}>
+      {/* <Modal isOpen={isFormOpen} onRequestClose={() => setIsFormOpen(false)}>
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="fixed inset-0 bg-black opacity-50"></div>
           <div className="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full">
             <div className="bg-white p-6">
-              {/* <h2 className="text-lg font-semibold">Add Attributes</h2> */}
+              
               <form onSubmit={handleFormSubmit}>
                 <div>
                   {newAttributes.map((attr, index) => (
@@ -492,6 +674,212 @@ const CategoryTable = ({ categories, onSelect }) => {
                   <button
                     type="submit"
                     disabled={!isFormValid} // Disable if the form is invalid
+                    className={`px-4 py-2 rounded ${
+                      isFormValid
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-400 text-gray-200 cursor-not-allowed"
+                    }`}
+                  >
+                    Submit
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </Modal> */}
+
+      <Modal
+        isOpen={isModalOpen}
+        onRequestClose={handleModalClose}
+        ariaHideApp={false} // Optional if using React-Modal
+        className="fixed inset-0 flex items-center justify-center z-50 p-4"
+      >
+        {/* Backdrop */}
+        <div className="absolute inset-0 bg-black opacity-50"></div>
+
+        {/* Modal Content */}
+        <div className="relative bg-white rounded-lg shadow-lg w-full max-w-md sm:max-w-lg transition-transform transform scale-100">
+          {/* Header */}
+          <div className="p-5 border-b">
+            <h2 className="text-xl sm:text-2xl font-semibold text-gray-800">
+              Add More Attributes
+            </h2>
+          </div>
+
+          {/* Body */}
+          <div className="p-6">
+            <p className="text-sm sm:text-base text-gray-600 mb-4">
+              Are you sure you want to add more attributes to the category{" "}
+              <span className="font-semibold text-blue-600">
+                {selectedCategory?.name || "this category"}
+              </span>
+              ?
+            </p>
+            <p className="text-sm sm:text-base text-gray-500">
+              This action will add the attributes to the entire category tree.
+              Please note that this change{" "}
+              <span className="font-semibold">cannot be undone</span>.
+            </p>
+          </div>
+
+          {/* Footer */}
+          <div className="flex justify-end items-center gap-3 p-5 border-t">
+            <button
+              onClick={handleModalClose}
+              className="px-4 py-2 text-sm sm:text-base bg-gray-100 text-gray-800 rounded hover:bg-gray-200 transition duration-150"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleConfirmAddMore}
+              className="px-4 py-2 text-sm sm:text-base bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-150"
+            >
+              Confirm
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal isOpen={isFormOpen} onRequestClose={() => setIsFormOpen(false)}>
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-black opacity-50"></div>
+          <div className="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full">
+            <div className="bg-white p-6">
+              <form onSubmit={handleFormSubmit}>
+                {/* Loop through each attribute section */}
+                {newAttributeSections.map((section, sectionIndex) => (
+                  <div
+                    key={sectionIndex}
+                    className="mb-6 border p-4 rounded-md"
+                  >
+                    <div className="mb-3">
+                      <input
+                        type="text"
+                        value={section.sectionName}
+                        onChange={(e) => {
+                          const updatedSections = [...newAttributeSections];
+                          updatedSections[sectionIndex].sectionName =
+                            e.target.value;
+                          setNewAttributeSections(updatedSections);
+                        }}
+                        placeholder="Section Name"
+                        className="w-full border border-gray-300 rounded-md p-2 text-sm"
+                      />
+                    </div>
+
+                    {/* List attributes within this section */}
+                    {section.attributes.map((attr, attrIndex) => (
+                      <div
+                        key={attrIndex}
+                        className="flex flex-wrap gap-2 mb-2 text-slate-600"
+                      >
+                        <input
+                          type="text"
+                          value={attr.name}
+                          onChange={(e) =>
+                            handleAttributeChange(
+                              sectionIndex,
+                              attrIndex,
+                              "name",
+                              e.target.value
+                            )
+                          }
+                          placeholder="Attribute Name"
+                          className="w-[48%] border border-gray-300 rounded-md p-2 text-sm"
+                        />
+                        <select
+                          value={attr.type}
+                          onChange={(e) =>
+                            handleAttributeChange(
+                              sectionIndex,
+                              attrIndex,
+                              "type",
+                              e.target.value
+                            )
+                          }
+                          className="w-[48%] border border-gray-300 rounded-md p-2 text-slate-600 text-sm"
+                        >
+                          <option value="text">Text</option>
+                          <option value="number">Number</option>
+                          <option value="boolean">Boolean</option>
+                          <option value="select">Dropdown</option>
+                        </select>
+                        {attr.type === "select" && (
+                          <input
+                            type="text"
+                            placeholder="Options (comma-separated)"
+                            value={attr.options?.join(", ") || ""}
+                            onChange={(e) =>
+                              handleAttributeChange(
+                                sectionIndex,
+                                attrIndex,
+                                "options",
+                                e.target.value
+                                  .split(",")
+                                  .map((opt) => opt.trim())
+                                  .filter((opt) => opt)
+                              )
+                            }
+                            className="w-[48%] border border-gray-300 rounded-md p-2 text-sm"
+                          />
+                        )}
+                        <input
+                          type="text"
+                          placeholder="Unit (optional)"
+                          value={attr.unit}
+                          onChange={(e) =>
+                            handleAttributeChange(
+                              sectionIndex,
+                              attrIndex,
+                              "unit",
+                              e.target.value
+                            )
+                          }
+                          className="w-[48%] border border-gray-300 rounded-md p-2 text-sm"
+                        />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            removeAttribute(sectionIndex, attrIndex)
+                          }
+                          className="text-red-500 rounded-md p-1 hover:scale-110"
+                        >
+                          <MdDelete size={30} />
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => addNewAttribute(sectionIndex)}
+                      className="text-blue-600 font-medium"
+                    >
+                      + Add Attribute
+                    </button>
+                  </div>
+                ))}
+
+                <div className="mb-4">
+                  <button
+                    type="button"
+                    onClick={addNewSection}
+                    className="text-green-600 font-medium"
+                  >
+                    + Add New Section
+                  </button>
+                </div>
+
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setIsFormOpen(false)}
+                    className="px-4 py-2 bg-gray-500 text-white rounded mr-2"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={!isFormValid}
                     className={`px-4 py-2 rounded ${
                       isFormValid
                         ? "bg-blue-600 text-white"

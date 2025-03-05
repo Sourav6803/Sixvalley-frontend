@@ -4,6 +4,7 @@ import ProductUploadModal from "./ProductUploadModal";
 import ProductForm from "./ProductForm";
 
 const MultilevelDropdown = ({
+  loading,
   categories,
   path,
   primaryImage,
@@ -108,8 +109,12 @@ const MultilevelDropdown = ({
         <h3 className="text-lg font-semibold text-gray-800 pb-2 border-b">
           Select Category
         </h3>
-        <div className="flex gap-3 mt-3 overflow-x-auto">
-          {currentCategories.map((categories, level) => (
+        {
+          loading ? (
+            <div className="flex items-center justify-center text-gray-600">Loading Category....</div>
+          ) : (
+            <div className="flex gap-3 mt-3 overflow-x-auto">
+          {currentCategories?.map((categories, level) => (
             <div
               key={level}
               className="flex flex-col w-52 max-h-[450px] overflow-y-auto bg-gray-50 shadow-md rounded-md p-2 border border-gray-300"
@@ -130,6 +135,8 @@ const MultilevelDropdown = ({
             </div>
           ))}
         </div>
+          )
+        }
       </div>
 
       {/* Right Section: Category Details (Remaining 30-35% width) */}

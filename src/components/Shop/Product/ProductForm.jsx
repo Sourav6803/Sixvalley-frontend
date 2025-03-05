@@ -5,7 +5,6 @@ import { toast } from "react-toastify";
 import Select from "react-select";
 import AttributeInputs from "./AttributesInputs";
 import PricingDetails from "./PricingDetails";
-import GeneralInfo from "./GeneralInfo";
 import { FcAddImage } from "react-icons/fc";
 import ImageModal from "../../../utils/ImageModal";
 import { server } from "../../../server";
@@ -16,6 +15,8 @@ import { createProduct } from "../../../redux/actions/product";
 import socketIO from "socket.io-client";
 import { LoadingModal } from "./LoadingModal";
 import { FaQuestionCircle } from "react-icons/fa";
+import Loader from "../../../pages/Loader";
+import ProductHighlights from "./ProductHighlights";
 
 const ENDPOINT = "http://localhost:4000";
 const socketId = socketIO(ENDPOINT, { transports: ["websocket"] });
@@ -25,6 +26,7 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
   const { isLoading, success, error } = useSelector((state) => state.products);
   const { product } = useSelector((state) => state?.products);
   const [attributes, setAttributes] = useState([]);
+  const [attributesBySection, setAttributesBySection] = useState({});
   const [images, setImages] = useState([]);
   const [name, setName] = useState("");
   const [styleCode, setStyleCode] = useState("");
@@ -47,11 +49,7 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
   const [tags, setTags] = useState("");
   const [maxPurchaseLimit, setMaxPurchaseLimit] = useState("");
   const [otherDetails, setOtherDetails] = useState([{ key: "", value: "" }]);
-  const [dimensions, setDimensions] = useState({
-    length: "",
-    width: "",
-    height: "",
-  });
+  const [dimensions, setDimensions] = useState({length: "", width: "", height: "",});
   const [isDimensinonOpen, setIsDimensionOpen] = useState(false); // To toggle the collapsible input
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
@@ -61,6 +59,9 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [open, setOpen] = useState(false);
   const [errors, setErrors] = useState({});
+  const [attributeKeyValuePairs, setAttributeKeyValuePairs] = useState({});
+  const [highlights, setHighlights] = useState([])
+  const [load, setIsLoading] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -69,20 +70,11 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
     (e) => {
       const value = e.target.value;
 
-      // if (isNested) {
-      //   // For handling nested state objects like dimensions
-      //   setter((prev) => ({...prev, [fieldName]: value,}));
-      // } else {
-      //   // For handling simple state values
-      //   setter(value);
-      // }
 
       setter((prev) => {
         const updatedState = isNested
           ? { ...prev, [fieldName]: value } // Handle nested state like dimensions
           : value; // Handle simple state updates
-  
-        console.log("Updated State:", updatedState); // Debugging
         return updatedState;
       });
 
@@ -128,41 +120,76 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
     setImages((prevImages) => prevImages.filter((_, i) => i !== index));
   };
 
-  // Initialize attributes dynamically when category changes
   useEffect(() => {
     if (selectedCategory) {
       const initialAttributes =
-        selectedCategory.attributes?.map((attr) => ({
-          name: attr.name,
-          type: attr.type,
-          value: attr.type === "boolean" ? false : "",
-          unit: attr.unit || "",
-        })) || [];
+        selectedCategory?.attributeSections?.flatMap((section) =>
+          section.attributes.map((attr) => ({
+            name: attr.name,
+            type: attr.type,
+            value: attr.type === "boolean" ? false : "",
+            unit: attr.unit || "",
+          }))
+        ) || [];
       setAttributes(initialAttributes);
     }
   }, [selectedCategory]);
+  
+  // useEffect(() => {
+  //   if (selectedCategory?.attributeSections?.length) {
+  //     const newAttributes = {};
+      
+  //     selectedCategory.attributeSections.forEach((section) => {
+  //       newAttributes[section.sectionName] = section.attributes?.map(attr => ({
+  //         ...attr, value: attr.value || ""  // Ensure value exists
+  //       })) || [];
+  //     });
 
-  // Handle attribute value changes dynamically
-  const handleAttributeChange = (e, index) => {
-    const updatedAttributes = [...attributes];
-    let value = e.target.value;
+  //     setAttributesBySection(newAttributes);
+  //   }
+  // }, [selectedCategory]);
 
-    if (updatedAttributes[index].type === "number") {
-      value = parseFloat(value) || "";
-    } else if (updatedAttributes[index].type === "boolean") {
-      value = e.target.checked;
-    }
+  useEffect(() => {
+    if (!selectedCategory || !Array.isArray(selectedCategory.attributeSections)) return;
 
-    updatedAttributes[index].value = value;
-    setAttributes(updatedAttributes);
+    setAttributesBySection((prev) => {
+        const newAttributes = {};
 
-      // Remove error dynamically
-    setErrors((prevErrors) => {
-      const { [`attribute_${index}`]: _, ...rest } = prevErrors;
-      return rest;
+        selectedCategory.attributeSections.forEach((section) => {
+            newAttributes[section.sectionName] = section.attributes?.map(({ values, ...attr }) => attr) || [];
+        });
+
+        return newAttributes;
+    });
+}, [selectedCategory]);
+
+  const handleAttributeChange = (e, sectionName, attrIndex) => {
+    const { value, type, checked } = e.target;
+    const newValue = type === "checkbox" ? checked : value;
+  
+    setAttributesBySection((prev) => {
+      // Ensure section exists before updating
+      if (!prev[sectionName]) {
+        console.warn(`Section ${sectionName} not found in attributesBySection, prev`);
+        return prev;
+      }
+  
+      // Create a new array to avoid mutating state
+      const updatedSection = [...prev[sectionName]];
+      
+      // Ensure attribute index exists
+      if (!updatedSection[attrIndex]) {
+        console.warn(`Attribute index ${attrIndex} not found in section ${sectionName}`);
+        return prev;
+      }
+  
+      // Update specific attribute value
+      updatedSection[attrIndex] = { ...updatedSection[attrIndex], value: newValue };
+  
+      return { ...prev, [sectionName]: updatedSection };
     });
   };
-
+ 
   useEffect(() => {
     if (!selectedCategory) return;
 
@@ -539,6 +566,107 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
     (v) => "color" in v && v.color !== "Free Color"
   );
 
+  
+
+  useEffect(() => {
+    const extractAttributes = () => {
+      const newAttributes = {};
+  
+      Object.entries(attributesBySection).forEach(([sectionName, attributes]) => {
+        attributes.forEach(({ name, value }) => {
+          newAttributes[name] = value;
+        });
+      });
+  
+      setAttributeKeyValuePairs(newAttributes);
+    };
+  
+    extractAttributes();
+  }, [attributesBySection]); // Runs when `attributesBySection` changes
+
+  const formattedAttributes = Object.entries(attributeKeyValuePairs)
+  .map(([key, value]) => `- **${key}**: ${value}`)
+  .join("\n");
+
+  
+  // const generateProductHighlights = async () => {
+    
+  //   setIsLoading(true); // Start loading
+  //   try {
+
+  //     const response = await axios.post(`${server}/product/generate-highlights`, {
+  //       productName : name , category: selectedCategory?.name, brand : brand, attributes: formattedAttributes, 
+  //     });
+
+  //     if (response.data.success) {
+  //       const highlightsArray = response.data.highlights
+  //       .split("\n") // Split by new lines
+  //       .map((point) => {
+  //         const match = point.match(/^\d+\.\s*\*\*(.*?)\*\*:\s*(.*)$/); // Extract key and value
+  //         return match ? { key: match[1], value: match[2] } : null;
+  //       })
+  //       .filter((item) => item !== null); // Remove empty lines
+
+  //       console.log("highloights array-->", highlightsArray)
+  
+  //       setHighlights(highlightsArray);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error:", error.response?.data || error.message);
+  //   } finally {
+  //     setIsLoading(false); // Stop loading after API call
+  //   }
+  // };
+
+
+  const generateProductHighlights = async () => {
+    setIsLoading(true); // Start loading
+    try {
+      const response = await axios.post(`${server}/product/generate-highlights`, {
+        productName: name,
+        category: selectedCategory?.name,
+        brand: brand,
+        attributes: formattedAttributes,
+      });
+  
+      if (response.data.success) {
+        const highlightsArray = response.data.highlights
+          .split("\n") // Split by new lines
+          .map((point) => {
+            const match = point.match(/^\d+\.\s*\*\*(.*?)\*\*\s*[:-]?\s*(.*)$/);
+            return match ? { key: match[1].trim(), value: match[2].trim() } : null;
+          })
+          .filter((item) => item !== null); // Remove null values
+  
+        console.log("highlights array-->", highlightsArray); // Now should log correct values
+        setHighlights(highlightsArray);
+      }
+    } catch (error) {
+      console.error("Error:", error.response?.data || error.message);
+    } finally {
+      setIsLoading(false); // Stop loading after API call
+    }
+  };
+  
+  const isFormValid = () => {
+    return (
+      name.trim() !== "" &&
+      selectedCategory?.name?.trim() !== "" &&
+      brand.trim() !== "" &&
+      Object.keys(attributesBySection)?.length > 0 && // Ensure attributesBySection has sections
+      Object.values(attributesBySection).every((attributes) =>
+        attributes.every((attr) => attr.value && attr.value.toString().trim() !== "")
+      )
+    );
+  };
+
+    // Auto-trigger the function when all conditions are met
+    useEffect(() => {
+      if (isFormValid()) {
+        generateProductHighlights();
+      }
+    }, [ selectedCategory?.name, brand, attributes]);
+
   const validateProductForm = () => {
     const maxLimit = parseInt(maxPurchaseLimit, 10);
     
@@ -643,9 +771,13 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
     return Object.keys(newErrors).length === 0; // Return true if no errors
   };
 
+  console.log("ghi-->", highlights)
+
   const handleSubmit = useCallback(
+    
     async (e) => {
       e.preventDefault();
+      console.log("calling keypoints")
 
       const isValid = validateProductForm(); // Now correctly gets a boolean
 
@@ -663,20 +795,30 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
           ? variations
           : Object.values(variations);
 
-        // Format attributes
-        const formattedAttributes = attributes
-          .filter((attr) => attr.value)
-          .map((attr) => ({
-            name: attr.name,
-            type: attr.type,
-            value:
-              attr.type === "number"
-                ? Number(attr.value)
-                : attr.type === "boolean"
-                ? Boolean(attr.value)
-                : attr.value,
-            unit: attr.unit || "",
-          }));
+        // Format attributes with sections
+        const formattedAttributes = Object.entries(attributesBySection).map(
+          ([sectionName, attributes]) => ({
+            sectionName: sectionName, // Section Name
+            attributes: attributes.map((attr) => ({
+              name: attr.name,
+              type: attr.type,
+              value:
+                attr.type === "number"
+                  ? Number(attr.value)
+                  : attr.type === "boolean"
+                  ? Boolean(attr.value)
+                  : attr.value,
+              unit: attr.unit || "",
+              ...(attr.options ? { options: attr.options } : {}), // Include options if available
+            })),
+          })
+        );
+
+        // Ensure highlights are in key-value pair format
+        const formattedHighlights = highlights?.length && highlights.map((highlight) => ({
+          key: highlight.key,
+          value: highlight.value,
+        }));
 
         // Upload images
         const uploadImages = async (imageFiles) => {
@@ -738,7 +880,9 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
         newForm.append("dimensions", JSON.stringify(dimensions));
         newForm.append("variants", JSON.stringify(variantsData));
         newForm.append("images", JSON.stringify(uploadedMainImages));
-        newForm.append("attributes", JSON.stringify(formattedAttributes));
+        newForm.append("attributeSection", JSON.stringify(formattedAttributes));
+        highlights?.length > 0 && newForm.append("keyPoints", JSON.stringify(formattedHighlights));
+
 
         if (seller) {
           newForm.append("shopId", seller._id);
@@ -755,6 +899,8 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
           )
         );
 
+        
+
         await dispatch(createProduct(newForm));
       } catch (error) {
         console.error("Error in handleSubmit:", error);
@@ -763,7 +909,7 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
         setLoading(false);
       }
     },
-    [images, variations, seller, name, description, selectedCategory?._id, brand, sku, tags, originalPrice, discountType, discountPrice, stock, maxPurchaseLimit, dimensions, otherDetails, attributes, dimensions, dispatch, server, ]
+    [images, variations, highlights, seller, name, description, selectedCategory?._id, brand, sku, tags, originalPrice, discountType, discountPrice, stock, maxPurchaseLimit, dimensions, otherDetails, attributes, dimensions, dispatch, server, ]
   );
 
   useEffect(() => {
@@ -809,11 +955,11 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
     product,
   ]);
 
-  console.log("Variations:", variations); 
+
 
   return (
     <div className="w-full  bg-white rounded-lg shadow-lg mt-3">
-      <LoadingModal loading={loading} />
+      <LoadingModal loading={loading} message={"Creating your product..."} />
 
       {/* Primary Image Display */}
       {primaryImage && (
@@ -1103,7 +1249,7 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
                             {hasColor ? variation.color : null}
                           </td>
                         )}
-                        
+
                         <td className="border px-1 py-4 whitespace-nowrap text-sm text-gray-700">
                           <div className="relative flex items-center">
                             {/* Currency Symbol */}
@@ -1148,9 +1294,11 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
                                 e.target.value
                               )
                             }
-                            className={`appearance-none block  w-[130px] px-3 h-[30px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${errors[`variation_${key}_discountType`]
-                              ? "border-red-500 focus:ring-red-400"
-                              : "border-gray-300 focus:ring-blue-400"} `}
+                            className={`appearance-none block  w-[130px] px-3 h-[30px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
+                              errors[`variation_${key}_discountType`]
+                                ? "border-red-500 focus:ring-red-400"
+                                : "border-gray-300 focus:ring-blue-400"
+                            } `}
                           >
                             <option value="" disabled>
                               Choose Type
@@ -1172,9 +1320,11 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
                             </span>
                             <input
                               type="number"
-                              className={`border w-[180px] rounded px-4 py-1 pl-7 ${ errors[`variation_${key}_discountAmount`]
-                                ? "border-red-500 focus:ring-red-400"
-                                : "border-gray-300 focus:ring-blue-400"}`}
+                              className={`border w-[180px] rounded px-4 py-1 pl-7 ${
+                                errors[`variation_${key}_discountAmount`]
+                                  ? "border-red-500 focus:ring-red-400"
+                                  : "border-gray-300 focus:ring-blue-400"
+                              }`}
                               placeholder="Discount amount"
                               value={variation.discountAmount}
                               onChange={(e) =>
@@ -1306,12 +1456,11 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
             </div>
           )}
 
-          <h2 className="text-lg text-slate-700 font-semibold mb-4 mt-5">
-            Product Details
-          </h2>
+          
           {/* Dynamic Attribute Inputs */}
 
           <AttributeInputs
+            attributesBySection={attributesBySection}
             attributes={attributes}
             handleAttributeChange={handleAttributeChange}
             selectedCategory={selectedCategory}
@@ -1340,7 +1489,7 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
           <div className="grid grid-cols-2 md:grid-cols-4 md:gap-4 gap-2 md:p-6 p-2 bg-white rounded-lg shadow-lg">
             <div>
               <label className="text-sm font-medium text-gray-700">
-                Max Purchase Limit 
+                Max Purchase Limit
                 <span className="text-red-500">*</span>
               </label>
               <input
@@ -1404,7 +1553,11 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
                           name={dim.toLowerCase()}
                           value={dimensions[dim.toLowerCase()]}
                           // onChange={handleDimensionChange}
-                          onChange={handleInputChange( setDimensions, dim.toLowerCase(), true)}
+                          onChange={handleInputChange(
+                            setDimensions,
+                            dim.toLowerCase(),
+                            true
+                          )}
                           placeholder={`${dim} (cm)`}
                           className={`border border-gray-300 text-xs px-2 py-1 w-full rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 ${
                             errors.dimensions
@@ -1510,22 +1663,30 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
               <label className="text-sm font-medium text-gray-700">
                 Warrenty Period
               </label>
-              
+
               <div className="border border-gray-300 rounded-[3px] mt-2">
                 <select
                   className="ml-2 text-xs border-none text-slate-700 rounded-[3px] h-[35px] px-2"
                   value={warrentyPeriod}
                   onChange={(e) => setWarrentyPeriod(e.target.value)}
                 >
-                  {["No warranty", "3 Month", "6 Month", "1 year"].map((option, index) => (
-                    <option key={index} value={option}>
-                      {option}
-                    </option>
-                  ))}
+                  {["No warranty", "3 Month", "6 Month", "1 year"].map(
+                    (option, index) => (
+                      <option key={index} value={option}>
+                        {option}
+                      </option>
+                    )
+                  )}
                 </select>
               </div>
             </div>
           </div>
+
+          {
+            highlights?.length > 0 && (
+              <ProductHighlights highlights={highlights} />
+            )
+          }
 
           <h2 className="text-lg text-slate-700 font-semibold mb-4 mt-5">
             Other detail Setup
@@ -1584,6 +1745,8 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
               </button>
             </div>
           </div>
+
+          
 
           <div className="w-full  flex items-center justify-end mt-5">
             <button

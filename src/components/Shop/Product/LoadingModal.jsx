@@ -1,4 +1,4 @@
-export const LoadingModal = ({ loading }) => {
+export const LoadingModal = ({ loading, message }) => {
     if (!loading) return null; // Return null when loading is false
   
     return (
@@ -26,7 +26,7 @@ export const LoadingModal = ({ loading }) => {
               ></path>
             </svg>
             <p className="text-gray-700 text-lg font-semibold">
-              Creating your product...
+              {message}
             </p>
           </div>
         </div>

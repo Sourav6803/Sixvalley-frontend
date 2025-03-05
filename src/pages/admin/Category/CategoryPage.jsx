@@ -1,39 +1,72 @@
-// import React from 'react'
-// import AdminHeader from '../../../components/Layout/AdminHeader'
-// import AdminSideBar from '../../../components/Admin/Layout/AdminSidebar'
+
+
+// import React, { useEffect } from "react";
+// import AdminHeader from "../../../components/Layout/AdminHeader";
+// import AdminSideBar from "../../../components/Admin/Layout/AdminSidebar";
 // // import Category from '../../../components/Admin/Category'
-// import Category from '../../../components/Admin/Category/Category'
-// import { useState } from 'react'
+// // import Category from "../../../components/Admin/Category/Category";
+// import { useState } from "react";
+// import { getCategoryHierarchy } from "../../../api/categoryApi";
+// import CategoryForm from "../../../components/Admin/Category/CategoryForm";
+// import CategoryTable from "../../../components/Admin/Category/CategoryTable";
 
 // const CategoryPage = () => {
+//   const [navOpen, setNavOpen] = useState(false);
+//   const [categories, setCategories] = useState([]);
+//   const [selectedCategory, setSelectedCategory] = useState(null);
 
-//     const [navOpen, setNavOpen] = useState(false);
+//   const fetchCategories = async () => {
+//     try {
+//       const response = await getCategoryHierarchy();
+//       setCategories(response.data.categories);
+//     } catch (error) {
+//       console.error("Failed to fetch categories", error.message);
+//     }
+//   };
+
+//   useEffect(() => {
+//     fetchCategories();
+//   }, []);
+
+//   const handleCategoryAdded = () => {
+//     fetchCategories();
+//     setSelectedCategory(null);
+//   };
 //   return (
 //     <main className="relative ">
 //       <AdminHeader navOpen={navOpen} setNavOpen={setNavOpen} />
 
 //       <div className="flex w-full  ">
-
 //         <AdminSideBar active={14} navOpen={navOpen} setNavOpen={setNavOpen} />
 
-//         <section className='flex w-full min-h-screen  flex-1 flex-col px-0 pb-5 pt-1 max-md:pb-14 sm:px-0 '>
+//         <section className="flex w-full min-h-screen  flex-1 flex-col  max-md:pb-14  md:p-5 p-1">
 //           <div className="w-full ">
-//             <Category />
+//             <div className="my-3">
+//               <h1 className="text-center text-lg font-bold">Category Management</h1>
+//               <CategoryForm
+//                 onCategoryAdded={handleCategoryAdded}
+//                 parentCategory={selectedCategory}
+//               />
+//               <CategoryTable
+//                 categories={categories}
+//                 onSelect={(category) => setSelectedCategory(category)}
+//               />
+//             </div>
 //           </div>
 //         </section>
 //       </div>
 //     </main>
-//   )
-// }
+//   );
+// };
 
-// export default CategoryPage
+// export default CategoryPage;
 
-import React, { useEffect } from "react";
+
+
+
+import React, { useEffect, useState, useCallback } from "react";
 import AdminHeader from "../../../components/Layout/AdminHeader";
 import AdminSideBar from "../../../components/Admin/Layout/AdminSidebar";
-// import Category from '../../../components/Admin/Category'
-import Category from "../../../components/Admin/Category/Category";
-import { useState } from "react";
 import { getCategoryHierarchy } from "../../../api/categoryApi";
 import CategoryForm from "../../../components/Admin/Category/CategoryForm";
 import CategoryTable from "../../../components/Admin/Category/CategoryTable";
@@ -42,43 +75,51 @@ const CategoryPage = () => {
   const [navOpen, setNavOpen] = useState(false);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
+    setLoading(true);
     try {
       const response = await getCategoryHierarchy();
       setCategories(response.data.categories);
     } catch (error) {
-      console.error("Failed to fetch categories", error.message);
+      console.error("Failed to fetch categories:", error.message);
+    } finally {
+      setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [fetchCategories]);
 
-  const handleCategoryAdded = (newCategory) => {
-    fetchCategories();
-    setSelectedCategory(null);
-  };
+  const handleCategoryAdded = useCallback(
+    (newCategory) => {
+      if (newCategory) {
+        setCategories((prev) => [...prev, newCategory]); // Append instead of refetching
+      } else {
+        fetchCategories();
+      }
+      setSelectedCategory(null);
+    },
+    [fetchCategories]
+  );
+
   return (
-    <main className="relative ">
+    <main className="relative">
       <AdminHeader navOpen={navOpen} setNavOpen={setNavOpen} />
-
-      <div className="flex w-full  ">
+      <div className="flex w-full">
         <AdminSideBar active={14} navOpen={navOpen} setNavOpen={setNavOpen} />
-
-        <section className="flex w-full min-h-screen  flex-1 flex-col  max-md:pb-14  md:p-5 p-1">
-          <div className="w-full ">
+        <section className="flex w-full min-h-screen flex-1 flex-col max-md:pb-14 md:p-5 p-1">
+          <div className="w-full">
             <div className="my-3">
               <h1 className="text-center text-lg font-bold">Category Management</h1>
-              <CategoryForm
-                onCategoryAdded={handleCategoryAdded}
-                parentCategory={selectedCategory}
-              />
-              <CategoryTable
-                categories={categories}
-                onSelect={(category) => setSelectedCategory(category)}
-              />
+              <CategoryForm onCategoryAdded={handleCategoryAdded} parentCategory={selectedCategory} />
+              {loading ? (
+                <p className="text-center mt-5 text-gray-500">Loading categories...</p>
+              ) : (
+                <CategoryTable categories={categories} onSelect={setSelectedCategory} />
+              )}
             </div>
           </div>
         </section>

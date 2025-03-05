@@ -170,11 +170,7 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
 
     // Size options based on category
     let sizes = [];
-    if (
-      categoryName.includes("saree") ||
-      categoryName.includes("jewelry") ||
-      categoryName.includes("metal") ||
-      categoryName.includes("watch") ||
+    if ( categoryName.includes("saree") || categoryName.includes("jewelry") || categoryName.includes("metal") || categoryName.includes("watch") ||
       categoryName.includes("handbag") ||
       categoryName.includes("belt")
     ) {
@@ -196,19 +192,7 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
       categoryName.includes("hoodie") ||
       categoryName.includes("wallet")
     ) {
-      sizes = [
-        "S",
-        "M",
-        "L",
-        "XL",
-        "XXL",
-        "36",
-        "38",
-        "40",
-        "42",
-        "44",
-        "Free Size",
-      ].map((s) => ({ value: s, label: s }));
+      sizes = [ "S", "M", "L", "XL", "XXL", "XXL", "34", "36", "38", "40", "42", "44", "Free Size",].map((s) => ({ value: s, label: s }));
     } else if (
       categoryName.includes("trouser") ||
       categoryName.includes("jeans") ||
@@ -276,6 +260,7 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
           "Brown",
           "Orange",
           "Beige",
+          "Free color"
         ].map((c) => ({ value: c, label: c }))
       );
     } else {
@@ -293,14 +278,6 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
       );
     }
   }, [discountPrice, originalPrice, discountType]);
-
-  const handleDimensionChange = (e) => {
-    const { name, value } = e.target;
-    setDimensions((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
 
   const existingSKUs = new Set();
 
@@ -355,69 +332,82 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
 
   const generateVariations = () => {
     let newVariations = [];
-
+  
     const isFreeSize = size.length === 1 && size[0] === "Free Size";
-
-    if (isFreeSize && color.length > 0) {
-      color.forEach((clr) => {
-        newVariations.push({
-          color: clr,
-          originalPrice: 0,
-          discountType: "",
-          discountAmount: 0,
-          afterDiscountPrice: 0,
-          stock: 0,
-          sku: `FS-${clr}`,
-          images: [],
-        });
-      });
-    } else if (!isFreeSize && size.length > 0 && color.length > 0) {
-      size.forEach((sz) => {
-        color.forEach((clr) => {
-          newVariations.push({
-            size: sz,
-            color: clr,
-            originalPrice: 0,
-            discountType: "",
-            discountAmount: 0,
-            afterDiscountPrice: 0,
-            stock: 0,
-            sku: `${sz}-${clr}`,
-            images: [],
-          });
-        });
-      });
-    } else if (!isFreeSize && size.length > 0) {
-      size.forEach((sz) => {
-        newVariations.push({
+    const isFreeColor = color.length === 1 && color[0] === "Free color";
+  
+    if (isFreeSize && color.length > 0 && !isFreeColor) {
+      newVariations = color.map((clr) => ({
+        color: clr,
+        originalPrice: 0,
+        discountType: "",
+        discountAmount: 0,
+        afterDiscountPrice: 0,
+        stock: 0,
+        sku: `FS-${clr}`,
+        images: [],
+      }));
+    } else if (isFreeColor && size.length > 0) {
+      newVariations = size.map((sz) => ({
+        size: sz,
+        originalPrice: 0,
+        discountType: "",
+        discountAmount: 0,
+        afterDiscountPrice: 0,
+        stock: 0,
+        sku: `${sz}-FS`,
+        images: [],
+      }));
+    } else if (size.length > 0 && color.length > 0 && !isFreeColor) {
+      newVariations = size.flatMap((sz) =>
+        color.map((clr) => ({
           size: sz,
-          originalPrice: 0,
-          discountType: "",
-          discountAmount: 0,
-          afterDiscountPrice: 0,
-          stock: 0,
-          sku: sz,
-          images: [],
-        });
-      });
-    } else if (color.length > 0) {
-      color.forEach((clr) => {
-        newVariations.push({
           color: clr,
           originalPrice: 0,
           discountType: "",
           discountAmount: 0,
           afterDiscountPrice: 0,
           stock: 0,
-          sku: clr,
+          sku: `${sz}-${clr}`,
           images: [],
-        });
-      });
+        }))
+      );
+    } else if (size.length > 0) {
+      newVariations = size.map((sz) => ({
+        size: sz,
+        originalPrice: 0,
+        discountType: "",
+        discountAmount: 0,
+        afterDiscountPrice: 0,
+        stock: 0,
+        sku: sz,
+        images: [],
+      }));
+    } else if (color.length > 0 && !isFreeColor) {
+      newVariations = color.map((clr) => ({
+        color: clr,
+        originalPrice: 0,
+        discountType: "",
+        discountAmount: 0,
+        afterDiscountPrice: 0,
+        stock: 0,
+        sku: clr,
+        images: [],
+      }));
     }
-
-    setVariations(newVariations); // ✅ Now variations will always be an array
+  
+    // ✅ Ensure "color" is removed from objects if isFreeColor is true
+    newVariations = newVariations.map((variation) => {
+      if (isFreeColor) {
+        const { color, ...rest } = variation; // Remove color field
+        return rest;
+      }
+      return variation;
+    });
+  
+    setVariations(newVariations);
   };
-
+  
   useEffect(() => {
     generateVariations();
   }, [size, color]);
@@ -483,7 +473,11 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
       newVariation.size = selectedSize;
     }
 
-    if (selectedColor) {
+    // if (selectedColor) {
+    //   newVariation.color = selectedColor;
+    // }
+
+    if (selectedColor && selectedColor !== "Free color") {
       newVariation.color = selectedColor;
     }
 
@@ -542,7 +536,7 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
   );
 
   const hasColor = Object.values(variations).some(
-    (v) => "color" in v && v.color
+    (v) => "color" in v && v.color !== "Free Color"
   );
 
   const validateProductForm = () => {
@@ -815,9 +809,12 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
     product,
   ]);
 
+  // console.log("Variations:", variations); 
+  console.log("selected cat-->", selectedCategory)
+
   return (
     <div className="w-full  bg-white rounded-lg shadow-lg mt-3">
-      <LoadingModal loading={loading} />
+      <LoadingModal loading={loading} message={"Creating your product..."} />
 
       {/* Primary Image Display */}
       {primaryImage && (
@@ -1341,31 +1338,10 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
             General Details
           </h2>
 
-          {/* <GeneralInfo
-            maxPurchaseLimit={maxPurchaseLimit}
-            setMaxPurchaseLimit={setMaxPurchaseLimit}
-            dimensions={dimensions}
-            handleDimensionChange={handleDimensionChange}
-            isDimensionOpen={isDimensinonOpen}
-            setIsDimensionOpen={setIsDimensionOpen}
-            warrantyPeriod={warrentyPeriod}
-            setWarrantyPeriod={setWarrentyPeriod}
-            description={description}
-            setDescription={setDescription}
-            brand={brand}
-            setBrand={setBrand}
-            tags={tags}
-            setTags={setTags}
-            importerDetails={importerDetails}
-            setImporterDetails={setImporterDetails}
-            handleInputChange={handleInputChange}
-            errors={errors}
-          /> */}
-
           <div className="grid grid-cols-2 md:grid-cols-4 md:gap-4 gap-2 md:p-6 p-2 bg-white rounded-lg shadow-lg">
             <div>
               <label className="text-sm font-medium text-gray-700">
-                Max Purchase Limit <span className="text-gray-500">(gm)</span>
+                Max Purchase Limit 
                 <span className="text-red-500">*</span>
               </label>
               <input
@@ -1382,7 +1358,7 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
                 min={0}
                 max={5}
                 step={1} // Prevents decimal inputs
-                placeholder="Ex. 3"
+                placeholder="Ex. 1 to 5"
                 className={`mt-2 w-full text-xs p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 ${
                   errors.maxPurchaseLimit ? "border-red-500" : "border-gray-300"
                 }`}

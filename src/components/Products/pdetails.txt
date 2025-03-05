@@ -540,6 +540,79 @@ const ProductDetails = ({ data }) => {
                       </button>
                     </div>
 
+                    {/* coupon */}
+                    {/* <div className=' py-2 mt-1'>
+                                                    <div className='text-slate-700 font-medium text-base'>
+                                                        <h1>Offers for you</h1>
+                                                    </div>
+
+                                                    <div className="bg-[#e7e7e8] mt-2 p-2 border rounded-md">
+                                                        {allCoupons && allCoupons
+                                                            .filter(coupon => {
+                                                                const eligibleItems = productArr.filter(
+                                                                    item => coupon.couponCategory === "All" || item.category === coupon.couponCategory
+                                                                );
+
+                                                                const eligiblePrice = eligibleItems.reduce(
+                                                                    (acc, item) => acc + item.afterDiscountPrice,
+                                                                    0
+                                                                );
+                                                                
+
+                                                                return eligiblePrice >= coupon.minPurchase; // Filter out non-eligible coupons
+                                                            })
+                                                            .map((coupon, index) => {
+                                                                const handleCopy = () => {
+                                                                    navigator.clipboard.writeText(coupon.couponCode)
+                                                                        .then(() => {
+                                                                            toast.success(`Coupon code ${coupon.couponCode} copied to clipboard!`);
+                                                                        })
+                                                                        .catch(err => {
+                                                                            toast.error('Failed to copy text: ', err);
+                                                                        });
+                                                                }; // Check if this coupon is applied
+
+                                                                return (
+                                                                    <div key={index} className="mb-2">
+                                                                        <h3 className="text-sm font-semibold text-gray-500">
+                                                                            Extra ₹{coupon?.discountAmount} Off on orders above ₹{coupon?.minPurchase}
+                                                                        </h3>
+
+                                                                        <p className="text-sm text-gray-600">
+                                                                            Expires on {formatDate(coupon?.expireDate)}
+                                                                        </p>
+                                                                        {coupon.couponType === 'First Order' && (
+                                                                            <p className="text-sm text-green-700 italic">First time only</p>
+                                                                        )}
+
+                                                                        {coupon?.couponCategory !== "All" && (
+                                                                            <p className="text-sm text-green-700 italic">This coupon only valid for {coupon?.couponCategory}</p>
+                                                                        )}
+
+                                                                        <div className="flex justify-between items-center mt-2">
+                                                                            <div className="bg-green-100 border border-dashed border-gray-700 px-2 py-1 font-bold rounded-md">
+                                                                                {coupon.couponCode}
+                                                                            </div>
+
+                                                                            <div className="flex justify-between items-center mt-2">
+
+
+                                                                                <div
+                                                                                    className="border px-2 py-0.5 rounded-md text-blue-600 cursor-pointer border-blue-600"
+                                                                                    onClick={handleCopy}
+                                                                                >
+                                                                                    Tap to Copy
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                    </div>
+
+                                                </div> */}
+
                     <div className="py-2 mt-1">
                       {allCoupons &&
                       allCoupons.some((coupon) => {
@@ -664,7 +737,7 @@ const ProductDetails = ({ data }) => {
                       </h1>
 
                       {/* Product other details */}
-                      {data?.otherDetails?.length && (
+                      {data?.otherDetails && (
                         <div className="text-slate-600 font-[450] mt-2 text-[12px]">
                           {data?.otherDetails?.map((detail, index) => (
                             <div key={index}>
