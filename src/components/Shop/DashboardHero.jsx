@@ -267,7 +267,7 @@ const DashboardHero = ({open, setOpen}) => {
       <div className={`w-full  bg-white ${open ? "md:ml-72" : "md:ml-20"} mt-20 h-[calc(100vh-80px)] overflow-y-auto  p-0 md:p-2`}>
         <ProfileCompletion completedSteps={1} />
 
-        <div className="flex md:items-center items-start justify-between my-5 flex-col md:flex-row">
+        <div className="flex md:items-center items-start justify-between my-5 flex-col md:flex-row p-2">
           <div>
             <h3 className="text-[20px] text-slate-700 font-Poppins pb-1 font-semibold ">
               Welcome{" "}
@@ -277,25 +277,18 @@ const DashboardHero = ({open, setOpen}) => {
               Monitor your business analytics and statistics.
             </h3>
           </div>
-
-          <Link to={"/dashboard-products"}>
-            <div className="border text-white rounded-md bg-[#2A52BE] min-w-fit px-3 py-1 flex items-center  justify-center">
-              <IoDiamondSharp size={20} className="mr-2" />
-              <p>Products</p>
-            </div>
-          </Link>
         </div>
 
         <div className="w-full flex flex-col md:flex-row gap-2 ">
           <div className="w-full md:w-[68%] ">
             <OrderAnalytic />
 
-            <div className="mt-3 w-full flex flex-col md:flex-row items-center gap-2 border p-2">
+            <div className="mt-3 w-full flex flex-col  md:flex-row items-center gap-2 border p-2">
               <div className="md:w-[60%] w-full h-full  ">
                 <SalesChart />
               </div>
 
-              <div className="  h-full grid grid-cols-2 md:grid-cols-2 gap-2 p-2 bg-white rounded-lg shadow-lg">
+              <div className=" w-full md:w-[50%]  h-full grid grid-cols-2 md:grid-cols-2 gap-2 p-2  rounded-lg shadow-lg">
                 {stats.map((stat, index) => (
                   <div
                     key={index}

@@ -62,7 +62,7 @@ const Navbar = () => {
           <button onClick={()=>navigate("/shop-login")} className="bg-secondary text-white px-4 py-2 rounded-md hover:bg-primary transition duration-300">
             Login
           </button>
-          <button onClick={()=>navigate("/shop-create")} className="bg-accent text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-300">
+          <button onClick={()=>navigate("/shop-create")} className="bg-accent text-xs md:text-base text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-300">
             Start Selling
           </button>
         </div>
@@ -127,7 +127,7 @@ const Navbar = () => {
                 </li>
               ))}
               <div className="mt-2">
-                <button className="w-full bg-secondary text-white px-4 py-2 rounded-md hover:bg-primary transition duration-300">
+                <button onClick={()=>navigate("/shop-login")} className="w-full bg-secondary text-white px-4 py-2 rounded-md hover:bg-primary transition duration-300">
                   Login
                 </button>
               </div>

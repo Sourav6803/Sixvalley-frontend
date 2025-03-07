@@ -771,7 +771,7 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
     return Object.keys(newErrors).length === 0; // Return true if no errors
   };
 
-  console.log("ghi-->", highlights)
+ 
 
   const handleSubmit = useCallback(
     
@@ -779,12 +779,12 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
       e.preventDefault();
       console.log("calling keypoints")
 
-      const isValid = validateProductForm(); // Now correctly gets a boolean
+      // const isValid = validateProductForm(); // Now correctly gets a boolean
 
-      if (!isValid) {
-        toast.error("Please fill all required fields before submitting.");
-        return;
-      }
+      // if (!isValid) {
+      //   toast.error("Please fill all required fields before submitting.");
+      //   return;
+      // }
 
       setLoading(true);
 
@@ -858,11 +858,11 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
           ),
         ]);
 
-        if (!uploadedMainImages.length || !variantsData.length) {
-          toast.error("Image upload failed.");
-          setLoading(false);
-          return;
-        }
+        // if (!uploadedMainImages.length || !variantsData.length) {
+        //   toast.error("Image upload failed.");
+        //   setLoading(false);
+        //   return;
+        // }
 
         // Append product details
         newForm.append("name", name);
@@ -954,6 +954,8 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
     seller?.shopName,
     product,
   ]);
+
+  console.log("importer details", importerDetails)
 
 
 
