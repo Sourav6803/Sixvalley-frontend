@@ -418,7 +418,7 @@ const ProductDetails = ({ data }) => {
             <div className={`${styles.section} w-[100%] 80px:w-[80%] `}>
               <div className="w-full py-0">
                 <div className="block w-full 800px:flex">
-                  <div className="w-full p-2  rounded-md 800px:w-[50%] ">
+                  {/* <div className="w-full p-2  rounded-md 800px:w-[50%] ">
                     {data && data?.images?.length && (
                       <Carousel
                         showArrows={true}
@@ -453,7 +453,29 @@ const ProductDetails = ({ data }) => {
                             ))}
                       </Carousel>
                     )}
-                  </div>
+                  </div> */}
+
+                <div className="w-full p-2 rounded-md 800px:w-[50%]">
+                  {data && data?.images?.length && (
+                    <Carousel
+                      showArrows={true}
+                      autoPlay
+                      infiniteLoop
+                      className="w-full flex flex-col items-center"
+                    >
+                      {(currentVariant?.images?.length ? currentVariant.images : data.images).map((img, index) => (
+                        <div key={index} className="relative w-full flex justify-center">
+                          <img
+                            src={img.url}
+                            alt={data?.title}
+                            className="w-full h-auto max-h-[40vh] sm:max-h-[50vh] md:max-h-[60vh] object-contain rounded-lg"
+                          />
+                        </div>
+                      ))}
+                    </Carousel>
+                  )}
+                </div>
+
 
                   <div className="w-full 800px:w-[50%] ml-1 p-3">
                     {/* <h1 className={`${styles.productTitle} mt-3 !text-[18px] !text-slate-700`}>{data.name } ({currentVariant && currentVariant?.Size} {currentVariant && currentVariant?.Color}) </h1> */}

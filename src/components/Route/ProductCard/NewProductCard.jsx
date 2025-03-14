@@ -64,7 +64,7 @@ const NewProductCard = ({ data, isEvent }) => {
             : data.description}
         </p>
         <div className="flex items-center ">
-          <CustomRating value={Math.ceil(data.ratings)} />
+          <CustomRating value={Math.ceil(data.ratings?.totalRating)} />
         </div>
         <div className="flex justify-between mt-1 items-center">
           <h1 className="text-lg font-[14px] text-gray-700 dark:text-gray-200 md:text-xl">
