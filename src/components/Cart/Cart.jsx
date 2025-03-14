@@ -17,48 +17,49 @@ const Cart = ({ setOpenCart , handleCartClose}) => {
     const [loading, setLoading] = useState(false)
     const dispatch = useDispatch();
     
-
     const removeFromCartHandler = (data) => {
         dispatch(removeFromCart(data));
     };
 
-    const shipping = cart?.reduce(
-        (acc, item) => acc +   item?.shippingCost,
-        0
-      );
+    const shipping = cart?.reduce((acc, item) => acc + item?.shippingCost, 0);
 
     const totalOriginalPrice = cart?.reduce(
-        (acc, item) => acc + item?.qty * item?.originalPrice,
-        0
+    (acc, item) =>
+        acc +
+        item?.qty * (item?.currentVariant?.originalPrice ?? item?.originalPrice),
+    0
     );
 
     const totalPrice = cart?.reduce(
-        (acc, item) => acc + item?.qty * item?.afterDiscountPrice,
-        0
+      (acc, item) =>
+        acc +
+        item?.qty *
+          (item?.currentVariant?.afterDiscountPrice ??
+            item?.afterDiscountPrice),
+      0
     );
-
 
     const totalDiscountPrice = cart?.reduce(
-        (acc, item) => acc + item?.qty * (item?.originalPrice - item?.afterDiscountPrice),
-        0
+      (acc, item) =>
+        acc +
+        item?.qty *
+          ((item?.currentVariant?.originalPrice ?? item?.originalPrice) -
+            (item?.currentVariant?.afterDiscountPrice ??
+              item?.afterDiscountPrice)),
+      0
     );
 
-    let fixedDeliveryCharge = shipping
-
-
-    const totalCartPrice = totalPrice + fixedDeliveryCharge 
-
-  
-
+    let fixedDeliveryCharge = shipping;
+    const totalCartPrice = totalPrice + fixedDeliveryCharge;
 
     const quantityChangeHandler = (data) => {
-        setLoading(true)
-        dispatch(addTocart(data));
-        setLoading(false)
+      setLoading(true);
+      dispatch(addTocart(data));
+      setLoading(false);
     };
 
     return (
-        <div id="screen" onClick={handleCartClose} className="fixed top-0 left-0 w-full bg-[#0000004b] h-screen z-10">
+        <div id="screen" onClick={handleCartClose} className="fixed top-0 left-0 w-full bg-[#0000004b] h-screen z-[1000]">
             {
                 !loading && <div className="fixed top-0 right-0 h-full w-[80%] 800px:w-[25%] bg-white flex flex-col overflow-y-scroll justify-between shadow-sm">
 
@@ -135,11 +136,6 @@ const Cart = ({ setOpenCart , handleCartClose}) => {
                                         <p className="text-green-700 font-medium">-₹{totalDiscountPrice}</p>
                                     </div>
 
-                                    {/* <div className="px-1  flex items-center justify-between">
-                                        <p className="text-slate-600 font-medium">Coupons for you</p>
-                                        <p className="text-slate-600 font-medium">-₹{20}</p>
-                                    </div> */}
-
                                     <div className="px-1  flex items-center justify-between">
                                         <p className="text-slate-600 font-medium whitespace-nowrap">Delivery charges</p>
                                         <h1 className="text-slate-600 font-medium flex items-center justify-center gap-1 ">
@@ -195,78 +191,117 @@ const Cart = ({ setOpenCart , handleCartClose}) => {
     );
 };
 
+
 const CartSingle = ({ data, quantityChangeHandler, removeFromCartHandler }) => {
     const [value, setValue] = useState(data?.qty);
-    const totalPrice = data?.afterDiscountPrice * value;
+    
+    const variant = data?.currentVariant ?? data; // Use currentVariant if available
+    const totalPrice = variant?.afterDiscountPrice * value;
 
-    const increment = (data) => {
-        if (data.stock < value) {
+    const increment = () => {
+        if (variant?.stock <= value) {
             toast.error("Product stock limited!");
         } else {
             setValue(value + 1);
-            const updateCartData = { ...data, qty: value + 1 };
-            quantityChangeHandler(updateCartData);
+            quantityChangeHandler({ ...data, qty: value + 1 });
         }
     };
 
-    const decrement = (data) => {
-        setValue(value === 1 ? 1 : value - 1);
-        const updateCartData = { ...data, qty: value === 1 ? 1 : value - 1 };
-        quantityChangeHandler(updateCartData);
+    const decrement = () => {
+        if (value > 1) {
+            setValue(value - 1);
+            quantityChangeHandler({ ...data, qty: value - 1 });
+        }
     };
-
-    
-
 
     return (
         <div className="border-b p-4">
             <div className="w-full flex items-center">
                 <img
-                    src={`${data.images[0]?.url}`}
+                    src={variant?.images?.[0]?.url ?? data?.images?.[0]?.url}
                     alt=""
                     className="w-[70px] h-min ml-2 mr-2 rounded-[5px]"
                 />
                 <div className="pl-[5px]">
-                    <h1>{data?.name?.length >= 21 ? data?.name?.slice(0, 20) + "... " : data?.name} </h1>
+                    <h1>{data?.name?.length >= 21 ? data?.name?.slice(0, 20) + "... " : data?.name}</h1>
+
+                    
+
                     <h4 className="font-[400] text-[15px] text-[#00000082]">
-                        ₹{data?.afterDiscountPrice} * {value}
+                        ₹{variant?.afterDiscountPrice} * {value}
                     </h4>
-                    <div className="flex items-center justify-center gap-2">
-                        <h4 className="font-[600] text-[17px] pt-[3px] text-[#d02222] font-Roboto">
+
+                    <div className="flex flex-wrap items-center gap-2 mt-2  p-2 rounded-md">
+                        {/* Final Price */}
+                        <h4 className="font-semiold text-base text-red-600">
                             ₹{totalPrice}
                         </h4>
 
-                        <h3 className={`text-slate-600 line-through `}>
-                            ₹{data?.originalPrice}
+                        {/* Original Price with Strike-through */}
+                        <h3 className="text-gray-500 line-through text-md">
+                            ₹{variant?.originalPrice}
                         </h3>
 
-                        {data?.discountType === "Flat" ? <p className=' font-bold text-green-800'>Flat ₹{data.discountAmount} off</p> : <p className=' font-bold text-green-800'>{data?.discountAmount}% off</p>}
+                        {/* Discount Label */}
+                        {variant?.discountType === "Flat" ? (
+                            <span className="text-sm font-semibold text-green-700 bg-green-100 px-2 py-1 rounded-md">
+                                Flat ₹{variant?.discountAmount} off
+                            </span>
+                        ) : (
+                            <span className="text-sm font-semibold text-green-700 bg-green-100 px-2 py-1 rounded-md">
+                                {variant?.discountAmount}% off
+                            </span>
+                        )}
                     </div>
-                </div>
 
+
+                    {/* ✅ Show Variant Attributes Correctly */}
+                    {variant?.attributes?.length > 0 && (
+                        <div className="mt-2">
+                        
+                            <div className=" p-1 mt-1">
+                                {variant.attributes.map((attr, index) => (
+                                    <div key={index} className="flex gap-x-5 pb-1 ">
+                                        <span className="text-gray-700 font-medium">{attr.key}:</span>
+                                        <span className="text-gray-900">{attr.value}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                </div>
             </div>
 
             <div className="flex items-center justify-center gap-x-10 mt-2">
-                <div className="flex items-center justify-center ">
+                <div className="flex items-center justify-center">
                     <div
-                        className={`bg-[#e44343] border border-[#e4434373] rounded-md w-[25px] h-[25px] ${styles.noramlFlex} justify-center cursor-pointer`}
-                        onClick={() => increment(data)}
+                        className="bg-[#e44343] border border-[#e4434373] rounded-md w-[25px] h-[25px] flex justify-center items-center cursor-pointer"
+                        onClick={increment}
                     >
                         <HiPlus size={18} color="#fff" />
                     </div>
-                    <span className="pl-[10px] pr-[10px]">{data?.qty}</span>
+                    <span className="pl-[10px] pr-[10px]">{value}</span>
                     <div
                         className="bg-[#a7abb14f] rounded-md w-[25px] h-[25px] flex items-center justify-center cursor-pointer"
-                        onClick={() => decrement(data)}
+                        onClick={decrement}
                     >
                         <HiOutlineMinus size={16} color="#7d879c" />
                     </div>
                 </div>
 
-                <div className=" px-3 border bg-red-500 rounded-md  flex items-center justify-center  text-white cursor-pointer " onClick={() => removeFromCartHandler(data)}>Remove</div>
+                <div
+                    className="px-3 border bg-red-500 rounded-md flex items-center justify-center text-white cursor-pointer"
+                    onClick={() => removeFromCartHandler(data)}
+                >
+                    Remove
+                </div>
             </div>
         </div>
     );
 };
+
+
+
 
 export default Cart;

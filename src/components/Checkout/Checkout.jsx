@@ -23,59 +23,141 @@ const Checkout = () => {
   const [discountPrice, setDiscountPrice] = useState(null);
   const [couponAmount, setCouponAmount] = useState(0)
 
+  console.log("cart", cart)
+
   const navigate = useNavigate();
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const subTotalPrice = cart.reduce(
-    (acc, item) => acc + item?.qty * item?.afterDiscountPrice,
-    0
-  );
+  // const subTotalPrice = cart.reduce(
+  //   (acc, item) => acc + item?.qty * item?.afterDiscountPrice,
+  //   0
+  // );
 
-  // this is shipping cost variable
-  const shipping = cart?.reduce(
-    (acc, item) => acc + item?.shippingCost,
-    0
-  );
+  // // this is shipping cost variable
+  // const shipping = cart?.reduce(
+  //   (acc, item) => acc + item?.shippingCost,
+  //   0
+  // );
 
-  const totalOriginalPrice = cart?.reduce(
-    (acc, item) => acc + item?.qty * item?.originalPrice,
-    0
-  );
+  // const totalOriginalPrice = cart?.reduce(
+  //   (acc, item) => acc + item?.qty * item?.originalPrice,
+  //   0
+  // );
 
-  const totalPrice = cart?.reduce(
-    (acc, item) => acc + item?.qty * item?.afterDiscountPrice,
-    0
-  );
+  // const totalPrice = cart?.reduce(
+  //   (acc, item) => acc + item?.qty * item?.afterDiscountPrice,
+  //   0
+  // );
 
-  const totalDiscountPrice = cart?.reduce(
-    (acc, item) => acc + item?.qty * (item?.originalPrice - item?.afterDiscountPrice),
-    0
-  );
+  // const totalDiscountPrice = cart?.reduce(
+  //   (acc, item) => acc + item?.qty * (item?.originalPrice - item?.afterDiscountPrice),
+  //   0
+  // );
 
-  const deliverCharge = shipping
+  // const deliverCharge = shipping
 
-  const totalCartPrice = totalPrice + shipping - couponAmount
+  // const totalCartPrice = totalPrice + shipping - couponAmount
 
-  const paymentSubmit = () => {
-    if (address1 === "" || address2 === "" || zipCode === null || country === "" || city === "") {
-      toast.error("Please choose your delivery address!")
-    } else {
-      const shippingAddress = {
-        address1, address2, zipCode, country, city
-      };
+  // const paymentSubmit = () => {
+  //   if (address1 === "" || address2 === "" || zipCode === null || country === "" || city === "") {
+  //     toast.error("Please choose your delivery address!")
+  //   } else {
+  //     const shippingAddress = {
+  //       address1, address2, zipCode, country, city
+  //     };
 
-      const orderData = { cart, totalOriginalPrice, totalDiscountPrice, totalPrice, couponAmount, subTotalPrice, deliverCharge, shipping, discountPrice, shippingAddress, user, couponCode, totalCartPrice }
+  //     const orderData = { cart, totalOriginalPrice, totalDiscountPrice, totalPrice, couponAmount, subTotalPrice, deliverCharge, shipping, discountPrice, shippingAddress, user, couponCode, totalCartPrice }
 
-      // update local storage with the updated orders array
-      localStorage.setItem("latestOrder", JSON.stringify(orderData));
-      navigate("/payment");
-    }
+  //     // update local storage with the updated orders array
+  //     localStorage.setItem("latestOrder", JSON.stringify(orderData));
+  //     navigate("/payment");
+  //   }
+  // };
+
+   // const discountPercentenge = couponCodeData ? discountPrice : "";
+
+  // Ensure cart items with variants are handled correctly
+const subTotalPrice = cart.reduce(
+  (acc, item) =>
+    acc + item?.qty * (item?.currentVariant?.afterDiscountPrice ?? item?.afterDiscountPrice),
+  0
+);
+
+// Shipping cost calculation
+const shipping = cart.reduce((acc, item) => acc + (item?.shippingCost ?? 0), 0);
+
+// Original total price calculation
+const totalOriginalPrice = cart.reduce(
+  (acc, item) =>
+    acc + item?.qty * (item?.currentVariant?.originalPrice ?? item?.originalPrice),
+  0
+);
+
+// Discounted total price calculation
+const totalPrice = cart.reduce(
+  (acc, item) =>
+    acc + item?.qty * (item?.currentVariant?.afterDiscountPrice ?? item?.afterDiscountPrice),
+  0
+);
+
+// Total discount applied
+const totalDiscountPrice = cart.reduce(
+  (acc, item) =>
+    acc +
+    item?.qty *
+      ((item?.currentVariant?.originalPrice ?? item?.originalPrice) -
+        (item?.currentVariant?.afterDiscountPrice ?? item?.afterDiscountPrice)),
+  0
+);
+
+// Final delivery charge
+const deliverCharge = shipping;
+
+// Total cart price after applying the coupon
+const totalCartPrice = totalPrice + shipping - (couponAmount ?? 0);
+
+// Calculate discount percentage if a coupon is applied
+const discountPercentenge = couponCodeData
+  ? ((totalDiscountPrice / totalOriginalPrice) * 100).toFixed(2)
+  : "";
+
+const paymentSubmit = () => {
+  if (!address1 || !address2 || !zipCode || !country || !city) {
+    toast.error("Please choose your delivery address!");
+    return;
+  }
+
+  const shippingAddress = { address1, address2, zipCode, country, city };
+
+  const orderData = {
+    cart,
+    totalOriginalPrice,
+    totalDiscountPrice,
+    totalPrice,
+    couponAmount: couponAmount ?? 0,
+    subTotalPrice,
+    deliverCharge,
+    shipping,
+    discountPercentenge,
+    shippingAddress,
+    user,
+    couponCode,
+    totalCartPrice,
   };
 
-  const discountPercentenge = couponCodeData ? discountPrice : "";
+  console.log("order data-->", orderData)
+
+  // Store order in local storage
+  localStorage.setItem("latestOrder", JSON.stringify(orderData));
+
+  // Redirect to payment
+  navigate("/payment");
+};
+
+ 
 
   return (
     <div className="w-full flex flex-col items-center py-3">
@@ -503,7 +585,7 @@ export default Checkout;
 
 
 
-
+//
 
 
 

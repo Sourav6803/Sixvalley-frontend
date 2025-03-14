@@ -1,746 +1,4 @@
-// import React, { useCallback, useEffect, useRef, useState } from "react";
-// import { toast } from "react-toastify";
-// import { MdDelete } from "react-icons/md";
-// import {
-//   addLeafCategory,
-//   addSubcategory,
-//   createMainCategory,
-// } from "../../../api/categoryApi";
-// import { LoadingModal } from "../../Shop/Product/LoadingModal";
 
-// const CategoryForm = ({ parentCategory }) => {
-//   const [name, setName] = useState("");
-//   const [image, setImage] = useState(null);
-//   const [keywords, setKeywords] = useState([]);
-//   const [isLeaf, setIsLeaf] = useState(false);
-//   const [loading, setLoading] = useState(false);
-//   const [attributes, setAttributes] = useState([
-//     { name: "", type: "text", unit: "", values: [], options: [] },
-//   ]);
-//   const [isDisabled, setIsDisabled] = useState(true);
-//   const [isFormValid, setIsFormValid] = useState(false);
-
-//   useEffect(() => {
-//     if (parentCategory) {
-//       setIsLeaf(parentCategory?.level === 3 ? true : false);
-//     }
-//   }, [parentCategory]);
-
-//   const attributesRef = useRef(attributes);
-
-//   // Update the ref whenever attributes change
-//   useEffect(() => {
-//     attributesRef.current = attributes;
-//   }, [attributes]);
-
-//   const handleFileInputChange = useCallback((e) => {
-//     const file = e.target.files[0];
-//     setImage(file);
-//   }, []);
-
-//   useEffect(() => {
-//     if (name?.length > 1 && image) {
-//       setIsDisabled(false);
-//     } else {
-//       setIsDisabled(true);
-//     }
-//   }, [name, image]);
-
-//   const addNewAttribute = () => {
-//     setAttributes([
-//       ...attributes,
-//       { name: "", type: "text", unit: "", values: [], options: [] },
-//     ]);
-//   };
-
-//   const handleAttributeChange = (index, key, value) => {
-//     const updatedAttributes = [...attributes];
-//     updatedAttributes[index][key] = value;
-
-//     if (key === "type" && value === "select") {
-//       updatedAttributes[index].options = [];
-//     }
-//     if (key === "type" && value !== "select") {
-//       updatedAttributes[index].options = undefined;
-//     }
-//     setAttributes(updatedAttributes);
-//   };
-
-//   const validateForm = () => {
-//     // Basic fields validation
-//     if (!name.trim() || !image) return false;
-
-//     // If it's not a leaf category, no need to validate attributes
-//     if (!isLeaf) return true;
-
-//     // If it's a leaf category, validate attributes
-//     const isValid = attributes.every((attr) => {
-//       if (attr.name.trim().length === 0) return false;
-//       if (
-//         attr.type === "select" &&
-//         (!attr.options || attr.options.length === 0)
-//       )
-//         return false;
-//       return true;
-//     });
-
-//     return isValid;
-//   };
-
-//   useEffect(() => {
-//     setIsFormValid(validateForm());
-//   }, [name, image, attributes, isLeaf]);
-
-//   const handleSubmit = useCallback(
-//     async (e) => {
-//       e.preventDefault();
-
-//       setLoading(true);
-
-//       if (!name || !image || !keywords) {
-//         toast.error("Please fill in all required fields.");
-//         return;
-//       }
-
-//       const formData = new FormData();
-//       formData.append("name", name);
-//       formData.append("image", image);
-
-//       if (keywords) {
-//         keywords
-//           .split(",")
-//           .map((keyword) => formData.append("keywords[]", keyword?.trim()));
-//       }
-
-//       if (parentCategory) {
-//         formData.append("parentId", parentCategory?._id);
-//       }
-
-//       // Use the ref to ensure the latest attributes are used
-//       if (isLeaf && attributesRef.current.length > 0) {
-//         formData.append("attributes", JSON.stringify(attributesRef.current));
-//       }
-
-//       setIsDisabled(true);
-
-//       try {
-//         let response;
-//         if (parentCategory) {
-//           if (isLeaf && attributesRef.current.length > 0) {
-//             response = await addLeafCategory(formData);
-//           } else {
-//             response = await addSubcategory(formData);
-//           }
-//         } else {
-//           response = await createMainCategory(formData);
-//         }
-//         toast.success("Category added successfully!");
-//         setTimeout(() => {
-//           window.location.reload();
-//         }, 1500);
-//         setName("");
-//         setImage(null);
-//         setKeywords("");
-//         setAttributes([]);
-//         setIsLeaf(false);
-//       } catch (error) {
-//         console.error("Error adding category:", error?.message);
-//         toast.error(error?.response?.data.message || "Failed to add category");
-//       } finally {
-//         setIsDisabled(false);
-//         setLoading(false);
-//       }
-//     },
-//     [name, image, keywords, parentCategory, isLeaf]
-//   );
-
-//   const removeAttribute = (index) => {
-//     const updatedAttributes = attributes.filter((_, i) => i !== index);
-//     setAttributes(updatedAttributes);
-//   };
-
-//   return (
-//     <div className="w-full bg-white shadow-md rounded-lg p-6 md:p-8 mt-8">
-//       {loading && (
-//         <LoadingModal loading={loading} message={"Creating your category..."} />
-//       )}
-
-//       <h3 className="text-xl font-bold text-slate-600 mb-6 text-center md:text-left">
-//         {parentCategory ? (
-//           <>
-//             Add Subcategory to{" "}
-//             <span className="text-blue-600">{parentCategory.name}</span>
-//           </>
-//         ) : (
-//           "Create Main Category"
-//         )}
-//       </h3>
-//       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-//         {/* Form Section */}
-//         <form onSubmit={handleSubmit} className="space-y-6">
-//           {/* Category Name */}
-//           <div className="flex flex-col">
-//             <label
-//               htmlFor="name"
-//               className="text-sm font-medium text-gray-700 mb-2"
-//             >
-//               Category Name
-//             </label>
-//             <input
-//               id="name"
-//               type="text"
-//               value={name}
-//               onChange={(e) => setName(e.target.value)}
-//               required
-//               className="border border-gray-300 rounded-lg shadow-sm text-gray-800 focus:ring-blue-500 focus:border-blue-500 sm:text-base p-3"
-//               placeholder="Enter category name"
-//             />
-//           </div>
-
-//           {/* Image Upload */}
-//           <div className="flex flex-col">
-//             <label
-//               htmlFor="image"
-//               className="text-sm font-medium text-gray-700 mb-2"
-//             >
-//               Image Upload
-//             </label>
-//             <input
-//               className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-gray-800 focus:ring-blue-500 focus:border-blue-500 transition duration-300"
-//               id="file_input"
-//               type="file"
-//               accept=".jpg, .jpeg, .png"
-//               onChange={handleFileInputChange}
-//             />
-//           </div>
-
-//           {/* Keywords */}
-//           <div className="flex flex-col">
-//             <label
-//               htmlFor="keywords"
-//               className="text-sm font-medium text-gray-700 mb-2"
-//             >
-//               Keywords (comma-separated)
-//             </label>
-//             <input
-//               id="keywords"
-//               type="text"
-//               value={keywords}
-//               onChange={(e) => setKeywords(e.target.value)}
-//               className="border border-gray-300 rounded-lg shadow-sm text-gray-800 focus:ring-blue-500 focus:border-blue-500 sm:text-base p-3"
-//               placeholder="Enter keywords"
-//             />
-//           </div>
-
-//           {/* Last Category Checkbox */}
-//           {parentCategory &&
-//             parentCategory.level !== 3 &&
-//             parentCategory.level !== 1 && (
-//               <div className="flex items-center gap-3">
-//                 <input
-//                   type="checkbox"
-//                   checked={isLeaf}
-//                   onChange={(e) => setIsLeaf(e.target.checked)}
-//                   className="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-//                 />
-//                 <label className="text-sm text-gray-700">
-//                   This is the last category (no child categories allowed)
-//                 </label>
-//               </div>
-//             )}
-
-//           {/* Attributes Section */}
-//           {isLeaf && (
-//             <div>
-//               {attributes.map((attr, index) => (
-//                 <div
-//                   key={index}
-//                   className="flex flex-wrap gap-4 items-center text-gray-800 mb-4"
-//                 >
-//                   <input
-//                     type="text"
-//                     value={attr.name}
-//                     onChange={(e) =>
-//                       handleAttributeChange(index, "name", e.target.value)
-//                     }
-//                     placeholder="Attribute Name"
-//                     className="flex-grow border border-gray-300 rounded-lg p-3 shadow-sm text-sm"
-//                   />
-//                   <select
-//                     value={attr.type}
-//                     onChange={(e) =>
-//                       handleAttributeChange(index, "type", e.target.value)
-//                     }
-//                     className="flex-grow border border-gray-300 rounded-lg p-3 shadow-sm text-sm"
-//                   >
-//                     <option value="text">Text</option>
-//                     <option value="number">Number</option>
-//                     <option value="boolean">Boolean</option>
-//                     <option value="select">Dropdown</option>
-//                   </select>
-//                   {attr.type === "select" && (
-//                     <input
-//                       type="text"
-//                       placeholder="Options (comma-separated)"
-//                       value={attr.options?.join(", ")}
-//                       onChange={(e) =>
-//                         handleAttributeChange(
-//                           index,
-//                           "options",
-//                           e.target.value.split(",").map((opt) => opt.trim())
-//                         )
-//                       }
-//                       className="flex-grow border border-gray-300 rounded-lg p-3 shadow-sm text-sm"
-//                     />
-//                   )}
-//                   <input
-//                     type="text"
-//                     placeholder="Unit (optional)"
-//                     value={attr.unit}
-//                     onChange={(e) =>
-//                       handleAttributeChange(index, "unit", e.target.value)
-//                     }
-//                     className="flex-grow border border-gray-300 rounded-lg p-3 shadow-sm text-sm"
-//                   />
-//                   <button
-//                     type="button"
-//                     onClick={() => removeAttribute(index)}
-//                     className="text-red-600 hover:text-red-800"
-//                   >
-//                     <MdDelete size={24} />
-//                   </button>
-//                 </div>
-//               ))}
-//               <button
-//                 type="button"
-//                 onClick={addNewAttribute}
-//                 className="text-blue-600 hover:underline"
-//               >
-//                 + Add Attribute
-//               </button>
-//             </div>
-//           )}
-
-//           {/* Submit Button */}
-//           <div className="flex justify-end">
-//             <button
-//               type="submit"
-//               disabled={!isFormValid}
-//               className={`px-5 py-3 rounded-lg ${
-//                 isFormValid
-//                   ? "bg-blue-600 text-white hover:bg-blue-700"
-//                   : "bg-gray-400 text-gray-200 cursor-not-allowed"
-//               }`}
-//             >
-//               {parentCategory === null
-//                 ? "Add Category"
-//                 : isLeaf
-//                 ? "Add Child"
-//                 : "Add Sub-Category"}
-//             </button>
-//           </div>
-//         </form>
-
-//         {/* Image Preview Section */}
-//         <div className="flex justify-center">
-//           <div className="border p-3 rounded-lg overflow-hidden shadow-md">
-//             {image ? (
-//               <img
-//                 src={URL.createObjectURL(image)}
-//                 alt="Preview"
-//                 className="w-full h-full object-cover"
-//               />
-//             ) : (
-//               <img
-//                 src="https://6valley.6amtech.com/public/assets/back-end/img/image-place-holder.png"
-//                 alt="Placeholder"
-//                 className="w-full h-full object-cover"
-//               />
-//             )}
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default CategoryForm;
-
-// import React, { useCallback, useEffect, useRef, useState } from "react";
-// import { toast } from "react-toastify";
-// import { MdDelete } from "react-icons/md";
-// import {
-//   addLeafCategory,
-//   addSubcategory,
-//   createMainCategory,
-// } from "../../../api/categoryApi";
-// import { LoadingModal } from "../../Shop/Product/LoadingModal";
-// import axios from "axios";
-
-// const CategoryForm = ({ parentCategory }) => {
-//   const [name, setName] = useState("");
-//   const [image, setImage] = useState(null);
-//   const [keywords, setKeywords] = useState([]);
-//   const [isLeaf, setIsLeaf] = useState(false);
-//   const [loading, setLoading] = useState(false);
-//   const [attributes, setAttributes] = useState([
-//     { name: "", type: "text", unit: "", values: [], options: [] },
-//   ]);
-//   const [isDisabled, setIsDisabled] = useState(true);
-//   const [isFormValid, setIsFormValid] = useState(false);
-
-//   const [sections, setSections] = useState([]); // New attribute sections
-
-//   // Handle Adding a New Section
-//   const addSection = () => {
-//     setSections([...sections, { sectionName: "", attributes: [] }]);
-//   };
-
-//   useEffect(() => {
-//     if (parentCategory) {
-//       setIsLeaf(parentCategory?.level === 3 ? true : false);
-//     }
-//   }, [parentCategory]);
-
-//   const attributesRef = useRef(attributes);
-
-//   // Update the ref whenever attributes change
-//   useEffect(() => {
-//     attributesRef.current = attributes;
-//   }, [attributes]);
-
-//   const handleFileInputChange = useCallback((e) => {
-//     const file = e.target.files[0];
-//     setImage(file);
-//   }, []);
-
-//   useEffect(() => {
-//     if (name?.length > 1 && image) {
-//       setIsDisabled(false);
-//     } else {
-//       setIsDisabled(true);
-//     }
-//   }, [name, image]);
-
-//   const addNewAttribute = () => {
-//     setAttributes([
-//       ...attributes,
-//       { name: "", type: "text", unit: "", values: [], options: [] },
-//     ]);
-//   };
-
-//   const handleAttributeChange = (index, key, value) => {
-//     const updatedAttributes = [...attributes];
-//     updatedAttributes[index][key] = value;
-
-//     if (key === "type" && value === "select") {
-//       updatedAttributes[index].options = [];
-//     }
-//     if (key === "type" && value !== "select") {
-//       updatedAttributes[index].options = undefined;
-//     }
-//     setAttributes(updatedAttributes);
-//   };
-
-//   const validateForm = () => {
-//     // Basic fields validation
-//     if (!name.trim() || !image) return false;
-
-//     // If it's not a leaf category, no need to validate attributes
-//     if (!isLeaf) return true;
-
-//     // If it's a leaf category, validate attributes
-//     const isValid = attributes.every((attr) => {
-//       if (attr.name.trim().length === 0) return false;
-//       if (
-//         attr.type === "select" &&
-//         (!attr.options || attr.options.length === 0)
-//       )
-//         return false;
-//       return true;
-//     });
-
-//     return isValid;
-//   };
-
-//   useEffect(() => {
-//     setIsFormValid(validateForm());
-//   }, [name, image, attributes, isLeaf]);
-
-//   const handleSubmit = useCallback(
-//     async (e) => {
-//       e.preventDefault();
-
-//       setLoading(true);
-
-//       if (!name || !image || !keywords) {
-//         toast.error("Please fill in all required fields.");
-//         return;
-//       }
-
-//       const formData = new FormData();
-//       formData.append("name", name);
-//       formData.append("image", image);
-
-//       if (keywords) {
-//         keywords
-//           .split(",")
-//           .map((keyword) => formData.append("keywords[]", keyword?.trim()));
-//       }
-
-//       if (parentCategory) {
-//         formData.append("parentId", parentCategory?._id);
-//       }
-
-//       // Use the ref to ensure the latest attributes are used
-//       if (isLeaf && attributesRef.current.length > 0) {
-//         formData.append("attributes", JSON.stringify(attributesRef.current));
-//       }
-
-//       setIsDisabled(true);
-
-//       try {
-//         let response;
-//         if (parentCategory) {
-//           if (isLeaf && attributesRef.current.length > 0) {
-//             response = await addLeafCategory(formData);
-//           } else {
-//             response = await addSubcategory(formData);
-//           }
-//         } else {
-//           response = await createMainCategory(formData);
-//         }
-//         toast.success("Category added successfully!");
-//         setTimeout(() => {
-//           window.location.reload();
-//         }, 1500);
-//         setName("");
-//         setImage(null);
-//         setKeywords("");
-//         setAttributes([]);
-//         setIsLeaf(false);
-//       } catch (error) {
-//         console.error("Error adding category:", error?.message);
-//         toast.error(error?.response?.data.message || "Failed to add category");
-//       } finally {
-//         setIsDisabled(false);
-//         setLoading(false);
-//       }
-//     },
-//     [name, image, keywords, parentCategory, isLeaf]
-//   );
-
-//   const removeAttribute = (index) => {
-//     const updatedAttributes = attributes.filter((_, i) => i !== index);
-//     setAttributes(updatedAttributes);
-//   };
-
-//   return (
-//     <div className="w-full bg-white shadow-md rounded-lg p-6 md:p-8 mt-8">
-//       {loading && (
-//         <LoadingModal loading={loading} message={"Creating your category..."} />
-//       )}
-
-//       <h3 className="text-xl font-bold text-slate-600 mb-6 text-center md:text-left">
-//         {parentCategory ? (
-//           <>
-//             Add Subcategory to{" "}
-//             <span className="text-blue-600">{parentCategory.name}</span>
-//           </>
-//         ) : (
-//           "Create Main Category"
-//         )}
-//       </h3>
-//       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-//         {/* Form Section */}
-//         <form onSubmit={handleSubmit} className="space-y-6">
-//           {/* Category Name */}
-//           <div className="flex flex-col">
-//             <label
-//               htmlFor="name"
-//               className="text-sm font-medium text-gray-700 mb-2"
-//             >
-//               Category Name
-//             </label>
-//             <input
-//               id="name"
-//               type="text"
-//               value={name}
-//               onChange={(e) => setName(e.target.value)}
-//               required
-//               className="border border-gray-300 rounded-lg shadow-sm text-gray-800 focus:ring-blue-500 focus:border-blue-500 sm:text-base p-3"
-//               placeholder="Enter category name"
-//             />
-//           </div>
-
-//           {/* Image Upload */}
-//           <div className="flex flex-col">
-//             <label
-//               htmlFor="image"
-//               className="text-sm font-medium text-gray-700 mb-2"
-//             >
-//               Image Upload
-//             </label>
-//             <input
-//               className="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-gray-800 focus:ring-blue-500 focus:border-blue-500 transition duration-300"
-//               id="file_input"
-//               type="file"
-//               accept=".jpg, .jpeg, .png"
-//               onChange={handleFileInputChange}
-//             />
-//           </div>
-
-//           {/* Keywords */}
-//           <div className="flex flex-col">
-//             <label
-//               htmlFor="keywords"
-//               className="text-sm font-medium text-gray-700 mb-2"
-//             >
-//               Keywords (comma-separated)
-//             </label>
-//             <input
-//               id="keywords"
-//               type="text"
-//               value={keywords}
-//               onChange={(e) => setKeywords(e.target.value)}
-//               className="border border-gray-300 rounded-lg shadow-sm text-gray-800 focus:ring-blue-500 focus:border-blue-500 sm:text-base p-3"
-//               placeholder="Enter keywords"
-//             />
-//           </div>
-
-//           {/* Last Category Checkbox */}
-//           {parentCategory &&
-//             parentCategory.level !== 3 &&
-//             parentCategory.level !== 1 && (
-//               <div className="flex items-center gap-3">
-//                 <input
-//                   type="checkbox"
-//                   checked={isLeaf}
-//                   onChange={(e) => setIsLeaf(e.target.checked)}
-//                   className="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-//                 />
-//                 <label className="text-sm text-gray-700">
-//                   This is the last category (no child categories allowed)
-//                 </label>
-//               </div>
-//             )}
-
-//           {/* Attributes Section */}
-//           {isLeaf && (
-//             <div>
-//               {attributes.map((attr, index) => (
-//                 <div
-//                   key={index}
-//                   className="flex flex-wrap gap-4 items-center text-gray-800 mb-4"
-//                 >
-//                   <input
-//                     type="text"
-//                     value={attr.name}
-//                     onChange={(e) =>
-//                       handleAttributeChange(index, "name", e.target.value)
-//                     }
-//                     placeholder="Attribute Name"
-//                     className="flex-grow border border-gray-300 rounded-lg p-3 shadow-sm text-sm"
-//                   />
-//                   <select
-//                     value={attr.type}
-//                     onChange={(e) =>
-//                       handleAttributeChange(index, "type", e.target.value)
-//                     }
-//                     className="flex-grow border border-gray-300 rounded-lg p-3 shadow-sm text-sm"
-//                   >
-//                     <option value="text">Text</option>
-//                     <option value="number">Number</option>
-//                     <option value="boolean">Boolean</option>
-//                     <option value="select">Dropdown</option>
-//                   </select>
-//                   {attr.type === "select" && (
-//                     <input
-//                       type="text"
-//                       placeholder="Options (comma-separated)"
-//                       value={attr.options?.join(", ")}
-//                       onChange={(e) =>
-//                         handleAttributeChange(
-//                           index,
-//                           "options",
-//                           e.target.value.split(",").map((opt) => opt.trim())
-//                         )
-//                       }
-//                       className="flex-grow border border-gray-300 rounded-lg p-3 shadow-sm text-sm"
-//                     />
-//                   )}
-//                   <input
-//                     type="text"
-//                     placeholder="Unit (optional)"
-//                     value={attr.unit}
-//                     onChange={(e) =>
-//                       handleAttributeChange(index, "unit", e.target.value)
-//                     }
-//                     className="flex-grow border border-gray-300 rounded-lg p-3 shadow-sm text-sm"
-//                   />
-//                   <button
-//                     type="button"
-//                     onClick={() => removeAttribute(index)}
-//                     className="text-red-600 hover:text-red-800"
-//                   >
-//                     <MdDelete size={24} />
-//                   </button>
-//                 </div>
-//               ))}
-//               <button
-//                 type="button"
-//                 onClick={addNewAttribute}
-//                 className="text-blue-600 hover:underline"
-//               >
-//                 + Add Attribute
-//               </button>
-//             </div>
-//           )}
-
-//           {/* Submit Button */}
-//           <div className="flex justify-end">
-//             <button
-//               type="submit"
-//               disabled={!isFormValid}
-//               className={`px-5 py-3 rounded-lg ${
-//                 isFormValid
-//                   ? "bg-blue-600 text-white hover:bg-blue-700"
-//                   : "bg-gray-400 text-gray-200 cursor-not-allowed"
-//               }`}
-//             >
-//               {parentCategory === null
-//                 ? "Add Category"
-//                 : isLeaf
-//                 ? "Add Child"
-//                 : "Add Sub-Category"}
-//             </button>
-//           </div>
-//         </form>
-
-//         {/* Image Preview Section */}
-//         <div className="flex justify-center">
-//           <div className="border p-3 rounded-lg overflow-hidden shadow-md">
-//             {image ? (
-//               <img
-//                 src={URL.createObjectURL(image)}
-//                 alt="Preview"
-//                 className="w-full h-full object-cover"
-//               />
-//             ) : (
-//               <img
-//                 src="https://6valley.6amtech.com/public/assets/back-end/img/image-place-holder.png"
-//                 alt="Placeholder"
-//                 className="w-full h-full object-cover"
-//               />
-//             )}
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default CategoryForm;
 
 import React, { useCallback, useEffect, useState } from "react";
 import { MdDelete, MdExpandLess, MdExpandMore } from "react-icons/md";
@@ -756,7 +14,10 @@ const CategoryForm = ({ parentCategory }) => {
     keywords: [],
     isLeaf: isLeaf,
     attributeSections: [],
+    variantAttributes: [], // <-- NEW: Add variantAttributes for leaf categories
   });
+
+  const [variantAttributes, setVariantAttributes] = useState([]);
   const [imagePreview, setImagePreview] = useState(null);
   const [keywords, setKeywords] = useState([]);
  
@@ -765,6 +26,13 @@ const CategoryForm = ({ parentCategory }) => {
   const [isDisabled, setIsDisabled] = useState(true);
   const [isFormValid, setIsFormValid] = useState(false);
   const [expandedSections, setExpandedSections] = useState({});
+
+  const [isVariantExpanded, setIsVariantExpanded] = useState(false);
+
+// Toggle variant attributes section
+const toggleVariantSection = () => {
+  setIsVariantExpanded((prev) => !prev);
+};
 
   const toggleSection = (index) => {
     setExpandedSections((prev) => ({
@@ -851,6 +119,23 @@ const CategoryForm = ({ parentCategory }) => {
     }));
   };
 
+  const addVariantAttribute = () => {
+    setVariantAttributes([...variantAttributes, { name: "", type: "text", options: [], allowCustomValues: false }]);
+  };
+
+  const removeVariantAttribute = (index) => {
+    setVariantAttributes(variantAttributes.filter((_, i) => i !== index));
+  };
+
+  const updateVariantAttribute = (index, field, value) => {
+    const updatedAttributes = [...variantAttributes];
+    if (field === "options") {
+      updatedAttributes[index][field] = value.split(",").map(opt => opt.trim());
+    } else {
+      updatedAttributes[index][field] = value;
+    }
+    setVariantAttributes(updatedAttributes);
+  };
 
   const handleChange = (e, sectionIndex, attrIndex, field) => {
     const { value } = e.target;
@@ -869,8 +154,14 @@ const CategoryForm = ({ parentCategory }) => {
     setCategory({ ...category, attributeSections: updatedSections });
   };
 
-  console.log("category-->", category)
-  console.log("isLeaf-->", isLeaf)
+
+  // Sync variantAttributes with category when it changes
+  useEffect(() => {
+    setCategory((prevCategory) => ({
+      ...prevCategory,
+      variantAttributes,
+    }));
+  }, [variantAttributes]);
 
   const validateForm = () => {
     let errors = {};
@@ -924,6 +215,13 @@ const CategoryForm = ({ parentCategory }) => {
           JSON.stringify(category.attributeSections)
         );
       }
+
+      if (category.variantAttributes.length > 0) {
+        formData.append(
+          "variantAttributes",
+          JSON.stringify(category.variantAttributes)
+        );
+      }
   
       formData.forEach((value, key) => console.log(key, value));
       setIsDisabled(true);
@@ -967,6 +265,8 @@ const CategoryForm = ({ parentCategory }) => {
     },
     [category, parentCategory]
   );
+
+  console.log("category-->", category)
   
 
   return (
@@ -1190,6 +490,71 @@ const CategoryForm = ({ parentCategory }) => {
             </div>
           </div>
         )}
+
+        {/* Variant Attributes Section */}
+        
+        {isLeaf && (
+          <div className="mt-4">
+            <h3 className="text-lg font-medium mb-2">Variant Attributes</h3>
+
+            {variantAttributes?.map((attr, index) => (
+              <div key={index} className="border p-4 rounded-md mt-2 bg-gray-100">
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">Attribute {index + 1}</span>
+                  <button type="button" className="text-red-500" onClick={() => removeVariantAttribute(index)}>
+                    ✖
+                  </button>
+                </div>
+
+                <div className="mt-3 flex flex-col md:flex-row md:items-center gap-2">
+                  {/* Attribute Name */}
+                  <input
+                    type="text"
+                    placeholder="Attribute Name"
+                    value={attr.name}
+                    onChange={(e) => updateVariantAttribute(index, "name", e.target.value)}
+                    className="w-full md:w-[25%] p-2 border rounded-md"
+                  />
+
+                  {/* Attribute Type */}
+                  <select
+                    value={attr.type}
+                    onChange={(e) => updateVariantAttribute(index, "type", e.target.value)}
+                    className="p-2 border rounded-md w-full md:w-[20%]"
+                  >
+                    <option value="text">Text</option>
+                    <option value="number">Number</option>
+                    <option value="boolean">Boolean</option>
+                    <option value="select">Select</option>
+                  </select>
+
+                  {/* Options (Only for Select Type) */}
+                  {attr.type === "select" && (
+                    <input
+                      type="text"
+                      placeholder="Options (comma-separated)"
+                      value={attr.options.join(", ")}
+                      onChange={(e) => updateVariantAttribute(index, "options", e.target.value)}
+                      className="w-full md:w-[30%] p-2 border rounded-md"
+                    />
+                  )}
+
+                  
+                </div>
+              </div>
+            ))}
+
+            <button
+              type="button"
+              className="mt-3 text-blue-500 px-3"
+              onClick={addVariantAttribute}
+            >
+              + Add Attribute
+            </button>
+          </div>
+        )}
+
+
 
         {imagePreview && (
           <div className="flex items-center justify-center">

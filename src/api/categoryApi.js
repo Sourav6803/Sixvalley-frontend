@@ -1,7 +1,7 @@
 import axios from "axios";
 
-//  const BASE_URL = "http://localhost:8000/api/v3/category";
-const BASE_URL = "https://e-backend-136t.onrender.com/api/v3/category"
+  const BASE_URL = "http://localhost:8000/api/v3/category";
+// const BASE_URL = "https://e-backend-136t.onrender.com/api/v3/category"
 
 const config = { 
     headers: { "Content-Type": "multipart/form-data" },

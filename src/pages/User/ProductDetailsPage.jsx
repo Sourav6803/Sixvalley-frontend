@@ -42,7 +42,7 @@ const ProductDetailsPage = () => {
 
               <SimilarProductFromStore data={data} />
 
-              <Footer />
+              {/* <Footer /> */}
             </div>
           )
       }

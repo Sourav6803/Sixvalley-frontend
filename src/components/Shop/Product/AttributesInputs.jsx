@@ -85,7 +85,7 @@ const AttributeInputs = ({ attributesBySection, handleAttributeChange, selectedC
                       errors[`${section.sectionName}_${attr.name}`] ? "border-red-500" : "border-gray-300"
                     }`}
                     placeholder={`Enter ${attr.name}`}
-                    value={attr.value }
+                    value={attr.value ?? ''}
                     onChange={(e) => handleAttributeChange(e, section.sectionName, index)}
                   />
                 ) : attr.type === "boolean" ? (
@@ -95,7 +95,7 @@ const AttributeInputs = ({ attributesBySection, handleAttributeChange, selectedC
                       <input
                         type="checkbox"
                         className="sr-only peer"
-                        checked={attr.value}
+                        checked={attr.value ?? false}
                         onChange={(e) => handleAttributeChange(e, section.sectionName, index)}
                       />
                       <div className="w-9 h-5 bg-gray-300 peer-focus:ring-2 peer-focus:ring-blue-400 rounded-full peer peer-checked:after:translate-x-4 peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500"></div>
@@ -105,7 +105,7 @@ const AttributeInputs = ({ attributesBySection, handleAttributeChange, selectedC
                 ) : attr.type === "select" ? (
                   <select
                     className="mt-2 w-full text-xs p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
-                    value={attr.value}
+                    value={attr.value ?? ''}
                     onChange={(e) => handleAttributeChange(e, section.sectionName, index)}
                   >
                     <option value="">Select</option>

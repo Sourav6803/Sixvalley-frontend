@@ -54,7 +54,7 @@ const Header = ({ activeHeading, searchContentOpen, setSearchContentOpen }) => {
   const [openWishlist, setOpenWishlist] = useState(false);
   const [open, setOpen] = useState(false);
   const { cart } = useSelector((state) => state.cart);
-  const [searchOpen, setSearchOpen] = useState(true);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [notficationOpen, setNotificationOpen] = useState(false);
   const [loading, setIsLoading] = useState(false);
   const [notifications, setNotifications] = useState([]);

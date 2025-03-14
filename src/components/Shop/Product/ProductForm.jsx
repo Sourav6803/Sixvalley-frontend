@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import { MdInfo, MdRemove } from "react-icons/md";
 import { toast } from "react-toastify";
-import Select from "react-select";
 import AttributeInputs from "./AttributesInputs";
 import PricingDetails from "./PricingDetails";
 import { FcAddImage } from "react-icons/fc";
@@ -14,9 +13,10 @@ import { useNavigate } from "react-router-dom";
 import { createProduct } from "../../../redux/actions/product";
 import socketIO from "socket.io-client";
 import { LoadingModal } from "./LoadingModal";
-import { FaQuestionCircle } from "react-icons/fa";
+import { FaQuestionCircle, FaTimes } from "react-icons/fa";
 import Loader from "../../../pages/Loader";
 import ProductHighlights from "./ProductHighlights";
+import { v4 as uuidv4 } from "uuid";
 
 const ENDPOINT = "http://localhost:4000";
 const socketId = socketIO(ENDPOINT, { transports: ["websocket"] });
@@ -25,14 +25,18 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
   const { seller } = useSelector((state) => state.seller);
   const { isLoading, success, error } = useSelector((state) => state.products);
   const { product } = useSelector((state) => state?.products);
-  const [attributes, setAttributes] = useState([]);
+  const [attributes, setAttributes] = useState(
+    selectedCategory?.variantAttributes?.map((attr) => ({
+      key: attr.name,
+      type: attr.type,
+      values: [],
+    })) || []
+  );
   const [attributesBySection, setAttributesBySection] = useState({});
   const [images, setImages] = useState([]);
   const [name, setName] = useState("");
   const [styleCode, setStyleCode] = useState("");
   const [weight, setWeight] = useState("");
-  const [size, setSize] = useState([]);
-  const [sizeOptions, setSizeOptions] = useState([]);
   const [brand, setBrand] = useState("");
   const [description, setDescription] = useState("");
   const [importerDetails, setImporterDetails] = useState("");
@@ -41,18 +45,17 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
   const [discountPrice, setDiscountPrice] = useState(0);
   const [afterDiscountPrice, setAfterDiscountPrice] = useState(0);
   const [stock, setStock] = useState(0);
-  const [color, setColor] = useState("");
-  const [colorOptions, setColorOptions] = useState([]);
-  const [showColor, setShowColor] = useState(false);
   const [warrentyPeriod, setWarrentyPeriod] = useState();
   const [sku, setSku] = useState("");
-  const [tags, setTags] = useState("");
+  const [tags, setTags] = useState([]);
   const [maxPurchaseLimit, setMaxPurchaseLimit] = useState("");
   const [otherDetails, setOtherDetails] = useState([{ key: "", value: "" }]);
-  const [dimensions, setDimensions] = useState({length: "", width: "", height: "",});
+  const [dimensions, setDimensions] = useState({
+    length: "",
+    width: "",
+    height: "",
+  });
   const [isDimensinonOpen, setIsDimensionOpen] = useState(false); // To toggle the collapsible input
-  const [selectedSize, setSelectedSize] = useState("");
-  const [selectedColor, setSelectedColor] = useState("");
   const [variations, setVariations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -60,16 +63,38 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
   const [open, setOpen] = useState(false);
   const [errors, setErrors] = useState({});
   const [attributeKeyValuePairs, setAttributeKeyValuePairs] = useState({});
-  const [highlights, setHighlights] = useState([])
+  const [highlights, setHighlights] = useState([]);
   const [load, setIsLoading] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleInputChange = (setter, fieldName, isNested = false) =>
+  const [tagInput, setTagInput] = useState("");
+
+  const handleTagInput = (e) => {
+    setTagInput(e.target.value);
+  };
+  
+  const handleKeyDown = (e) => {
+    if (e.key === "," || e.key === "Enter") {
+      e.preventDefault(); // Prevent form submission (if Enter is pressed)
+  
+      // Add new tag if not empty
+      if (tagInput.trim() !== "") {
+        setTags([...tags, tagInput.trim()]);
+        setTagInput(""); // Clear input after adding
+      }
+    }
+  };
+  
+  const removeTag = (index) => {
+    setTags(tags.filter((_, i) => i !== index));
+  };
+
+  const handleInputChange =
+    (setter, fieldName, isNested = false) =>
     (e) => {
       const value = e.target.value;
-
 
       setter((prev) => {
         const updatedState = isNested
@@ -121,180 +146,54 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
   };
 
   useEffect(() => {
-    if (selectedCategory) {
-      const initialAttributes =
-        selectedCategory?.attributeSections?.flatMap((section) =>
-          section.attributes.map((attr) => ({
-            name: attr.name,
-            type: attr.type,
-            value: attr.type === "boolean" ? false : "",
-            unit: attr.unit || "",
-          }))
-        ) || [];
-      setAttributes(initialAttributes);
-    }
-  }, [selectedCategory]);
-  
-  // useEffect(() => {
-  //   if (selectedCategory?.attributeSections?.length) {
-  //     const newAttributes = {};
-      
-  //     selectedCategory.attributeSections.forEach((section) => {
-  //       newAttributes[section.sectionName] = section.attributes?.map(attr => ({
-  //         ...attr, value: attr.value || ""  // Ensure value exists
-  //       })) || [];
-  //     });
-
-  //     setAttributesBySection(newAttributes);
-  //   }
-  // }, [selectedCategory]);
-
-  useEffect(() => {
-    if (!selectedCategory || !Array.isArray(selectedCategory.attributeSections)) return;
+    if (!selectedCategory || !Array.isArray(selectedCategory.attributeSections))
+      return;
 
     setAttributesBySection((prev) => {
-        const newAttributes = {};
+      const newAttributes = {};
 
-        selectedCategory.attributeSections.forEach((section) => {
-            newAttributes[section.sectionName] = section.attributes?.map(({ values, ...attr }) => attr) || [];
-        });
+      selectedCategory.attributeSections.forEach((section) => {
+        newAttributes[section.sectionName] =
+          section.attributes?.map(({ values, ...attr }) => attr) || [];
+      });
 
-        return newAttributes;
+      return newAttributes;
     });
-}, [selectedCategory]);
+  }, [selectedCategory]);
 
-  const handleAttributeChange = (e, sectionName, attrIndex) => {
+  const handleAttributeChanges = (e, sectionName, attrIndex) => {
     const { value, type, checked } = e.target;
     const newValue = type === "checkbox" ? checked : value;
-  
+
     setAttributesBySection((prev) => {
       // Ensure section exists before updating
       if (!prev[sectionName]) {
-        console.warn(`Section ${sectionName} not found in attributesBySection, prev`);
+        console.warn(
+          `Section ${sectionName} not found in attributesBySection, prev`
+        );
         return prev;
       }
-  
+
       // Create a new array to avoid mutating state
       const updatedSection = [...prev[sectionName]];
-      
+
       // Ensure attribute index exists
       if (!updatedSection[attrIndex]) {
-        console.warn(`Attribute index ${attrIndex} not found in section ${sectionName}`);
+        console.warn(
+          `Attribute index ${attrIndex} not found in section ${sectionName}`
+        );
         return prev;
       }
-  
+
       // Update specific attribute value
-      updatedSection[attrIndex] = { ...updatedSection[attrIndex], value: newValue };
-  
+      updatedSection[attrIndex] = {
+        ...updatedSection[attrIndex],
+        value: newValue,
+      };
+
       return { ...prev, [sectionName]: updatedSection };
     });
   };
- 
-  useEffect(() => {
-    if (!selectedCategory) return;
-
-    const categoryName = selectedCategory.name.toLowerCase();
-
-    // Size options based on category
-    let sizes = [];
-    if ( categoryName.includes("saree") || categoryName.includes("jewelry") || categoryName.includes("metal") || categoryName.includes("watch") ||
-      categoryName.includes("handbag") ||
-      categoryName.includes("belt")
-    ) {
-      sizes = [{ value: "Free Size", label: "Free Size" }];
-    } else if (
-      categoryName.includes("shoes") ||
-      categoryName.includes("sandals") ||
-      categoryName.includes("heels")
-    ) {
-      sizes = ["6", "7", "8", "9", "10", "11", "Free Size"].map((s) => ({
-        value: s,
-        label: s,
-      }));
-    } else if (
-      categoryName.includes("t-shirt") ||
-      categoryName.includes("shirt") ||
-      categoryName.includes("jacket") ||
-      categoryName.includes("sweater") ||
-      categoryName.includes("hoodie") ||
-      categoryName.includes("wallet")
-    ) {
-      sizes = [ "S", "M", "L", "XL", "XXL", "XXL", "34", "36", "38", "40", "42", "44", "Free Size",].map((s) => ({ value: s, label: s }));
-    } else if (
-      categoryName.includes("trouser") ||
-      categoryName.includes("jeans") ||
-      categoryName.includes("shorts") ||
-      categoryName.includes("leggings") ||
-      categoryName.includes("wallet")
-    ) {
-      sizes = ["28", "30", "32", "34", "36", "38", "Free Size"].map((s) => ({
-        value: s,
-        label: s,
-      }));
-    } else if (
-      categoryName.includes("bra") ||
-      categoryName.includes("lingerie")
-    ) {
-      sizes = ["32A", "32B", "34B", "34C", "36B", "36C", "38D"].map((s) => ({
-        value: s,
-        label: s,
-      }));
-    } else if (
-      categoryName.includes("bed") ||
-      categoryName.includes("mattress")
-    ) {
-      sizes = ["Single", "Double", "Queen", "King"].map((s) => ({
-        value: s,
-        label: s,
-      }));
-    } else {
-      sizes = [{ value: "Free Size", label: "Free Size" }];
-    }
-
-    setSizeOptions(sizes);
-
-    // Color options based on category
-    const categoriesWithColor = [
-      "t-shirt",
-      "shirt",
-      "jacket",
-      "sweater",
-      "hoodie",
-      "shoes",
-      "sandals",
-      "heels",
-      "trouser",
-      "jeans",
-      "shorts",
-      "leggings",
-      "bra",
-      "lingerie",
-    ];
-
-    if (categoriesWithColor.some((cat) => categoryName.includes(cat))) {
-      setShowColor(true);
-      setColorOptions(
-        [
-          "Red",
-          "Blue",
-          "Green",
-          "Yellow",
-          "Black",
-          "White",
-          "Gray",
-          "Pink",
-          "Purple",
-          "Brown",
-          "Orange",
-          "Beige",
-          "Free color"
-        ].map((c) => ({ value: c, label: c }))
-      );
-    } else {
-      setShowColor(false);
-      setColorOptions([]);
-    }
-  }, [selectedCategory]);
 
   useEffect(() => {
     if (discountType === "Flat") {
@@ -327,7 +226,7 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
 
     // Create a synthetic event object to use with handleInputChange
     const syntheticEvent = {
-        target: { value: newSku }
+      target: { value: newSku },
     };
 
     handleInputChange(setSku, "sku")(syntheticEvent); // Properly call handleInputChange
@@ -339,7 +238,7 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
         return rest;
       });
     }
-};
+  };
 
   const handleAddField = () => {
     setOtherDetails([...otherDetails, { key: "", value: "" }]);
@@ -357,198 +256,122 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
     setOtherDetails(newDetails);
   };
 
+  // Updates attribute values (for text, number, or select)
+  const handleAttributeChange = (index, value) => {
+    const updatedAttributes = [...attributes];
+    updatedAttributes[index].values = value.split(",").map((v) => v.trim());
+    setAttributes(updatedAttributes);
+  };
+
+  // Handles boolean attribute toggle
+  const handleBooleanChange = (index, checked) => {
+    const updatedAttributes = [...attributes];
+    updatedAttributes[index].values = [checked ? "Yes" : "No"];
+    setAttributes(updatedAttributes);
+  };
+
+  const isVariationReady = () => {
+    return attributes.some((attr) => attr?.values.length > 0);
+  };
+
+  // Generates variations dynamically
   const generateVariations = () => {
-    let newVariations = [];
-  
-    const isFreeSize = size.length === 1 && size[0] === "Free Size";
-    const isFreeColor = color.length === 1 && color[0] === "Free color";
-  
-    if (isFreeSize && color.length > 0 && !isFreeColor) {
-      newVariations = color.map((clr) => ({
-        color: clr,
-        originalPrice: 0,
-        discountType: "",
-        discountAmount: 0,
-        afterDiscountPrice: 0,
-        stock: 0,
-        sku: `FS-${clr}`,
-        images: [],
-      }));
-    } else if (isFreeColor && size.length > 0) {
-      newVariations = size.map((sz) => ({
-        size: sz,
-        originalPrice: 0,
-        discountType: "",
-        discountAmount: 0,
-        afterDiscountPrice: 0,
-        stock: 0,
-        sku: `${sz}-FS`,
-        images: [],
-      }));
-    } else if (size.length > 0 && color.length > 0 && !isFreeColor) {
-      newVariations = size.flatMap((sz) =>
-        color.map((clr) => ({
-          size: sz,
-          color: clr,
-          originalPrice: 0,
-          discountType: "",
-          discountAmount: 0,
-          afterDiscountPrice: 0,
-          stock: 0,
-          sku: `${sz}-${clr}`,
-          images: [],
-        }))
-      );
-    } else if (size.length > 0) {
-      newVariations = size.map((sz) => ({
-        size: sz,
-        originalPrice: 0,
-        discountType: "",
-        discountAmount: 0,
-        afterDiscountPrice: 0,
-        stock: 0,
-        sku: sz,
-        images: [],
-      }));
-    } else if (color.length > 0 && !isFreeColor) {
-      newVariations = color.map((clr) => ({
-        color: clr,
-        originalPrice: 0,
-        discountType: "",
-        discountAmount: 0,
-        afterDiscountPrice: 0,
-        stock: 0,
-        sku: clr,
-        images: [],
-      }));
-    }
-  
-    // ✅ Ensure "color" is removed from objects if isFreeColor is true
-    newVariations = newVariations.map((variation) => {
-      if (isFreeColor) {
-        const { color, ...rest } = variation; // Remove color field
-        return rest;
-      }
-      return variation;
-    });
-  
-    setVariations(newVariations);
-  };
-  
-  useEffect(() => {
-    generateVariations();
-  }, [size, color]);
-
-  const handleVariationChange = (key, field, value) => {
-    setVariations((prev) => {
-      // Create a new array copy
-      const updatedVariations = [...prev];
-  
-      // Update the specific variation (assuming key is an index)
-      updatedVariations[key] = {
-        ...updatedVariations[key],
-        [field]: value,
-      };
-  
-      const variation = updatedVariations[key];
-  
-      // Ensure numeric values are properly parsed
-      const originalPrice = parseFloat(variation.originalPrice) || 0;
-      const discountAmount = parseFloat(variation.discountAmount) || 0;
-      const discountType = variation.discountType;
-  
-      // Calculate afterDiscountPrice dynamically
-      if (discountType === "Flat") {
-        variation.afterDiscountPrice = Math.max(originalPrice - discountAmount, 0);
-      } else if (discountType === "Percent") {
-        variation.afterDiscountPrice = Math.max(
-          originalPrice - Math.round((discountAmount / 100) * originalPrice),
-          0
-        );
-      }
-  
-      return updatedVariations;
-    });
-  };
-  
-  const handleAddVariation = () => {
-    if (!selectedSize) return;
-
-    let variationKey = "";
-
-    // Determine if the product has both size & color
-    if (selectedSize !== "Free Size" && selectedSize?.length && selectedColor) {
-      variationKey = `${selectedSize}-${selectedColor}`;
-    } else if (selectedSize && selectedSize !== "Free Size") {
-      variationKey = `${selectedSize}`;
-    } else if (selectedColor && selectedSize === "Free Size") {
-      variationKey = `${selectedColor}`;
-    }
-
-    const newVariation = {
-      originalPrice: 0,
-      discountType: "",
-      discountAmount: 0,
-      afterDiscountPrice: "",
-      stock: 0,
-      sku: `${selectedSize}-${selectedColor}`,
-      images: [],
-    };
-
-    // Only add size if it's not "Free Size"
-    if (selectedSize && selectedSize !== "Free Size") {
-      newVariation.size = selectedSize;
-    }
-
-    // if (selectedColor) {
-    //   newVariation.color = selectedColor;
+    // if (attributes.some((attr) => attr.values.length === 0)) {
+    //   toast.error("Please select or enter values for all attributes.");
+    //   return;
     // }
-
-    if (selectedColor && selectedColor !== "Free color") {
-      newVariation.color = selectedColor;
-    }
-
-    setVariations((prev) => {
-      const variationsArray = Array.isArray(prev) ? prev : []; // Ensure prev is an array
-      // if (variationsArray.some((v) => v.id === newVariation.id)) {
-      //   toast.info("This variation already exists.");
-      //   return variationsArray;
-      // }
-      return [...variationsArray, newVariation];
-    });
-
-    // Clear the selected size & color
-    setSelectedSize("");
-    setSelectedColor("");
+  
+    // Get all possible combinations of attribute values
+    const cartesianProduct = (arrays) =>
+      arrays.reduce(
+        (acc, val) => acc.flatMap((x) => val.map((y) => [...x, y])),
+        [[]]
+      );
+  
+    const attributeValues = attributes.map((attr) => attr.values);
+    const combinations = cartesianProduct(attributeValues);
+  
+    // Generate new variation objects
+    const newVariations = combinations.map((combo) => ({
+      _id: uuidv4(),
+      sku: `SKU-${uuidv4().slice(0, 8)}`,
+      attributes: attributes.map((attr, i) => ({
+        key: attr.key,
+        value: combo[i],
+      })),
+      originalPrice: 0,
+      discountType: "Flat",
+      discountAmount: 0,
+      afterDiscountPrice: 0,
+      stock: 0,
+      images: [],
+    }));
+  
+    // ✅ Append new variations instead of replacing them
+    setVariations((prevVariations) => [...prevVariations, ...newVariations]);
+    // setVariants((prevVariations) => [...prevVariations, ...newVariations]); // Pass to parent
+  
+    // ✅ Clear input fields but keep keys and types
+    setAttributes(selectedCategory?.variantAttributes.map((attr) => ({
+      key: attr.name,
+      type: attr.type,
+      values: [],
+    })));
+  };
+  
+  // Handles changes in variation inputs (price, stock, discount)
+  const handleVariationChange = (id, field, value) => {
+    const updatedVariations = variations.map((variation) =>
+      variation._id === id
+        ? {
+            ...variation,
+            [field]: value,
+            afterDiscountPrice: calculateDiscount(variation, field, value),
+          }
+        : variation
+    );
+    setVariations(updatedVariations);
+    
   };
 
-  const handleImageUpload = (size, color, event) => {
+  // Calculates afterDiscountPrice dynamically
+  const calculateDiscount = (variation, field, value) => {
+    const { originalPrice, discountType, discountAmount } =
+      field === "originalPrice"
+        ? { ...variation, originalPrice: value }
+        : field === "discountType"
+        ? { ...variation, discountType: value }
+        : field === "discountAmount"
+        ? { ...variation, discountAmount: value }
+        : variation;
+
+    return discountType === "Percent"
+      ? Math.round(originalPrice - (originalPrice * discountAmount) / 100)
+      : Math.round(originalPrice - discountAmount);
+  };
+
+  const handleImageUpload = (id, event) => {
     const files = Array.from(event.target.files);
   
     setVariations((prev) => {
-      // Ensure prev is always an array
-      if (!Array.isArray(prev) || !prev) return prev || [];
+      if (!Array.isArray(prev)) return prev || []; // Ensure prev is always an array
   
-      return prev.map((variation) => {
-        const isMatch =
-          (!("size" in variation) || variation.size === size) &&
-          (!("color" in variation) || variation.color === color);
-  
-        if (isMatch) {
-          return {
-            ...variation,
-            images: [...(variation.images || []), ...files].slice(0, 3), // Keep max 3 images
-          };
-        }
-        return variation;
-      });
+      return prev.map((variation) =>
+        variation._id === id
+          ? {
+              ...variation,
+              images: [...(variation.images || []), ...files].slice(0, 3), // Keep max 3 images
+            }
+          : variation
+      );
     });
   };
+  
   
   const removeVariationImage = (id, index) => {
     setVariations((prev) =>
       prev.map((variation) =>
-        variation.id === id
+        variation._id === id
           ? {
               ...variation,
               images: variation.images.filter((_, i) => i !== index),
@@ -557,87 +380,57 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
       )
     );
   };
-
-  const hasSize = Object.values(variations).some(
-    (v) => "size" in v && v.size !== "Free Size"
-  );
-
-  const hasColor = Object.values(variations).some(
-    (v) => "color" in v && v.color !== "Free Color"
-  );
-
   
+  const attributeKeys = [...new Set(variations.flatMap(variation => 
+    variation.attributes.map(attr => attr.key)
+  ))];
 
   useEffect(() => {
     const extractAttributes = () => {
       const newAttributes = {};
-  
-      Object.entries(attributesBySection).forEach(([sectionName, attributes]) => {
-        attributes.forEach(({ name, value }) => {
-          newAttributes[name] = value;
-        });
-      });
-  
+
+      Object.entries(attributesBySection).forEach(
+        ([sectionName, attributes]) => {
+          attributes.forEach(({ name, value }) => {
+            newAttributes[name] = value;
+          });
+        }
+      );
+
       setAttributeKeyValuePairs(newAttributes);
     };
-  
+
     extractAttributes();
   }, [attributesBySection]); // Runs when `attributesBySection` changes
 
   const formattedAttributes = Object.entries(attributeKeyValuePairs)
-  .map(([key, value]) => `- **${key}**: ${value}`)
-  .join("\n");
-
-  
-  // const generateProductHighlights = async () => {
-    
-  //   setIsLoading(true); // Start loading
-  //   try {
-
-  //     const response = await axios.post(`${server}/product/generate-highlights`, {
-  //       productName : name , category: selectedCategory?.name, brand : brand, attributes: formattedAttributes, 
-  //     });
-
-  //     if (response.data.success) {
-  //       const highlightsArray = response.data.highlights
-  //       .split("\n") // Split by new lines
-  //       .map((point) => {
-  //         const match = point.match(/^\d+\.\s*\*\*(.*?)\*\*:\s*(.*)$/); // Extract key and value
-  //         return match ? { key: match[1], value: match[2] } : null;
-  //       })
-  //       .filter((item) => item !== null); // Remove empty lines
-
-  //       console.log("highloights array-->", highlightsArray)
-  
-  //       setHighlights(highlightsArray);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error:", error.response?.data || error.message);
-  //   } finally {
-  //     setIsLoading(false); // Stop loading after API call
-  //   }
-  // };
-
+    .map(([key, value]) => `- **${key}**: ${value}`)
+    .join("\n");
 
   const generateProductHighlights = async () => {
     setIsLoading(true); // Start loading
     try {
-      const response = await axios.post(`${server}/product/generate-highlights`, {
-        productName: name,
-        category: selectedCategory?.name,
-        brand: brand,
-        attributes: formattedAttributes,
-      });
-  
+      const response = await axios.post(
+        `${server}/product/generate-highlights`,
+        {
+          productName: name,
+          category: selectedCategory?.name,
+          brand: brand,
+          attributes: formattedAttributes,
+        }
+      );
+
       if (response.data.success) {
         const highlightsArray = response.data.highlights
           .split("\n") // Split by new lines
           .map((point) => {
             const match = point.match(/^\d+\.\s*\*\*(.*?)\*\*\s*[:-]?\s*(.*)$/);
-            return match ? { key: match[1].trim(), value: match[2].trim() } : null;
+            return match
+              ? { key: match[1].trim(), value: match[2].trim() }
+              : null;
           })
           .filter((item) => item !== null); // Remove null values
-  
+
         console.log("highlights array-->", highlightsArray); // Now should log correct values
         setHighlights(highlightsArray);
       }
@@ -647,7 +440,7 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
       setIsLoading(false); // Stop loading after API call
     }
   };
-  
+
   const isFormValid = () => {
     return (
       name.trim() !== "" &&
@@ -655,21 +448,23 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
       brand.trim() !== "" &&
       Object.keys(attributesBySection)?.length > 0 && // Ensure attributesBySection has sections
       Object.values(attributesBySection).every((attributes) =>
-        attributes.every((attr) => attr.value && attr.value.toString().trim() !== "")
+        attributes.every(
+          (attr) => attr.value && attr.value.toString().trim() !== ""
+        )
       )
     );
   };
 
-    // Auto-trigger the function when all conditions are met
-    useEffect(() => {
-      if (isFormValid()) {
-        generateProductHighlights();
-      }
-    }, [ selectedCategory?.name, brand, attributes]);
+  // Auto-trigger the function when all conditions are met
+  useEffect(() => {
+    if (isFormValid()) {
+      generateProductHighlights();
+    }
+  }, [selectedCategory?.name, brand, attributes]);
 
   const validateProductForm = () => {
     const maxLimit = parseInt(maxPurchaseLimit, 10);
-    
+
     let newErrors = {};
 
     // Validate product attributes
@@ -695,9 +490,9 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
       newErrors.description = "Description is required.";
     }
 
-    if (!warrentyPeriod ) {
-      newErrors.warrentyPeriod = "Warranty period must be a valid number.";
-    }
+    // if (!warrentyPeriod ) {
+    //   newErrors.warrentyPeriod = "Warranty period must be a valid number.";
+    // }
 
     if (
       typeof maxLimit !== "number" ||
@@ -743,16 +538,15 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
       }
     }
 
-
     if (variations.length > 0) {
       variations.forEach((variation, index) => {
-        if (!variation.originalPrice ||  variation.originalPrice <= 0) {
+        if (!variation.originalPrice || variation.originalPrice <= 0) {
           newErrors[`variation_${index}_price`] = `Invalid original price.`;
         }
-        if (!variation.discountType ) {
+        if (!variation.discountType) {
           newErrors[`variation_${index}_discountType`] = `Select discount type`;
         }
-        if (!variation.stock  || variation.stock < 1) {
+        if (!variation.stock || variation.stock < 1) {
           newErrors[`variation_${index}_stock`] = ` Stock must be at least 1.`;
         }
         if (!variation.sku || variation.sku.trim() === "") {
@@ -760,9 +554,11 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
         }
         if (
           variation.discountType &&
-          (!variation.discountAmount ||  variation.discountAmount < 0)
+          (!variation.discountAmount || variation.discountAmount < 0)
         ) {
-          newErrors[`variation_${index}_discountAmount`] = `Variation ${index + 1}: Invalid discount amount.`;
+          newErrors[`variation_${index}_discountAmount`] = `Variation ${
+            index + 1
+          }: Invalid discount amount.`;
         }
       });
     }
@@ -771,34 +567,25 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
     return Object.keys(newErrors).length === 0; // Return true if no errors
   };
 
- 
 
   const handleSubmit = useCallback(
-    
     async (e) => {
       e.preventDefault();
-      console.log("calling keypoints")
-
-      // const isValid = validateProductForm(); // Now correctly gets a boolean
-
-      // if (!isValid) {
-      //   toast.error("Please fill all required fields before submitting.");
-      //   return;
-      // }
-
       setLoading(true);
-
+  
       try {
         const newForm = new FormData();
-
+  
         const variationsArray = Array.isArray(variations)
           ? variations
           : Object.values(variations);
 
+          console.log("varaiations array-->", variationsArray)
+  
         // Format attributes with sections
         const formattedAttributes = Object.entries(attributesBySection).map(
           ([sectionName, attributes]) => ({
-            sectionName: sectionName, // Section Name
+            sectionName,
             attributes: attributes.map((attr) => ({
               name: attr.name,
               type: attr.type,
@@ -813,19 +600,22 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
             })),
           })
         );
-
-        // Ensure highlights are in key-value pair format
-        const formattedHighlights = highlights?.length && highlights.map((highlight) => ({
-          key: highlight.key,
-          value: highlight.value,
-        }));
-
-        // Upload images
+  
+        // Format highlights as key-value pairs
+        const formattedHighlights =
+          highlights?.length > 0
+            ? highlights.map((highlight) => ({
+                key: highlight.key,
+                value: highlight.value,
+              }))
+            : [];
+  
+        // Function to upload images and return URLs
         const uploadImages = async (imageFiles) => {
-          if (!imageFiles.length) return [];
+          if (!imageFiles || imageFiles.length === 0) return [];
           const formData = new FormData();
           imageFiles.forEach((image) => formData.append("images", image));
-
+  
           const response = await axios.post(
             `${server}/product/uploadImages`,
             formData,
@@ -833,62 +623,85 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
               headers: { "Content-Type": "multipart/form-data" },
             }
           );
-
+  
           return response?.data || [];
         };
+  
+        // Upload main product images
+        const uploadedMainImages = await uploadImages(images);
+  
+        // Upload variation images and include variation attributes properly
+        const variantsData = await Promise.all(
+          variationsArray.map(async (variation) => {
+            const {
+              originalPrice,
+              discountType,
+              discountAmount,
+              afterDiscountPrice,
+              sku,
+              stock,
+              images,
+              attributes, // Ensure this field exists
+            } = variation;
 
-        const [uploadedMainImages, variantsData] = await Promise.all([uploadImages(images),
-          Promise.all(
-            variationsArray.map(async (variation) => {
-              const { size, color, originalPrice, discountType, discountAmount, afterDiscountPrice, sku, stock, images} = variation;
-              const uploadedVariantImages = await uploadImages(images || []);
+            console.log("variant images->>>", images)
+  
+            const uploadedVariantImages = await uploadImages(images || []);
 
-              return {
-                size,
-                originalPrice,
-                discountType,
-                discountAmount,
-                afterDiscountPrice,
-                sku,
-                stock,
-                images: uploadedVariantImages,
-                ...(color && { color }),
-              };
-            })
-          ),
-        ]);
-
-        // if (!uploadedMainImages.length || !variantsData.length) {
-        //   toast.error("Image upload failed.");
-        //   setLoading(false);
-        //   return;
-        // }
-
+            console.log("uploadedVariantImages-->", uploadedVariantImages)
+            // console.log("variantAttributes-->", attributes)
+  
+            return {
+              
+              originalPrice,
+              discountType,
+              discountAmount,
+              afterDiscountPrice,
+              sku,
+              stock,
+              images: uploadedVariantImages, // ✅ Ensure images are correctly added
+              attributes: attributes || [], // ✅ Ensure attributes are included
+              
+            };
+          })
+        );
+  
+        // Ensure images are uploaded successfully
+        if (!uploadedMainImages.length) {
+          toast.error("Image upload failed.");
+          setLoading(false);
+          return;
+        }
+  
         // Append product details
         newForm.append("name", name);
         newForm.append("description", description);
         newForm.append("categoryId", selectedCategory?._id);
         newForm.append("brand", brand);
+        newForm.append("weight", weight);
         newForm.append("sku", sku);
-        newForm.append("tags", tags);
+        newForm.append("tags", JSON.stringify(tags));
         newForm.append("originalPrice", originalPrice);
-        newForm.append("dicountType", discountType);
+        newForm.append("discountType", discountType);
         newForm.append("discountAmount", discountPrice);
         newForm.append("stock", stock);
-        newForm.append("warrentyPeriod", warrentyPeriod);
+        newForm.append("category", selectedCategory?.name);
+        newForm.append("warrantyPeriod", warrentyPeriod);
         newForm.append("maxPurchaseLimit", maxPurchaseLimit);
         newForm.append("dimensions", JSON.stringify(dimensions));
-        newForm.append("variants", JSON.stringify(variantsData));
+        newForm.append("variants", JSON.stringify(variantsData)); // ✅ Correctly include variations with images & attributes
         newForm.append("images", JSON.stringify(uploadedMainImages));
         newForm.append("attributeSection", JSON.stringify(formattedAttributes));
-        highlights?.length > 0 && newForm.append("keyPoints", JSON.stringify(formattedHighlights));
-
-
+  
+        if (highlights?.length > 0) {
+          newForm.append("keyPoints", JSON.stringify(formattedHighlights));
+        }
+  
         if (seller) {
           newForm.append("shopId", seller._id);
           newForm.append("productSource", "Seller");
         }
-
+  
         newForm.append(
           "otherDetails",
           JSON.stringify(
@@ -898,10 +711,10 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
             }))
           )
         );
-
-        
-
+  
+        // Dispatch the API request
         await dispatch(createProduct(newForm));
+        toast.success("Product created successfully!");
       } catch (error) {
         console.error("Error in handleSubmit:", error);
         toast.error(error.response?.data?.message || error.message);
@@ -909,9 +722,30 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
         setLoading(false);
       }
     },
-    [images, variations, highlights, seller, name, description, selectedCategory?._id, brand, sku, tags, originalPrice, discountType, discountPrice, stock, maxPurchaseLimit, dimensions, otherDetails, attributes, dimensions, dispatch, server, ]
+    [
+      images,
+      variations,
+      highlights,
+      seller,
+      name,
+      description,
+      selectedCategory?._id,
+      brand,
+      sku,
+      tags,
+      originalPrice,
+      discountType,
+      discountPrice,
+      stock,
+      maxPurchaseLimit,
+      dimensions,
+      otherDetails,
+      attributesBySection,
+      dispatch,
+      server,
+    ]
   );
-
+  
   useEffect(() => {
     // Handle error toast
     if (error) {
@@ -954,9 +788,6 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
     seller?.shopName,
     product,
   ]);
-
-  console.log("importer details", importerDetails)
-
 
 
   return (
@@ -1138,75 +969,86 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
               )}
             </div>
 
-            {/* Size Selection */}
-            <div className="mb-4">
-              <label className="text-sm font-medium text-gray-700">
-                Size <span className="text-red-500">*</span>
-              </label>
-              <Select
-                options={sizeOptions}
-                value={
-                  sizeOptions.find((option) => option.value === selectedSize) ||
-                  null
-                }
-                onChange={(selected) => setSelectedSize(selected?.value || "")}
-                placeholder="Select Size"
-                className="mt-2 text-xs"
-              />
-            </div>
-
-            {/* Color Selection (Shown only for relevant categories) */}
-            {showColor && (
-              <div className="mb-4">
-                <label className="text-sm font-medium text-gray-700">
-                  Color <span className="text-red-500">*</span>
+            {selectedCategory?.variantAttributes?.map((attr, index) => (
+              <div key={index} className="mb-3">
+                <label className="block text-sm font-medium text-gray-700">
+                  {attr.name} <span className="text-red-500">*</span>
                 </label>
-                <Select
-                  options={colorOptions}
-                  value={
-                    colorOptions.find(
-                      (option) => option.value === selectedColor
-                    ) || null
-                  }
-                  onChange={(selected) =>
-                    setSelectedColor(selected?.value || "")
-                  }
-                  placeholder="Select Color"
-                  className="mt-2 text-xs"
-                />
-              </div>
-            )}
 
-            {((selectedSize && selectedSize !== "Free Size") ||
-              (selectedSize === "Free Size" && selectedColor)) && (
-              <div className="col-span-2 md:col-span-4 flex justify-end">
-                <button
-                  onClick={handleAddVariation}
-                  disabled={!selectedSize || (showColor && !selectedColor)}
-                  className="mt-2 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 disabled:bg-gray-400"
-                >
-                  Add Variation
-                </button>
+                {attr.type === "text" || attr.type === "number" ? (
+                  <input
+                    type={attr.type}
+                    className="mt-2 w-full text-xs p-2 border rounded-md"
+                    placeholder={`Enter ${attr.name} values (comma separated)`}
+                    value={attributes[index]?.values.join(", ") || ""}
+                    onChange={(e) =>
+                      handleAttributeChange(index, e.target.value)
+                    }
+                  />
+                ) : attr.type === "boolean" ? (
+                  <div className="mt-2 flex items-center">
+                    <span className="mr-2 text-xs text-gray-600">No</span>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="sr-only peer"
+                        checked={attributes[index]?.values[0] === "Yes"}
+                        onChange={(e) =>
+                          handleBooleanChange(index, e.target.checked)
+                        }
+                      />
+                      <div className="w-9 h-5 bg-gray-300 rounded-full peer peer-checked:bg-blue-500"></div>
+                    </label>
+                    <span className="ml-2 text-xs text-gray-600">Yes</span>
+                  </div>
+                ) : attr.type === "select" ? (
+                  <select
+                    className="mt-2 w-full text-xs p-2 border rounded-md"
+                    value={attributes[index]?.values[0] || ""}
+                    onChange={(e) =>
+                      handleAttributeChange(index, e.target.value)
+                    }
+                  >
+                    <option value="">Select</option>
+                    {attr.values.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                ) : null}
               </div>
-            )}
+            ))}
+
+            <div className="col-span-2 md:col-span-4 flex justify-end">
+              <button
+                onClick={generateVariations}
+                disabled={!isVariationReady()}
+                className={`mt-2 py-2 px-4 rounded text-white ${
+                  isVariationReady()
+                    ? "bg-blue-600 hover:bg-blue-700"
+                    : "bg-gray-400 cursor-not-allowed"
+                }`}
+              >
+                Generate Variations
+              </button>
+            </div>
           </div>
 
           {Object.keys(variations).length > 0 && (
             <div className="border-2 mt-3 md:w-full w-full rounded-md overflow-x-auto">
-              <table className="w-full border-collapse border border-gray-300  shadow-lg rounded-lg overflow-hidden">
+              <table className="w-full border-collapse border border-gray-300 shadow-lg rounded-lg overflow-hidden">
                 <thead className="bg-gray-100 text-gray-700 text-sm md:text-base uppercase tracking-wide">
                   <tr>
-                    {hasSize && (
-                      <th className="px-3 border py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Size
+                    {/* Dynamically Render Attribute Columns */}
+                    {attributeKeys.map((key, index) => (
+                      <th
+                        key={index}
+                        className="px-3 border py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        {key}
                       </th>
-                    )}
-
-                    {hasColor && (
-                      <th className="px-3 border py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Color
-                      </th>
-                    )}
+                    ))}
                     <th className="px-3 border py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Original Price
                     </th>
@@ -1225,246 +1067,184 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
                     <th className="px-3 border py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       SKU
                     </th>
-                    {hasColor && (
-                      <th className="px-3 border py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Image
-                      </th>
-                    )}
+                    <th className="px-3 border py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Image
+                    </th>
                   </tr>
                 </thead>
-
                 <tbody>
-                  {Object.keys(variations)?.map((key, index) => {
-                    const variation = variations[key];
-                    return (
-                      <tr
-                        key={key}
-                        className="border bg-white hover:bg-gray-50 transition"
-                      >
-                        {hasSize && (
-                          <td className="border px-3 py-2 md:px-4 md:py-3">
-                            {hasSize ? variation.size : null}
-                          </td>
-                        )}
-                        {hasColor && (
-                          <td className=" px-3 py-2 md:px-4 md:py-3">
-                            {hasColor ? variation.color : null}
-                          </td>
-                        )}
-
-                        <td className="border px-1 py-4 whitespace-nowrap text-sm text-gray-700">
-                          <div className="relative flex items-center">
-                            {/* Currency Symbol */}
-                            <span className="absolute left-3 text-gray-500 text-sm">
-                              ₹
-                            </span>
-
-                            {/* Input Field */}
-                            <input
-                              type="number"
-                              className={`w-[180px] border rounded-lg py-2 pl-8 pr-2 text-gray-700 focus:outline-none focus:ring-1 ${
-                                errors[`variation_${key}_price`]
-                                  ? "border-red-500 focus:ring-red-400"
-                                  : "border-gray-300 focus:ring-blue-400"
-                              }`}
-                              placeholder="Enter price"
-                              value={variation.originalPrice}
-                              onChange={(e) =>
-                                handleVariationChange(
-                                  key,
-                                  "originalPrice",
-                                  e.target.value
-                                )
-                              }
-                            />
-
-                            {/* Error Message */}
-                            {/* {errors[`variation_${key}_price`] && (
-                              <p className="text-red-500 text-xs absolute -bottom-5 left-1">
-                                {errors[`variation_${key}_price`]}
-                              </p>
-                            )} */}
-                          </div>
+                  {variations.map((variation, index) => (
+                    <tr
+                      key={index}
+                      className="border bg-white hover:bg-gray-50 transition"
+                    >
+                      {variation.attributes.map((attr, index) => (
+                        <td
+                          className="border px-3 py-4 whitespace-nowrap text-sm text-gray-500"
+                          key={index}
+                        >
+                          {attr.value}
                         </td>
-                        <td className="border px-3 py-4 whitespace-nowrap text-sm text-gray-500">
-                          <select
-                            value={variation.discountType}
+                      ))}
+
+                      <td className="border px-1 py-4 whitespace-nowrap text-sm text-gray-700">
+                        <div className="relative flex items-center">
+                          <span className="absolute left-3 text-gray-500 text-sm">
+                            ₹
+                          </span>
+                          <input
+                            type="number"
+                            className="w-[130px] border rounded-lg py-2 pl-8 pr-2 text-gray-700 focus:outline-none focus:ring-1"
+                            placeholder="Enter price"
+                            value={variation.originalPrice}
                             onChange={(e) =>
                               handleVariationChange(
-                                key,
-                                "discountType",
+                                variation?._id,
+                                "originalPrice",
                                 e.target.value
                               )
                             }
-                            className={`appearance-none block  w-[130px] px-3 h-[30px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
-                              errors[`variation_${key}_discountType`]
-                                ? "border-red-500 focus:ring-red-400"
-                                : "border-gray-300 focus:ring-blue-400"
-                            } `}
+                          />
+                        </div>
+                      </td>
+                      <td className="border px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <select
+                          value={variation.discountType}
+                          onChange={(e) =>
+                            handleVariationChange(
+                              variation?._id,
+                              "discountType",
+                              e.target.value
+                            )
+                          }
+                          className="appearance-none block w-[120px] px-3 h-[30px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        >
+                          <option value="" disabled>
+                            Choose Type
+                          </option>
+                          <option value="Flat">Flat</option>
+                          <option value="Percent">Percentage</option>
+                        </select>
+                      </td>
+                      <td className="border px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div className="relative">
+                          <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500">
+                            ₹
+                          </span>
+                          <input
+                            type="number"
+                            className="border w-[120px] rounded px-4 py-1 pl-7"
+                            placeholder="Discount amount"
+                            value={variation.discountAmount}
+                            onChange={(e) =>
+                              handleVariationChange(
+                                variation?._id,
+                                "discountAmount",
+                                e.target.value
+                              )
+                            }
+                          />
+                        </div>
+                      </td>
+                      <td className="border px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <input
+                          type="number"
+                          placeholder="Ex: 500"
+                          // defaultValue={variation.afterDiscountPrice}
+                          value={variation.afterDiscountPrice ?? ""}
+                          readOnly
+                          className="border w-[100px] rounded px-2 py-1 bg-gray-100"
+                        />
+                      </td>
+                      <td className="border px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <input
+                          type="number"
+                          className="border w-[60px] rounded px-2 py-1"
+                          value={variation.stock}
+                          placeholder="Ex. 35"
+                          onChange={(e) =>
+                            handleVariationChange(
+                              variation?._id,
+                              "stock",
+                              e.target.value
+                            )
+                          }
+                        />
+                      </td>
+                      <td className="border px-3 py-2 md:px-4 md:py-3">
+                        <input
+                          type="text"
+                          className="border w-[100px] rounded px-2 py-1 text-gray-500 text-sm"
+                          value={variation.sku}
+                          onChange={(e) =>
+                            handleVariationChange(index, "sku", e.target.value)
+                          }
+                        />
+                      </td>
+
+                      <td className="px-4 whitespace-nowrap text-gray-500">
+                        <div className="flex flex-col items-center gap-2 p-2">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            ref={(ref) => (variation.fileInputRef = ref)}
+                            onChange={(e) =>
+                              // handleImageUpload(variation?._id, e.target.files)
+                              handleImageUpload(variation?._id, e)
+                            }
+                            disabled={variation.images.length >= 3}
+                            className="hidden"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => variation.fileInputRef?.click()}
+                            disabled={variation.images.length >= 3}
+                            className="text-3xl cursor-pointer"
                           >
-                            <option value="" disabled>
-                              Choose Type
-                            </option>
-                            <option value="Flat">Flat</option>
-                            <option value="Percent">Percentage</option>
-                          </select>
-                          {/* Error Message */}
-                          {/* {errors[`variation_${key}_price`] && (
-                              <p className="text-red-500 text-xs absolute -bottom-5 left-1">
-                                {errors[`variation_${key}_discountType`]}
-                              </p>
-                            )} */}
-                        </td>
-                        <td className="border px-3 py-4 whitespace-nowrap text-sm text-gray-500">
-                          <div className="relative">
-                            <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500">
-                              ₹
-                            </span>
-                            <input
-                              type="number"
-                              className={`border w-[180px] rounded px-4 py-1 pl-7 ${
-                                errors[`variation_${key}_discountAmount`]
-                                  ? "border-red-500 focus:ring-red-400"
-                                  : "border-gray-300 focus:ring-blue-400"
-                              }`}
-                              placeholder="Discount amount"
-                              value={variation.discountAmount}
-                              onChange={(e) =>
-                                handleVariationChange(
-                                  key,
-                                  "discountAmount",
-                                  e.target.value
-                                )
-                              }
-                            />
-                            {errors[`variation_${key}_discountAmount`] && (
-                              <p className="text-red-500 text-xs absolute -bottom-5 left-1">
-                                {errors[`variation_${key}_discountAmount`]}
-                              </p>
-                            )}
-                          </div>
-                        </td>
-                        <td className="border px-3 py-4  whitespace-nowrap text-sm text-gray-500">
-                          <input
-                            type="number"
-                            placeholder="Ex: 500"
-                            defaultValue={variation.afterDiscountPrice}
-                            readOnly
-                            className="border  w-[100px] rounded px-2 py-1 bg-gray-100"
-                          />
-                        </td>
-                        <td className="border px-3 py-4 whitespace-nowrap text-sm text-gray-500">
-                          <input
-                            type="number"
-                            className=" border  w-[100px] rounded px-2 py-1"
-                            value={variation.stock}
-                            placeholder="Ex. 35"
-                            onChange={(e) =>
-                              handleVariationChange(
-                                key,
-                                "stock",
-                                e.target.value
-                              )
-                            }
-                          />
-                        </td>
-                        <td className="border px-3 py-2 md:px-4 md:py-3">
-                          <input
-                            type="text"
-                            className="border  w-[100px] rounded px-2 py-1"
-                            value={variation.sku}
-                            onChange={(e) =>
-                              handleVariationChange(key, "sku", e.target.value)
-                            }
-                          />
-                        </td>
-
-                        {hasColor && (
-                          <td className="px-4 whitespace-nowrap text-gray-500">
-                            {variation.color && (
-                              <div className="flex flex-col items-center gap-2 p-2">
-                                {/* Hidden File Input */}
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  multiple
-                                  ref={(ref) => (variation.fileInputRef = ref)}
-                                  // onChange={(e) =>
-                                  //   handleImageUpload(variation.id, e)
-                                  // }
-                                  onChange={(e) =>
-                                    handleImageUpload(
-                                      variation?.size,
-                                      variation?.color,
-                                      e
+                            <FcAddImage />
+                          </button>
+                          <div className="mt-2 w-full overflow-x-auto flex gap-2">
+                            {variation.images.map((img, imgIndex) => (
+                              <div key={imgIndex} className="relative group">
+                                <img
+                                  src={URL.createObjectURL(img)} // ✅ Use stored `url` instead of creating a new one
+                                  alt="Uploaded"
+                                  className="w-12 cursor-pointer h-12 md:w-16 md:h-16 object-cover border rounded-md shadow-sm"
+                                  onClick={(e) =>
+                                    handleImageClick(
+                                      URL.createObjectURL(img)
                                     )
                                   }
-                                  disabled={variation.images.length >= 3}
-                                  className="hidden"
                                 />
-
-                                {/* Image Upload Button */}
                                 <button
-                                  type="button"
                                   onClick={() =>
-                                    variation.fileInputRef?.click()
+                                    removeVariationImage(
+                                      variation?._id,
+                                      imgIndex
+                                    )
                                   }
-                                  disabled={variation.images.length >= 3}
-                                  className="text-3xl cursor-pointer"
+                                  className="absolute top-1 right-1 bg-red-500 text-white text-xs px-1 rounded opacity-0 group-hover:opacity-100 transition"
                                 >
-                                  <FcAddImage />
+                                  X
                                 </button>
-
-                                {/* Display Uploaded Images */}
-                                <div className="mt-2 w-full  overflow-x-auto flex gap-2">
-                                  {variation.images.map((img, imgIndex) => (
-                                    <div
-                                      key={imgIndex}
-                                      className="relative group "
-                                    >
-                                      <img
-                                        src={URL.createObjectURL(img)}
-                                        alt="Uploaded"
-                                        onClick={(e) =>
-                                          handleImageClick(
-                                            URL.createObjectURL(img)
-                                          )
-                                        }
-                                        className="w-12 cursor-pointer h-12 md:w-16 md:h-16 object-cover border rounded-md shadow-sm"
-                                      />
-                                      <button
-                                        onClick={() =>
-                                          removeVariationImage(
-                                            variation.id,
-                                            imgIndex
-                                          )
-                                        }
-                                        className="absolute top-1 right-1 bg-red-500 text-white text-xs px-1 rounded opacity-0 group-hover:opacity-100 transition"
-                                      >
-                                        X
-                                      </button>
-                                    </div>
-                                  ))}
-                                </div>
                               </div>
-                            )}
-                          </td>
-                        )}
-                      </tr>
-                    );
-                  })}
+                            ))}
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
           )}
 
-          
           {/* Dynamic Attribute Inputs */}
 
           <AttributeInputs
             attributesBySection={attributesBySection}
-            attributes={attributes}
-            handleAttributeChange={handleAttributeChange}
+            handleAttributeChange={handleAttributeChanges}
             selectedCategory={selectedCategory}
             handleInputChange={handleInputChange}
             errors={errors}
@@ -1615,28 +1395,52 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
               )}
             </div>
 
-            <div className="relative">
+            <div className="w-full">
               <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-gray-700">
+                <label className="block text-sm font-semibold text-gray-700">
                   Search Tags <span className="text-red-500">*</span>
                 </label>
 
+                {/* Tooltip Wrapper */}
                 <div className="relative group">
-                  <FaQuestionCircle className="cursor-pointer text-gray-600" />
+                  <FaQuestionCircle className="cursor-pointer text-gray-600 hover:text-gray-800" />
+
+                  {/* Tooltip Box */}
                   <div className="absolute left-1/2 transform -translate-x-1/2 bottom-full mb-2 bg-gray-900 text-white text-xs rounded-md px-3 py-1 opacity-0 invisible transition-opacity duration-300 group-hover:opacity-100 group-hover:visible">
-                    Enter keywords separated by commas. It helps to improve
-                    product search.
+                    Enter keywords separated by commas. Helps in product search.
                     <div className="absolute left-1/2 transform -translate-x-1/2 top-full w-2 h-2 bg-gray-900 rotate-45"></div>
                   </div>
                 </div>
               </div>
-              <input
-                type="text"
-                value={tags}
-                onChange={(e) => setTags(e.target.value)}
-                placeholder="Enter your product tags..."
-                className="mt-2 block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              />
+
+              {/* Tag Container */}
+              <div className="flex flex-wrap mt-3 items-center gap-2 border border-gray-300 px-3 py-2 rounded-lg bg-white focus-within:ring-1 focus-within:ring-blue-500 transition">
+                {/* Render tags */}
+                {tags.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="flex items-center bg-blue-500 text-white px-3 py-1 rounded-full shadow-sm transition hover:bg-blue-600"
+                  >
+                    {tag}
+                    <button
+                      onClick={() => removeTag(index)}
+                      className="ml-2 p-1 rounded-full hover:bg-blue-700 transition"
+                    >
+                      <FaTimes size={12} />
+                    </button>
+                  </span>
+                ))}
+
+                {/* Input Field */}
+                <input
+                  type="text"
+                  value={tagInput}
+                  onChange={handleTagInput}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Type & press ',' or 'Enter'..."
+                  className="flex-grow outline-none text-sm px-2 py-1 bg-transparent"
+                />
+              </div>
             </div>
 
             <div>
@@ -1684,11 +1488,9 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
             </div>
           </div>
 
-          {
-            highlights?.length > 0 && (
-              <ProductHighlights highlights={highlights} />
-            )
-          }
+          {highlights?.length > 0 && (
+            <ProductHighlights highlights={highlights} />
+          )}
 
           <h2 className="text-lg text-slate-700 font-semibold mb-4 mt-5">
             Other detail Setup
@@ -1747,8 +1549,6 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
               </button>
             </div>
           </div>
-
-          
 
           <div className="w-full  flex items-center justify-end mt-5">
             <button

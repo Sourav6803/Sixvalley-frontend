@@ -27,6 +27,9 @@ const ProductCard = ({ data }) => {
   const [count] = useState(1); // Keeping it constant for now
   const dispatch = useDispatch();
 
+   // Default to first variant if available
+   const [selectedVariant] = useState(data?.variants?.[0] || {});
+
   useEffect(() => {
     setClick(wishlist?.some((i) => i?._id === data?._id));
   }, [wishlist, data?._id]);
@@ -164,32 +167,46 @@ const ProductCard = ({ data }) => {
           <div className="py-1 flex items-center justify-between">
             <div className="flex">
               <p className={`${styles.productDiscountPrice} !text-[14px]`}>
-                ₹{data.afterDiscountPrice}
+                ₹{selectedVariant?.afterDiscountPrice ? selectedVariant?.afterDiscountPrice : data.afterDiscountPrice}
               </p>
               <p className={`${styles.price} !text-[12px]`}>
-                {data.originalPrice ? data.originalPrice : null}
+                {selectedVariant?.originalPrice ? selectedVariant?.originalPrice : data.originalPrice }
               </p>
             </div>
             <span className="font-[600] text-[12px] text-[#267c3d]">
-              {data?.sold_out} sold
+              {selectedVariant?.sold_out ? selectedVariant?.sold_out : data?.sold_out} sold
             </span>
           </div>
 
           <div className="text-green-700 flex justify-between !text-[14px] font-semibold">
             <div>
-              {data?.dicountType === "Flat" ? (
-                <p>Flat ₹{data?.discountAmount} off</p>
+              {selectedVariant?.dicountType ? selectedVariant?.dicountType : data?.dicountType === "Flat" ? (
+                <p>Flat ₹{selectedVariant?.discountAmount ? selectedVariant?.discountAmount : data?.discountAmount} off</p>
               ) : (
-                <p>{data?.discountAmount}% off</p>
+                <p>{selectedVariant?.discountAmount? selectedVariant?.discountAmount : data?.discountAmount}% off</p>
               )}
             </div>
             <div className="flex bg-green-600 rounded-sm">
               <span className="ml-1 text-white text-xs font-semibold rounded mr-1 mt-[2px]">
-                {data?.ratings ? data?.ratings : 3}
+                {data?.ratings?.totalRating ? data?.ratings?.totalRating : 3}
               </span>
               <BsFillStarFill color="white" className="mt-[2px]" />
             </div>
           </div>
+
+          {/* <div className="flex items-center gap-2 mt-1 pb-2">
+            {selectedVariant?.attributes?.map((attr, index) => (
+              <p
+                key={index}
+                className={`px-2 py-1 text-xs `}
+                
+                disabled={selectedVariant.stock <= 0}
+              >
+                {`${attr.key}: ${attr.value}`}
+              </p>
+              
+            ))}
+          </div> */}
 
           <div className="text-white">
             {click ? (

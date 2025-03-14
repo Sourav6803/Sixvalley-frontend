@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import styles from "../../styles/styles";
 import {
   AiFillHeart,
-  AiOutlineMessage,
   AiOutlineShoppingCart,
 } from "react-icons/ai";
 import { server } from "../../server";
@@ -15,7 +14,6 @@ import {
 } from "../../redux/actions/wishlist";
 import { toast } from "react-toastify";
 import { addTocart } from "../../redux/actions/cart";
-import Ratings from "./Ratings";
 import axios from "axios";
 import { TbTruckDelivery } from "react-icons/tb";
 import { FaRupeeSign } from "react-icons/fa";
@@ -27,6 +25,12 @@ import { Rating, ThinStar } from "@smastrom/react-rating";
 import Loader from "../../pages/Loader";
 import "@smastrom/react-rating/style.css";
 import insurence from "../../Assests/insurance.png";
+import ProductAttributes from "./ProductAttributes";
+import ProductKeyPoints from "./ProductKeyPoints";
+import ReviewsSection from "../Review/ReviewSection";
+import SellerDetails from "./SellerDetails";
+import StickyActionBar from "./StickyActionBar";
+
 
 const ProductDetails = ({ data }) => {
   const { wishlist } = useSelector((state) => state?.wishlist);
@@ -43,6 +47,36 @@ const ProductDetails = ({ data }) => {
   const [currentVariant, setCurrentVariant] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [allCoupons, setAllCoupons] = useState([]);
+
+  const reviews = data?.reviews || [];
+
+  const ratingData = {
+    reviews: data?.reviews?.map((review) => ({
+      userName: review.user?.name || "Anonymous",
+      userAvatar: review.user?.avatar?.url || "/default-avatar.png",
+      rating: review.rating,
+      comment: review.comment,
+      images: review.images?.map((img) => img.url) || [],
+      pros: review.pros || [],
+      cons: review.cons || [],
+      purchaseVerified: review.purchaseVerified,
+      helpfulVotes: review.helpfulVotes,
+      notHelpfulVotes: review.notHelpfulVotes,
+      reported: review.reported,
+      createdAt: new Date(review.createdAt).toLocaleDateString(),
+    })) || [],
+    
+    ratingBreakdown: data?.ratings?.ratingBreakdown || {
+      1: 0,
+      2: 0,
+      3: 0,
+      4: 0,
+      5: 0,
+    },
+  
+    totalRatings: data?.ratings?.totalRating || 0,
+    averageRating: data?.ratings?.averageRating || 0,
+  };
 
   const productArr = [data];
 
@@ -113,6 +147,7 @@ const ProductDetails = ({ data }) => {
     return keys;
   }, []);
 
+
   useEffect(() => {
     // Update current variant and check combo validity
     const matchingVariant = data?.variants.find((variant) =>
@@ -142,6 +177,22 @@ const ProductDetails = ({ data }) => {
 
     setCurrentVariant(matchingVariant || null);
   };
+
+  useEffect(() => {
+    if (data?.variants?.length > 0) {
+      const firstVariant = data.variants[0];
+      
+      // Extract default selected attributes from the first variant
+      const defaultAttributes = firstVariant.attributes.reduce((acc, attr) => {
+        acc[attr.key] = attr.value;
+        return acc;
+      }, {});
+  
+      setSelectedAttributes(defaultAttributes);
+      setCurrentVariant(firstVariant);
+    }
+  }, [data?.variants]);
+  
 
   // Reusable function to log user activity
   const logActivity = useCallback(
@@ -192,11 +243,22 @@ const ProductDetails = ({ data }) => {
   };
 
   const addToCartHandler = async (id) => {
+
+    const isItemExists = cart?.some((item) =>
+      currentVariant ? item.variantId === currentVariant._id : item.productId === data?._id
+    );
     // Check if a variant is selected
     if (currentVariant) {
       // Create the cart item with the selected variant details
+
+      // Ensure variant has stock
+      if (currentVariant.stock < count) {
+        toast.error("Selected variant is out of stock!");
+        return;
+      }
       const cartData = {
-        ...currentVariant,
+        
+        currentVariant,
         ...data, // Include current variant details
         qty: count, // Include quantity
       };
@@ -204,14 +266,13 @@ const ProductDetails = ({ data }) => {
       // Check if the item already exists in the cart
       const isItemExists =
         cart &&
-        cart.find(
-          (item) =>
-            item._id === id && item.selectedAttributes === selectedAttributes
-        );
+        cart?.some((item) =>
+          currentVariant ? item.currentVariant._id === currentVariant._id : item.productId === data?._id
+        );;
       if (isItemExists) {
         toast.error("Item with the selected variant is already in the cart!");
       } else {
-        if (data.stock < count) {
+        if (currentVariant.stock < count) {
           toast.error("Product stock limited!");
         } else {
           dispatch(addTocart(cartData));
@@ -286,17 +347,16 @@ const ProductDetails = ({ data }) => {
   };
 
   const totalReviewsLength =
-    products &&
-    products?.reduce((acc, product) => acc + product?.reviews?.length, 0);
+  products?.reduce((acc, product) => acc + (product?.reviews?.length || 0), 0) || 0;
 
   const totalRatings =
-    products &&
     products?.reduce(
       (acc, product) =>
-        acc + product?.reviews.reduce((sum, review) => sum + review?.rating, 0),
+        acc + (product?.reviews?.reduce((sum, review) => sum + (review?.rating || 0), 0) || 0),
       0
-    );
-  const averageRating = Math.ceil(totalRatings / totalReviewsLength) || 0;
+    ) || 0;
+
+  const averageRating = totalReviewsLength > 0 ? Math.ceil(totalRatings / totalReviewsLength) : 0;
 
   const date = new Date(new Date().getTime() + 10 * 24 * 60 * 60 * 1000);
 
@@ -345,6 +405,7 @@ const ProductDetails = ({ data }) => {
     return () => clearTimeout(timer);
   }, [data?._id, user?._id]);
 
+ 
   return (
     <div className="bg-white ">
       {isLoading ? (
@@ -359,29 +420,34 @@ const ProductDetails = ({ data }) => {
                 <div className="block w-full 800px:flex">
                   <div className="w-full p-2  rounded-md 800px:w-[50%] ">
                     {data && data?.images?.length && (
-                      <Carousel showArrows={true} autoPlay infiniteLoop>
+                      <Carousel
+                        showArrows={true}
+                        autoPlay
+                        infiniteLoop
+                        className="w-full flex flex-col items-center"
+                      >
                         {currentVariant?.images?.length
                           ? currentVariant.images.map((img, index) => (
                               <div
                                 key={index}
-                                className="relative h-[55vh] md:h-[80vh] w-full "
+                                className="relative w-full flex justify-center"
                               >
                                 <img
                                   src={img.url}
                                   alt={data?.title}
-                                  className="  h-full w-full object-cover"
+                                  className="w-full h-auto max-h-[60vh] object-contain rounded-lg"
                                 />
                               </div>
                             ))
                           : data.images.map((img, index) => (
                               <div
                                 key={index}
-                                className="relative h-[55vh]  w-full"
+                                className="relative w-full flex justify-center"
                               >
                                 <img
                                   src={img.url}
                                   alt={data?.title}
-                                  className=" object-cover h-full w-full"
+                                  className="w-full h-auto max-h-[60vh] object-contain rounded-lg"
                                 />
                               </div>
                             ))}
@@ -397,15 +463,9 @@ const ProductDetails = ({ data }) => {
                       {data?.name}
                       {currentVariant
                         ? ` (${currentVariant.attributes
-                            .map((attr) => `${attr.key}: ${attr.value}`)
+                            .map((attr) => `${attr.key} ${attr.value}`)
                             .join(", ")})`
                         : ""}
-                    </h1>
-
-                    <h1
-                      className={`${styles.productTitle} mt-2 !text-[13px] !font-normal !text-slate-600`}
-                    >
-                      {data.description}
                     </h1>
 
                     <h3 className={`${styles.shop_name} pb-1 pt-1 `}>
@@ -423,34 +483,34 @@ const ProductDetails = ({ data }) => {
                         className="h-[30px] w-[30px] text-green-500"
                         style={{ maxWidth: 100 }}
                         readOnly
-                        value={Math.ceil(data.ratings)}
+                        value={Math.ceil(data?.ratings?.averageRating)}
                       />
                       <p className="text-[14px] font-semibold text-blue-500">
                         ( {data?.reviews?.length} ratings)
                       </p>
                     </div>
 
-                    {data?.customize ? (
-                      <h2 className="text-slate-700">
-                        (Customizabe as per Customer request)
-                      </h2>
-                    ) : (
-                      ""
-                    )}
-
-                    {/* <p className='mt-3'>{data?.description}</p> */}
                     <div className="flex pt-1">
                       <h4 className={`${styles.productDiscountPrice} mt-1`}>
                         ₹
-                        {currentVariant?.afterDiscountPrice
-                          ? currentVariant?.afterDiscountPrice
-                          : data?.afterDiscountPrice}
+                        {currentVariant?.afterDiscountPrice ??
+                          data?.afterDiscountPrice}
                       </h4>
-                      <h3 className={`${styles.price} !mt-1 `}>
-                        ₹{currentVariant?.originalPrice || data?.originalPrice}
+                      <h3 className={`${styles.price} !mt-1`}>
+                        ₹{currentVariant?.originalPrice ?? data?.originalPrice}
                       </h3>
 
-                      {data?.dicountType === "Flat" ? (
+                      {currentVariant?.discountType ? (
+                        currentVariant.discountType === "Flat" ? (
+                          <p className="mt-1 ml-3 font-bold text-green-800">
+                            Flat ₹{currentVariant.discountAmount} off
+                          </p>
+                        ) : (
+                          <p className="mt-1 ml-3 font-bold text-green-800">
+                            {currentVariant.discountAmount}% off
+                          </p>
+                        )
+                      ) : data?.dicountType === "Flat" ? (
                         <p className="mt-1 ml-3 font-bold text-green-800">
                           Flat ₹{data.discountAmount} off
                         </p>
@@ -461,11 +521,11 @@ const ProductDetails = ({ data }) => {
                       )}
                     </div>
 
-                    <div className="mt-2">
+                    {/* <div className="mt-2">
                       {attributeKeys.map((key) => (
                         <div key={key} className="mb-4">
-                          <label className="block text-lg text-slate-600 font-semibold mb-2">
-                            Select {key}:
+                          <label className="block text-base text-slate-600 font-semibold mb-2">
+                             {key}:
                           </label>
                           <div className="flex gap-2">
                             {[
@@ -506,6 +566,88 @@ const ProductDetails = ({ data }) => {
                           </div>
                         </div>
                       ))}
+                    </div> */}
+
+                    <div className="mt-2">
+                      {attributeKeys.map((key) => (
+                        <div key={key} className="mb-4">
+                          <label className="block text-base text-slate-600 font-semibold mb-2">
+                            {key}:
+                          </label>
+                          <div className="flex gap-2">
+                            {[
+                              ...new Set(
+                                data?.variants.map(
+                                  (variant) =>
+                                    variant.attributes.find(
+                                      (attr) => attr.key === key
+                                    )?.value
+                                )
+                              ),
+                            ]
+                              .filter(Boolean)
+                              .map((value) => {
+                                // Find the corresponding variant stock
+                                const matchedVariant = data?.variants.find(
+                                  (variant) =>
+                                    variant.attributes.every((attr) =>
+                                      selectedAttributes[attr.key]
+                                        ? selectedAttributes[attr.key] ===
+                                          attr.value
+                                        : true
+                                    )
+                                );
+
+                                const stock = matchedVariant?.stock || 0;
+                                const isOutOfStock = stock === 0;
+                                const isLowStock = stock > 0 && stock < 5;
+
+                                return (
+                                  <button
+                                    key={value}
+                                    onClick={() =>
+                                      !isOutOfStock &&
+                                      handleAttributeChange(key, value)
+                                    }
+                                    className={`py-1 px-3 rounded-md flex items-center justify-center cursor-pointer border
+                      ${
+                        selectedAttributes[key] === value
+                          ? "border-black bg-gray-300"
+                          : "border-gray-300 bg-gray-100"
+                      }
+                      ${isOutOfStock ? "opacity-50 cursor-not-allowed" : ""}
+                      ${isLowStock ? "border-yellow-500 bg-yellow-100" : ""}
+                    `}
+                                    disabled={isOutOfStock}
+                                  >
+                                    {key === "Color" ? (
+                                      <span
+                                        className="w-5 h-5 !rounded-full"
+                                        style={{
+                                          backgroundColor: value?.toLowerCase(),
+                                        }}
+                                      />
+                                    ) : (
+                                      value
+                                    )}
+
+                                    {/* Show stock status */}
+                                    {isLowStock && (
+                                      <span className="text-xs text-yellow-600 ml-2">
+                                        (Low Stock)
+                                      </span>
+                                    )}
+                                    {isOutOfStock && (
+                                      <span className="text-xs text-red-600 ml-2">
+                                        (Out of Stock)
+                                      </span>
+                                    )}
+                                  </button>
+                                );
+                              })}
+                          </div>
+                        </div>
+                      ))}
                     </div>
 
                     {invalidCombo && currentVariant !== null && (
@@ -514,10 +656,11 @@ const ProductDetails = ({ data }) => {
                       </div>
                     )}
 
-                    <div className="flex items-center mt-4 space-x-4">
+                    <div className="flex items-center gap-2 sm:gap-4 mt-4">
                       {/* Decrease Button */}
                       <button
-                        className="w-12 h-12 flex items-center justify-center bg-gray-200 text-gray-600 font-bold text-xl rounded-md hover:bg-gray-300 transition duration-200 disabled:opacity-50"
+                        className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-gray-200 text-gray-600 font-bold text-xl 
+                                  rounded-lg hover:bg-gray-300 active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                         onClick={decreamentCount}
                         disabled={count <= 1}
                         aria-label="Decrease quantity"
@@ -526,13 +669,17 @@ const ProductDetails = ({ data }) => {
                       </button>
 
                       {/* Quantity Display */}
-                      <span className="min-w-[50px] h-12 flex items-center justify-center bg-white text-gray-800 font-semibold text-lg border border-gray-300 rounded-md shadow-sm">
+                      <span
+                        className="w-12 h-10 sm:w-16 sm:h-12 flex items-center justify-center bg-white text-gray-900 font-semibold 
+                                    text-lg border border-gray-300 rounded-lg shadow-sm select-none"
+                      >
                         {count}
                       </span>
 
                       {/* Increase Button */}
                       <button
-                        className="w-12 h-12 flex items-center justify-center bg-teal-500 text-white font-bold text-xl rounded-md hover:bg-teal-600 transition duration-200"
+                        className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-teal-500 text-white font-bold text-xl 
+                                  rounded-lg hover:bg-teal-600 active:scale-95 transition-all duration-200"
                         onClick={increamentCount}
                         aria-label="Increase quantity"
                       >
@@ -651,7 +798,7 @@ const ProductDetails = ({ data }) => {
                     <div className="py-2 mt-1">
                       {/* Product title */}
                       <div className="text-slate-700 font-medium text-base">
-                        Product Details
+                        Description
                       </div>
 
                       {/* Product description */}
@@ -659,26 +806,43 @@ const ProductDetails = ({ data }) => {
                         {data?.description}
                       </div>
 
-                      <h1 className="text-slate-700 font-medium text-base">
-                        Highlights
-                      </h1>
+                      <ProductKeyPoints keyPoints={data?.keyPoints} />
 
-                      {/* Product other details */}
-                      {data?.otherDetails?.length && (
-                        <div className="text-slate-600 font-[450] mt-2 text-[12px]">
-                          {data?.otherDetails?.map((detail, index) => (
-                            <div key={index}>
-                              <span className="font-semibold text-[14px]">
-                                {detail?.key}:
-                              </span>{" "}
-                              {detail.value}
-                            </div>
-                          ))}
+                      <ProductAttributes
+                        attributeSection={data?.attributeSection}
+                      />
+
+                      {data?.otherDetails?.length > 1 && (
+                        <h1 className="text-slate-700 font-medium text-base">
+                          Additional Information
+                        </h1>
+                      )}
+
+                      {data?.otherDetails?.length > 1 && (
+                        <div className="mt-4">
+                          <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">
+                            Other Details
+                          </h3>
+                          <div className="divide-y">
+                            {data.otherDetails.map((detail, index) => (
+                              <div
+                                key={index}
+                                className="flex justify-between py-2 border-b border-gray-200"
+                              >
+                                <span className="font-medium text-gray-600">
+                                  {detail?.key}:
+                                </span>
+                                <span className="text-gray-800">
+                                  {detail?.value || "N/A"}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       )}
                     </div>
 
-                    <div className="flex">
+                    <div className="md:flex hidden">
                       {click ? (
                         <div
                           className={`${styles.button} !bg-white !border-2 !border-red-500 !mt-3  !rounded !h-11 flex items-center`}
@@ -739,6 +903,17 @@ const ProductDetails = ({ data }) => {
                         </div>
                       )}
                     </div>
+
+                    <StickyActionBar
+                      click={click}
+                      isAuthenticated={isAuthenticated}
+                      addToWishlistHandler={addToWishlistHandler}
+                      removeFromWishlistHandler={removeFromWishlistHandler}
+                      addToCartHandler={addToCartHandler}
+                      data={data}
+                      currentVariant={currentVariant}
+                      cart={cart}
+                    />
 
                     <div className="mt-1">
                       {data && data.stock <= 9 ? (
@@ -803,47 +978,13 @@ const ProductDetails = ({ data }) => {
                       </div>
                     </div>
 
-                    <div className="flex items-center pt-8">
-                      <img
-                        src={`${seller?.avatar?.url}`}
-                        alt=""
-                        className="w-[50px] h-[50px] rounded-full mr-2 "
-                      />
-                      <div className="pr-8 text-slate-700">
-                        <Link to={`/shop/preview/${data?.shopId}`}>
-                          <h3 className={`${styles.shop_name} pb-1 pt-1`}>
-                            {data?.shop?.name}
-                          </h3>
-                        </Link>
+                    <SellerDetails data={data} seller={seller} averageRating={averageRating} handleMessageSubmit={handleMessageSubmit} />
 
-                        <h5 className="pb-3 text-[15px] text-slate-700">
-                          ({averageRating}/5)Ratings
-                        </h5>
-                      </div>
-                      <Link to={`/shop/preview/${data?.shop._id}`}>
-                        <div
-                          className={`${styles.button} text-slate-700 bg-[#6443d1] !mt-4 !rounded h-11`}
-                          onClick={handleMessageSubmit}
-                        >
-                          <span className="text-white flex items-center">
-                            Send Message <AiOutlineMessage className="ml-1" />
-                          </span>
-                        </div>
-                      </Link>
-                    </div>
+                    <ReviewsSection reviews={reviews} ratingData={ratingData} />
                   </div>
                 </div>
               </div>
-              <div className="">
-                <ProductDetailsInfo
-                  data={data}
-                  products={products}
-                  totalReviewsLength={totalReviewsLength}
-                  averageRating={averageRating}
-                />
-                <br />
-                <br />
-              </div>
+             
             </div>
           ) : null}
         </>
@@ -852,143 +993,5 @@ const ProductDetails = ({ data }) => {
   );
 };
 
-const ProductDetailsInfo = ({
-  data,
-  products,
-  totalReviewsLength,
-  averageRating,
-}) => {
-  const [active, setActive] = useState(1);
-
-  return (
-    <div>
-      <div className="bg-[#f5f6fb] px-3 800px:px-10 py-2 rounded ">
-        <div className="w-full flex justify-between border-b pt-10 pb-2">
-          <div className="relative">
-            <h5
-              className="text-[#000] text-[18px] px-1 leading-5 font-[600] cursor-pointer 800px:text-[20px]"
-              onClick={() => setActive(1)}
-            >
-              Product Details
-            </h5>
-            {active === 1 ? (
-              <div className={`${styles.active_indicator}`}></div>
-            ) : null}
-          </div>
-          <div className="relative">
-            <h5
-              className="text-[#000] text-[18px] px-1 leading-5 font-[600] cursor-pointer 800px:text-[20px]"
-              onClick={() => setActive(2)}
-            >
-              Product Reviews
-            </h5>
-            {active === 2 ? (
-              <div className={`${styles.active_indicator}`}></div>
-            ) : null}
-          </div>
-          <div className="relative">
-            <h5
-              className="text-[#000] text-[18px] px-1 leading-5 font-[600] cursor-pointer 800px:text-[20px]"
-              onClick={() => setActive(3)}
-            >
-              Seller Information
-            </h5>
-            {active === 3 ? (
-              <div className={`${styles.active_indicator}`}></div>
-            ) : null}
-          </div>
-        </div>
-
-        {active === 1 ? (
-          <>
-            <p className="py-2 text-[14px] leading-4 pb-10  ">
-              {data?.description}
-            </p>
-          </>
-        ) : null}
-
-        {active === 2 ? (
-          <div className="w-full min-h-[40vh] flex flex-col items-center py-3 overflow-y-scroll">
-            {data &&
-              data?.reviews?.map((item, index) => (
-                <div className="w-full flex my-2">
-                  <img
-                    src={`${item?.user.avatar}`}
-                    alt=""
-                    className="w-[50px] h-[50px] rounded-full"
-                  />
-                  <div className="pl-2 ">
-                    <div className="w-full flex items-center">
-                      <h1 className="font-[500] mr-3">{item?.user?.name}</h1>
-                      <Ratings rating={data?.ratings} />
-                    </div>
-                    <p>{item?.comment}</p>
-                  </div>
-                </div>
-              ))}
-
-            <div className="w-full flex justify-center">
-              {data && data?.reviews?.length === 0 && (
-                <h5>No Reviews have for this product!</h5>
-              )}
-            </div>
-          </div>
-        ) : null}
-
-        {active === 3 && (
-          <div className="w-full block 800px:flex p-5">
-            <div className="w-full  800px:w-[50%]">
-              <Link to={`/shop/preview/${data?.shop?._id}`}>
-                <div className="flex items-center">
-                  <img
-                    src={`${data?.shop?.avatar?.url}`}
-                    alt=""
-                    className="w-[50px] h-[50px] rounded-full "
-                  />
-
-                  <div className="pl-3">
-                    <h3 className={`${styles.shop_name}`}>
-                      {data?.shop?.shopName}
-                    </h3>
-                    <h5 className="pb-2 text-[15px]">
-                      ({averageRating}/5) Ratings
-                    </h5>
-                  </div>
-                </div>
-              </Link>
-              <p className="pt-2">{data.shop.description}</p>
-            </div>
-
-            <div className="w-full 800px:w-[50%] mt-5 800px:flex flex-col items-end">
-              <div className="text-left">
-                <h5 className="font-[600]">
-                  Joined on:{" "}
-                  <span className="font-[500]">
-                    {data?.shop?.createdAt?.slice(0, 10)}
-                  </span>
-                </h5>
-                <h5 className="font-[600] pt-3">
-                  Total Products:{" "}
-                  <span className="font-[500]">{products?.length}</span>
-                </h5>
-                <h5 className="font-[600] pt-3">
-                  Total Reveiws:{" "}
-                  <span className="font-[500]">{totalReviewsLength}</span>
-                </h5>
-                <Link to="#">
-                  <div
-                    className={`${styles.button} !rounded-[4px] !h-[39.5px] mt-3 `}
-                  >
-                    <h4 className="text-white">Visit Shop</h4>
-                  </div>
-                </Link>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
 
 export default ProductDetails;
