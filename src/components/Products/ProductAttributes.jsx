@@ -21,7 +21,11 @@ const ProductAttributes = ({ attributeSection }) => {
                 </span>
                 {/* Flexible value to keep alignment */}
                 <span className="font-medium text-gray-900 text-sm flex-1">
-                  {attr.value}
+                  {typeof attr.value === "boolean"
+                    ? attr.value
+                      ? "Yes"
+                      : "No"
+                    : attr.value}
                 </span>
               </div>
             ))}

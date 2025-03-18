@@ -61,6 +61,8 @@ const ActivateProfilePage = () => {
     setCompletedSteps((prev) => Math.max(prev - 1, 1)); // Ensure the value doesn't go below 1
   };
 
+  console.log("sellerData", sellerData);
+
    // Render components based on the current step
    const renderStep = () => {
     switch (completedSteps)  {
@@ -76,6 +78,7 @@ const ActivateProfilePage = () => {
         return null;
     }
   };
+  
   return (
     <main className="relative">
       <DashboardHeader navOpen={navOpen} setNavOpen={setNavOpen} />

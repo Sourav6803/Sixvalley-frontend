@@ -1,13 +1,29 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaChevronLeft } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { server } from "../../../server";
+import { toast } from "react-toastify";
+import { MdVerified } from "react-icons/md";
 
-const TaxDetails = ({ completedSteps, onNext, handleSubmit , onDataUpdate}) => {
+const TaxDetails = ({ completedSteps, onNext, handleSubmit, onDataUpdate }) => {
   const [selectedOption, setSelectedOption] = useState(null);
   const [inputValue, setInputValue] = useState("");
   const [isValid, setIsValid] = useState(false);
   const [provideLater, setProvideLater] = useState(false); // Checkbox state
+  const [sellerDocuments, setSellerDocuments] = useState({
+    enrolementId: "",
+    GSTINno: "",
+    UINno: "",
+    panCard: "",
+    documentVerified: false,
+    documentVerifiedAt: null,
+    businessDetails: {
+      businessName: "",
+      businessType: [],
+      businessAddress: "",
+    },
+  });
 
   const steps = [
     { title: "Pickup Address", icon: "📦" },
@@ -40,32 +56,51 @@ const TaxDetails = ({ completedSteps, onNext, handleSubmit , onDataUpdate}) => {
     }
   };
 
-  const verifyGSTWithGSTZen = async (gstNumber) => {
-    const apiKey = 'f15da0e8-e4d0-11ed-b5ea-0242ac120002'; // Replace with your GSTZen API key
-    const apiUrl = `https://my.gstzen.in/api/gstin-validator/${gstNumber}`;
-    
+  const gstVerify = async () => {
+    const gstNumber = inputValue.trim(); // Get the GST number from input
+
+    if (!gstNumber) {
+      toast.alert("Please enter a valid GST number");
+      return;
+    }
+
     try {
-      const response = await axios.get(apiUrl, {
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      return response.data; // GST verification details
+      const response = await axios.get(
+        `${server}/shop/verify-gst?gstnumber=${gstNumber}`
+      );
+
+      if (response.data.success) {
+        const gstDetails = response.data.data;
+
+        setSellerDocuments((prevState) => ({
+          ...prevState,
+          GSTINno: gstDetails.gstNumber || "",
+          documentVerified: true,
+          documentVerifiedAt: new Date(),
+          businessDetails: {
+            ...prevState.businessDetails, // Preserve existing data
+            businessName: gstDetails.businessName || "",
+            businessType: gstDetails.businessType || [], // Ensure it's an array
+            businessAddress: gstDetails.businessAddress || "",
+          },
+        }));
+
+        
+      }
     } catch (error) {
-      console.error('Error verifying GST:', error.response?.data || error.message);
-      return null;
+      console.error(
+        "Error verifying GST:",
+        error.response?.data || error.message
+      );
+      toast.error("Failed to verify GST. Please try again.");
     }
   };
 
-  verifyGSTWithGSTZen('27ABCDE1234F1Z5')
-  .then((data) => {
-    if (data) {
-      console.log('GST Details:', data);
-    } else {
-      console.log('Failed to verify GST.');
-    }
-  });
+  console.log("sellerDocuments", sellerDocuments);
+
+  useEffect(() => {
+    onDataUpdate(sellerDocuments);
+  }, [sellerDocuments]);
 
   const navigate = useNavigate();
 
@@ -73,19 +108,15 @@ const TaxDetails = ({ completedSteps, onNext, handleSubmit , onDataUpdate}) => {
     navigate(-1); // Go back to the previous page
   };
 
-  console.log("selectedOption is --", selectedOption, "inputValue is--",inputValue, "provideLater--", provideLater)
-
-  const onSubmit = (e)=>{
+  const onSubmit = (e) => {
     e.preventDefault();
-    // onDataUpdate()
-    handleSubmit()
-    onNext()
-  }
-
-
+    // onDataUpdate(sellerDocuments);
+    handleSubmit();
+    onNext();
+  };
 
   return (
-    <div className="max-w-7xl mx-auto p-4 sm:p-8">
+    <div className="max-w-7xl mx-auto p-4 sm:p-8 mt-[80px]">
       {/* Header */}
       <div className=" flex items-center gap-5  mb-6">
         <FaChevronLeft
@@ -184,7 +215,7 @@ const TaxDetails = ({ completedSteps, onNext, handleSubmit , onDataUpdate}) => {
                     <input
                       type="text"
                       placeholder="Enter Enrolment ID / UIN"
-                      className="w-full sm:w-3/4 border text-[14px] border-gray-300 rounded-md px-4 py-2 focus:outline-none  "
+                      className="w-full sm:w-2/4 border text-[14px] border-gray-300 rounded-md px-4 py-2 focus:outline-none  "
                       value={inputValue}
                       onChange={handleInputChange}
                     />
@@ -235,22 +266,41 @@ const TaxDetails = ({ completedSteps, onNext, handleSubmit , onDataUpdate}) => {
                     <input
                       type="text"
                       placeholder="Enter GSTIN Number"
-                      className="w-full text-[14px] sm:w-3/4 border border-gray-300 rounded-md px-4 py-2"
+                      className="w-3/4 text-[14px] sm:w-2/4 border border-gray-300 rounded-md px-4 py-2"
                       value={inputValue}
                       onChange={handleInputChange}
                     />
 
-                    <button className="px-4 py-2  bg-orange-600 text-white rounded-md hover:bg-orange-700 transition">
+                    <button
+                      className={`px-4 py-2 rounded-md transition ${
+                        isValid
+                          ? "bg-orange-600 text-white hover:bg-orange-700"
+                          : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      }`}
+                      disabled={!isValid}
+                      onClick={gstVerify}
+                    >
                       Verify
                     </button>
                   </div>
+
+                  {
+                    sellerDocuments.documentVerified && (
+                      <div className="flex items-center gap-2">
+                    <MdVerified className="text-green-600" />
+                    <span className="text-green-600 font-semibold">
+                      GST Verified
+                    </span>
+                  </div>
+                    )
+                  }
                 </div>
               )}
             </div>
           </div>
 
-           {/* Checkbox */}
-           <div className="mt-6">
+          {/* Checkbox */}
+          <div className="mt-6">
             <label className="flex items-center space-x-3">
               <input
                 type="checkbox"
@@ -264,6 +314,32 @@ const TaxDetails = ({ completedSteps, onNext, handleSubmit , onDataUpdate}) => {
             </label>
           </div>
 
+          {sellerDocuments.documentVerified ? (
+            <div className="mt-4 p-4 border rounded-lg bg-green-100">
+              <div className="flex items-center gap-2">
+                <MdVerified className="text-green-600" />
+                <span className="text-green-600 font-semibold">
+                  GST Verified
+                </span>
+              </div>
+              <p className="mt-2 font-medium">
+                Business Name: {sellerDocuments.businessDetails.businessName}
+              </p>
+              <p className="text-gray-600">
+                Address: {sellerDocuments.businessDetails.businessAddress}
+              </p>
+              <p className="text-gray-600 mt-2">
+                <span className="font-semibold">Business Type(s):</span>{" "}
+                {sellerDocuments.businessDetails.businessType.join(", ")}
+              </p>
+            </div>
+          ) : (
+            <div className="mt-4 flex items-center gap-2 text-red-500">
+              <MdVerified />
+              <span>GST Not Verified</span>
+            </div>
+          )}
+
           {/* Next Button */}
           <div className="mt-8 flex justify-end">
             <button
@@ -272,11 +348,10 @@ const TaxDetails = ({ completedSteps, onNext, handleSubmit , onDataUpdate}) => {
                   ? "bg-orange-600 hover:bg-orange-700 focus:ring-4 focus:ring-orange-300"
                   : "bg-gray-300 cursor-not-allowed opacity-70"
               }`}
-              disabled={!isValid}
+              // disabled={!isValid}
               onClick={onSubmit}
             >
               Continue
-              
             </button>
           </div>
         </div>

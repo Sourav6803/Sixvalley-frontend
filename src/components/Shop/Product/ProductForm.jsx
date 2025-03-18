@@ -17,6 +17,7 @@ import { FaQuestionCircle, FaTimes } from "react-icons/fa";
 import Loader from "../../../pages/Loader";
 import ProductHighlights from "./ProductHighlights";
 import { v4 as uuidv4 } from "uuid";
+import ReturnPolicyForm from "./ReturnPolicyForm";
 
 const ENDPOINT = "http://localhost:4000";
 const socketId = socketIO(ENDPOINT, { transports: ["websocket"] });
@@ -64,6 +65,14 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
   const [errors, setErrors] = useState({});
   const [attributeKeyValuePairs, setAttributeKeyValuePairs] = useState({});
   const [highlights, setHighlights] = useState([]);
+  const [returnPolicy, setReturnPolicy] = useState({
+    isReturnable: false,
+    returnWindowDays: null,
+    isReplaceable: false,
+    replacementWindowDays: null,
+    returnReason: [],
+  });
+  console.log("return policy-->", returnPolicy)
   const [load, setIsLoading] = useState(false);
 
   const dispatch = useDispatch();
@@ -274,28 +283,32 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
     return attributes.some((attr) => attr?.values.length > 0);
   };
 
-  // Generates variations dynamically
   const generateVariations = () => {
-    // if (attributes.some((attr) => attr.values.length === 0)) {
-    //   toast.error("Please select or enter values for all attributes.");
-    //   return;
-    // }
+    // Filter attributes that have at least one value
+    const filteredAttributes = attributes.filter(attr => attr.values.length > 0);
+    
+    // If no attributes have values, prevent variation generation
+    if (filteredAttributes.length === 0) {
+      toast.error("Please select or enter values for at least one attribute.");
+      return;
+    }
   
-    // Get all possible combinations of attribute values
-    const cartesianProduct = (arrays) =>
+    // Cartesian product to generate all possible combinations
+    const cartesianProduct = (arrays) => 
       arrays.reduce(
         (acc, val) => acc.flatMap((x) => val.map((y) => [...x, y])),
         [[]]
       );
   
-    const attributeValues = attributes.map((attr) => attr.values);
+    // Get values only from attributes that have values
+    const attributeValues = filteredAttributes.map(attr => attr.values);
     const combinations = cartesianProduct(attributeValues);
   
     // Generate new variation objects
     const newVariations = combinations.map((combo) => ({
       _id: uuidv4(),
       sku: `SKU-${uuidv4().slice(0, 8)}`,
-      attributes: attributes.map((attr, i) => ({
+      attributes: filteredAttributes.map((attr, i) => ({
         key: attr.key,
         value: combo[i],
       })),
@@ -309,15 +322,17 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
   
     // ✅ Append new variations instead of replacing them
     setVariations((prevVariations) => [...prevVariations, ...newVariations]);
-    // setVariants((prevVariations) => [...prevVariations, ...newVariations]); // Pass to parent
   
-    // ✅ Clear input fields but keep keys and types
-    setAttributes(selectedCategory?.variantAttributes.map((attr) => ({
-      key: attr.name,
-      type: attr.type,
-      values: [],
-    })));
+    // ✅ Keep attribute keys but clear values
+    setAttributes(
+      selectedCategory?.variantAttributes.map((attr) => ({
+        key: attr.name,
+        type: attr.type,
+        values: [],
+      }))
+    );
   };
+  
   
   // Handles changes in variation inputs (price, stock, discount)
   const handleVariationChange = (id, field, value) => {
@@ -566,7 +581,6 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0; // Return true if no errors
   };
-
 
   const handleSubmit = useCallback(
     async (e) => {
@@ -1271,7 +1285,7 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
           <div className="grid grid-cols-2 md:grid-cols-4 md:gap-4 gap-2 md:p-6 p-2 bg-white rounded-lg shadow-lg">
             <div>
               <label className="text-sm font-medium text-gray-700">
-                Max Purchase Limit
+                Max Purchase Limit (Max 5)
                 <span className="text-red-500">*</span>
               </label>
               <input
@@ -1486,7 +1500,11 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
                 </select>
               </div>
             </div>
+
+            
           </div>
+
+          <ReturnPolicyForm returnPolicy={returnPolicy} setReturnPolicy={setReturnPolicy} />
 
           {highlights?.length > 0 && (
             <ProductHighlights highlights={highlights} />

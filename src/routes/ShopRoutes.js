@@ -43,6 +43,7 @@ import PromotionPage from "../pages/Shop/promotions/PromotionPage.jsx";
 import ParticipateDealPage from "../pages/Shop/promotions/ParticipateDealPage.jsx";
 import BusinessDashboardPage from "../pages/Shop/BusinessDashboardPage.jsx"
 import UploadProductPage from "../pages/Shop/Product/UploadProductPage.jsx";
+import InventoryPage from "../pages/Shop/InventoryPage/InventoryPage.jsx";
 
 
 export {
@@ -88,5 +89,6 @@ export {
     PromotionPage,
     ParticipateDealPage,
     BusinessDashboardPage,
-    UploadProductPage
+    UploadProductPage,
+    InventoryPage
 }

@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllOrdersOfShop } from "../../redux/actions/order";
 import { getAllProductsShop } from "../../redux/actions/product";
-import { IoDiamondSharp } from "react-icons/io5";
 import { IoIosArrowDown } from "react-icons/io";
 import Loader from "../../pages/Loader";
 import analytics from "./icon/Analytics .png";
@@ -28,7 +27,7 @@ import OrderAnalytic from "./Analytic/OrderAnalytic";
 import SalesChart from "./Analytic/SalesChart";
 import { FaBox, FaComments, FaGift, FaTag } from "react-icons/fa";
 
-const DashboardHero = ({open, setOpen}) => {
+const DashboardHero = ({open}) => {
   const dispatch = useDispatch();
   const { orders } = useSelector((state) => state.order);
   const { seller } = useSelector((state) => state.seller);
@@ -36,7 +35,7 @@ const DashboardHero = ({open, setOpen}) => {
   const { products } = useSelector((state) => state.products);
 
   const popularProduct = Array.isArray(products)
-    ? [...products].sort((a, b) => b?.ratings - a?.ratings).slice(0, 6)
+    ? [...products].sort((a, b) => b?.ratings.totalRating - a?.ratings.totalRating).slice(0, 6)
     : [];
   const topSellingProduct = Array.isArray(products)
     ? [...products].sort((a, b) => b?.sold_out - a?.sold_out).slice(0, 5)
@@ -704,15 +703,7 @@ const DashboardHero = ({open, setOpen}) => {
                 </div>
               </div>
 
-              {/* <div className="card bg-white shadow-md rounded-lg p-4 flex items-center">
-                <div className="flex justify-between items-center w-full">
-                  <div className="flex flex-col items-start">
-                    <h3 className="text-2xl font-bold mb-1">$2,519.00</h3>
-                    <div className="capitalize mb-0">Total Tax Given</div>
-                  </div>
-                  <img width="40" src="https://6valley.6amtech.com/public/assets/back-end/img/ttg.png" alt="" />
-                </div>
-              </div> */}
+              
 
               <div className="card bg-white shadow-md rounded-lg p-4 flex items-center">
                 <div className="flex justify-between items-center w-full">
@@ -816,7 +807,7 @@ const DashboardHero = ({open, setOpen}) => {
                     <div className="flex items-center justify-center space-x-1">
                       <AiFillStar color="red" />
                       <p className="text-center text-[12px]">
-                        {product?.ratings} ({product?.reviews?.length} Reviews)
+                        {product?.ratings?.totalRating} ({product?.reviews?.length} Reviews)
                       </p>
                     </div>
                   </div>

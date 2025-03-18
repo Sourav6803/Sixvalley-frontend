@@ -58,7 +58,7 @@ const CampaignOrdersTable = ({ shopId, onSelectedProductsChange }) => {
 
       // Filter by top ratings or most sold
       if (filterCriteria === "Top Ratings") {
-        filtered = filtered.sort((a, b) => b.ratings - a.ratings);
+        filtered = filtered.sort((a, b) => b.ratings.totalRating - a.ratings.totalRating);
       } else if (filterCriteria === "Most Sold") {
         filtered = filtered.sort((a, b) => b.sold_out - a.sold_out);
       }
@@ -420,7 +420,7 @@ const CampaignOrdersTable = ({ shopId, onSelectedProductsChange }) => {
 
                   {/* Product Ratings */}
                   <td className="border px-6 py-2 text-center">
-                    {product?.ratings}
+                    {product?.ratings?.totalRating}
                   </td>
 
                   {/* Product Sold Out */}

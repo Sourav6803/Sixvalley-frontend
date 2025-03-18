@@ -1,19 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { getAllOrdersOfAdmin } from "../../../redux/actions/order";
+import React, {  useState } from "react";
+import { useDispatch,  } from "react-redux";
 
-import PendingProduct from "../../../components/Admin/Product/PendingProduct";
 import DashboardSideBar from "../../../components/Shop/Layout/DashboardSidebar";
 import DashboardHeader from "../../../components/Shop/Layout/DashboardHeader";
+import PayoutDashboard from "../../../components/Admin/Payment/PayoutDashboard";
 
-const AdminPendingProductPage = () => {
+const AdminPayoutDashboardPage = () => {
   const dispatch = useDispatch();
 
   const [navOpen, setNavOpen] = useState(false);
 
-  useEffect(() => {
-    dispatch(getAllOrdersOfAdmin());
-  }, [dispatch]);
+ 
 
  
   return (
@@ -29,7 +26,7 @@ const AdminPendingProductPage = () => {
 
         <section className="flex w-full min-h-screen  flex-1 flex-col px-0 pb-5 pt-1 max-md:pb-14 sm:px-0">
           <div className="w-full">
-            <PendingProduct />
+            <PayoutDashboard />
           </div>
         </section>
       </div>
@@ -37,4 +34,4 @@ const AdminPendingProductPage = () => {
   );
 };
 
-export default AdminPendingProductPage;
+export default AdminPayoutDashboardPage;

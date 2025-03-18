@@ -7,14 +7,6 @@ const SupplierDetails = ({ completedSteps, onNext, onPrevious, onDataUpdate }) =
     sellerName: "",
   });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [name]: value,
-    }));
-  };
-
   const steps = [
     { title: "Pickup Address", icon: "📦" },
     { title: "Bank Details", icon: "🏦" },

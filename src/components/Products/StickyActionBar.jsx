@@ -11,16 +11,16 @@ const StickyActionBar = ({
   currentVariant,
   cart
 }) => {
+
     
     const getStockStatus = () => {
         // Check if the product is already in the cart
-        const isInCart = cart?.some((item) =>
-            // console.log("item-->", item)
+        const isInCart = cart?.length && cart?.some((item) =>
         
           currentVariant ? item.currentVariant._id === currentVariant._id : item.productId === data?._id
         );
 
-        console.log("isInCart-->", isInCart)
+        // console.log("isInCart-->", currentVariant)
       
         if (isInCart) {
           return "GO TO CART";
@@ -38,7 +38,7 @@ const StickyActionBar = ({
     <div className="fixed bottom-0 left-0 w-full bg-white shadow-lg border-t p-3 flex justify-around items-center z-50 md:hidden">
       {/* Wishlist Button */}
       <div
-        className={`w-[48%] flex justify-center items-center py-1.5 rounded-md font-semibold text-lg ${
+        className={`w-[48%] flex justify-center items-center py-1 rounded-md font-semibold text-lg ${
           click
             ? "bg-red-100 border border-red-500 text-red-600"
             : "bg-white border border-gray-300 text-gray-600"
@@ -60,7 +60,7 @@ const StickyActionBar = ({
 
       {/* Add to Cart Button */}
       <div
-        className={`w-[48%] flex justify-center items-center py-1.5 rounded-md font-semibold text-lg text-white cursor-pointer transition-all ${
+        className={`w-[48%] flex justify-center items-center py-1 rounded-md font-semibold text-lg text-white cursor-pointer transition-all ${
           getStockStatus() === "ADD TO CART"
             ? "bg-[#ff5722] hover:bg-[#e64a19]"
             : getStockStatus() === "GO TO CART"

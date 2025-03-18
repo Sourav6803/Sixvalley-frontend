@@ -93,26 +93,6 @@ const BankDetails = ({ completedSteps, onNext, onPrevious, onDataUpdate }) => {
     { title: "TAX Details", icon: "🧾" },
   ];
 
-  // const [faqList, setFaqList] = useState([
-  //   {
-  //     question: "What is an IFSC code?",
-  //     answer:
-  //       "IFSC stands for Indian Financial System Code. It is an 11-character alphanumeric code used to identify a specific bank branch during electronic fund transfers. For example, SBI0001234.",
-  //     isVisible: false,
-  //   },
-  //   {
-  //     question: "How do I find my account number?",
-  //     answer:
-  //       "Your account number can usually be found on your bank passbook, statement, or internet banking profile.",
-  //     isVisible: false,
-  //   },
-  //   {
-  //     question: "What does “isPrimary” mean?",
-  //     answer:
-  //       "The “isPrimary” field indicates whether this bank account is your primary/default account for transactions.",
-  //     isVisible: false,
-  //   },
-  // ]);
 
   // Handle input changes
   const handleInputChange = (e) => {

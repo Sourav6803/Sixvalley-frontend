@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { AiOutlineGift, AiOutlineQrcode } from "react-icons/ai";
-import { MdOutlineLocalOffer } from "react-icons/md";
+import { MdOutlineInventory, MdOutlineLocalOffer } from "react-icons/md";
 import { FiPackage, FiShoppingBag } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
@@ -171,7 +171,14 @@ const DashboardHeader = ({ navOpen, setNavOpen }) => {
           icon : <FaClipboardList />,
           // notication: confirmedProduct?.length,
           link: "/dashboard/catalog/upload-catalog",
-        },
+    },
+    {
+      title: "Inventory",
+      icon : <MdOutlineInventory />,
+      // notication: confirmedProduct?.length,
+      link: "/dashboard/inventory",
+    },
+
     {
       title: "Product Reviews",
       icon: <MdOutlineStarBorder />,

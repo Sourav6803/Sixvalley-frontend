@@ -25,7 +25,7 @@ import {
   IoDiamondOutline,
   IoHomeOutline,
 } from "react-icons/io5";
-import { FaMicrophone, FaUserAstronaut, FaUsers } from "react-icons/fa";
+import { FaMicrophone, FaUserAstronaut, FaUsers, FaWallet } from "react-icons/fa";
 import { SlNotebook, SlOrganization } from "react-icons/sl";
 import { AiOutlineQrcode } from "react-icons/ai";
 import { BiSolidOffer } from "react-icons/bi";
@@ -36,7 +36,7 @@ import { TiMessages } from "react-icons/ti";
 import { RiCustomerService2Fill } from "react-icons/ri";
 import { CiBank, CiDeliveryTruck, CiWallet } from "react-icons/ci";
 
-const AdminSideBar = ({ active, navOpen, setNavOpen }) => {
+const AdminSideBar = () => {
   const [open, setOpen] = useState(true);
   const [subMenuOpen, setSubMenuOpen] = useState(null);
   const [searchTearm, setSearchTearm] = useState("");
@@ -51,22 +51,9 @@ const AdminSideBar = ({ active, navOpen, setNavOpen }) => {
   };
 
   const dispatch = useDispatch();
-
-  const { adminOrders, adminOrderLoading } = useSelector(
-    (state) => state.order
-  );
-  const { sellers } = useSelector((state) => state.seller);
   const { orders } = useSelector((state) => state.order);
   const { seller } = useSelector((state) => state.seller);
 
-  const { products } = useSelector((state) => state.products);
-
-  const popularProduct = Array.isArray(products)
-    ? [...products].sort((a, b) => b?.ratings - a?.ratings).slice(0, 6)
-    : [];
-  const topSellingProduct = Array.isArray(products)
-    ? [...products].sort((a, b) => b?.sold_out - a?.sold_out).slice(0, 5)
-    : [];
 
   const cancledProduct = orders?.filter(
     (order) => order?.status === "Canceled"
@@ -77,9 +64,7 @@ const AdminSideBar = ({ active, navOpen, setNavOpen }) => {
   const completeProduct = orders?.filter(
     (order) => order?.status === "Delivered"
   );
-  const shippedProducts = orders?.filter(
-    (order) => order?.status === "Shipped"
-  );
+ 
   const packagingProduct = orders?.filter(
     (order) => order?.status === "Packaging"
   );
@@ -138,6 +123,14 @@ const AdminSideBar = ({ active, navOpen, setNavOpen }) => {
         { title: "Refunded", notication: 47, link: "/dashboard-refunds" },
         { title: "Rejected", notication: 23, link: "#" },
       ],
+    },
+
+    {
+      title: "Payout Dashboard",
+      icon: <FaWallet />,
+      subHeader: true,
+      spacing: true,
+      link: "/admin/dashboard/payment-dashboard",
     },
     {
       title: "Category Setup",
@@ -381,8 +374,6 @@ const AdminSideBar = ({ active, navOpen, setNavOpen }) => {
     },
   ];
 
-  const navigate = useNavigate();
-
   useEffect(() => {
     dispatch(getAllOrdersOfShop(seller?._id));
   }, [dispatch, seller?._id]);
@@ -392,12 +383,6 @@ const AdminSideBar = ({ active, navOpen, setNavOpen }) => {
     dispatch(getAllProductsShop(seller?._id));
   }, [dispatch, seller]);
 
-  const [timeFilter, setTimeFilter] = useState(
-    "?rangeType=months&rangeCount=12"
-  );
-  const [analyticData, setAnalyticData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
     dispatch(getAllOrdersOfAdmin());
@@ -518,7 +503,7 @@ const AdminSideBar = ({ active, navOpen, setNavOpen }) => {
                       key={subIndex}
                     >
                       <Link to={subMenuItem?.link}>
-                        <li className="text-gray-300 text-sm font-medium flex items-center cursor-pointer p-2 px-7">
+                        <li className="text-gray-300 text-sm font-medium flex items-center cursor-pointer p-2 px-10">
                           {subMenuItem.title}
                         </li>
                       </Link>

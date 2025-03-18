@@ -30,6 +30,7 @@ import ProductKeyPoints from "./ProductKeyPoints";
 import ReviewsSection from "../Review/ReviewSection";
 import SellerDetails from "./SellerDetails";
 import StickyActionBar from "./StickyActionBar";
+import ProductVariations from "./ProductVariants";
 
 
 const ProductDetails = ({ data }) => {
@@ -418,7 +419,8 @@ const ProductDetails = ({ data }) => {
             <div className={`${styles.section} w-[100%] 80px:w-[80%] `}>
               <div className="w-full py-0">
                 <div className="block w-full 800px:flex">
-                  {/* <div className="w-full p-2  rounded-md 800px:w-[50%] ">
+
+                  <div className="w-full p-2 rounded-md 800px:w-[50%]">
                     {data && data?.images?.length && (
                       <Carousel
                         showArrows={true}
@@ -426,55 +428,18 @@ const ProductDetails = ({ data }) => {
                         infiniteLoop
                         className="w-full flex flex-col items-center"
                       >
-                        {currentVariant?.images?.length
-                          ? currentVariant.images.map((img, index) => (
-                              <div
-                                key={index}
-                                className="relative w-full flex justify-center"
-                              >
-                                <img
-                                  src={img.url}
-                                  alt={data?.title}
-                                  className="w-full h-auto max-h-[60vh] object-contain rounded-lg"
-                                />
-                              </div>
-                            ))
-                          : data.images.map((img, index) => (
-                              <div
-                                key={index}
-                                className="relative w-full flex justify-center"
-                              >
-                                <img
-                                  src={img.url}
-                                  alt={data?.title}
-                                  className="w-full h-auto max-h-[60vh] object-contain rounded-lg"
-                                />
-                              </div>
-                            ))}
+                        {(currentVariant?.images?.length ? currentVariant.images : data.images).map((img, index) => (
+                          <div key={index} className="relative w-full flex justify-center">
+                            <img
+                              src={img.url}
+                              alt={data?.title}
+                              className="w-full h-auto max-h-[40vh] sm:max-h-[50vh] md:max-h-[60vh] object-contain rounded-lg"
+                            />
+                          </div>
+                        ))}
                       </Carousel>
                     )}
-                  </div> */}
-
-                <div className="w-full p-2 rounded-md 800px:w-[50%]">
-                  {data && data?.images?.length && (
-                    <Carousel
-                      showArrows={true}
-                      autoPlay
-                      infiniteLoop
-                      className="w-full flex flex-col items-center"
-                    >
-                      {(currentVariant?.images?.length ? currentVariant.images : data.images).map((img, index) => (
-                        <div key={index} className="relative w-full flex justify-center">
-                          <img
-                            src={img.url}
-                            alt={data?.title}
-                            className="w-full h-auto max-h-[40vh] sm:max-h-[50vh] md:max-h-[60vh] object-contain rounded-lg"
-                          />
-                        </div>
-                      ))}
-                    </Carousel>
-                  )}
-                </div>
+                  </div>
 
 
                   <div className="w-full 800px:w-[50%] ml-1 p-3">
@@ -543,53 +508,6 @@ const ProductDetails = ({ data }) => {
                       )}
                     </div>
 
-                    {/* <div className="mt-2">
-                      {attributeKeys.map((key) => (
-                        <div key={key} className="mb-4">
-                          <label className="block text-base text-slate-600 font-semibold mb-2">
-                             {key}:
-                          </label>
-                          <div className="flex gap-2">
-                            {[
-                              ...new Set(
-                                data?.variants.map(
-                                  (variant) =>
-                                    variant.attributes.find(
-                                      (attr) => attr.key === key
-                                    )?.value
-                                )
-                              ),
-                            ]
-                              .filter(Boolean)
-                              .map((value) => (
-                                <button
-                                  key={value}
-                                  onClick={() =>
-                                    handleAttributeChange(key, value)
-                                  }
-                                  className={`py-1 px-3 rounded-md ${
-                                    selectedAttributes[key] === value
-                                      ? "bg-gray-300 border-black border-2"
-                                      : "bg-gray-100 border-gray-300 border"
-                                  } cursor-pointer flex items-center justify-center`}
-                                >
-                                  {key === "Color" ? (
-                                    <span
-                                      className="w-5 h-5 !rounded-full"
-                                      style={{
-                                        backgroundColor: value?.toLowerCase(),
-                                      }}
-                                    />
-                                  ) : (
-                                    value?.toLowerCase()
-                                  )}
-                                </button>
-                              ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div> */}
-
                     <div className="mt-2">
                       {attributeKeys.map((key) => (
                         <div key={key} className="mb-4">
@@ -634,7 +552,7 @@ const ProductDetails = ({ data }) => {
                                     className={`py-1 px-3 rounded-md flex items-center justify-center cursor-pointer border
                       ${
                         selectedAttributes[key] === value
-                          ? "border-black bg-gray-300"
+                          ? " bg-blue-700 text-white"
                           : "border-gray-300 bg-gray-100"
                       }
                       ${isOutOfStock ? "opacity-50 cursor-not-allowed" : ""}
@@ -653,7 +571,7 @@ const ProductDetails = ({ data }) => {
                                       value
                                     )}
 
-                                    {/* Show stock status */}
+                                   
                                     {isLowStock && (
                                       <span className="text-xs text-yellow-600 ml-2">
                                         (Low Stock)
@@ -671,6 +589,15 @@ const ProductDetails = ({ data }) => {
                         </div>
                       ))}
                     </div>
+
+
+                    {/* Product Variations Component */}
+      <ProductVariations
+        data={data}
+        attributeKeys={attributeKeys}
+        selectedAttributes={selectedAttributes}
+        handleAttributeChange={handleAttributeChange}
+      />
 
                     {invalidCombo && currentVariant !== null && (
                       <div className="mt-4 text-red-500">

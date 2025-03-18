@@ -4,7 +4,7 @@ import {
   MdOutlineDashboard,
   MdOutlineEventNote,
   MdOutlineStarBorder,
-  MdOutlineStackedBarChart,
+  MdOutlineInventory,
 } from "react-icons/md";
 import {
   IoCartOutline,
@@ -72,9 +72,9 @@ const DemoSideBar = ({ open, setOpen }) => {
     dispatch(getAllProductsShop(seller?._id));
   }, [dispatch, seller]);
 
-  const [timeFilter, setTimeFilter] = useState(
-    "?rangeType=months&rangeCount=12"
-  );
+  // const [timeFilter, setTimeFilter] = useState(
+  //   "?rangeType=months&rangeCount=12"
+  // );
 
   useEffect(() => {
     dispatch(getAllOrdersOfAdmin());
@@ -196,6 +196,12 @@ const DemoSideBar = ({ open, setOpen }) => {
       // notication: confirmedProduct?.length,
       link: "/dashboard/catalog/upload-catalog",
     },
+    {
+          title: "Inventory",
+          icon : <MdOutlineInventory />,
+          // notication: confirmedProduct?.length,
+          link: "/dashboard/inventory",
+        },
     {
       title: "Product Reviews",
       icon: <MdOutlineStarBorder />,

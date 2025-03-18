@@ -44,7 +44,8 @@ import {
   PromotionPage,
   ParticipateDealPage,
   BusinessDashboardPage,
-  UploadProductPage
+  UploadProductPage,
+  InventoryPage
 } from './routes/ShopRoutes';
 import { getAllProducts } from './redux/actions/product';
 import { getAllEvents } from './redux/actions/event';
@@ -59,7 +60,8 @@ import {
   CategoryPage, UpdateCategoryPage, SubCategoryPage, SubSubCategoryPage, UpdateSubSubCategoryPage, BrandPage, AllBrandPage, UpdateBrandPage,
   CreateProductPage, AttributePage, BannerPage, CouponPage, FlashDealsPage, FlashDealAddProductPage, DealOfTheDayPage, FeatureDealPage,
   FeatureDealAddProductPage, NotificationPage, EventPage,
-  AdminPendingProductPage
+  AdminPendingProductPage,
+  AdminPayoutDashboardPage
 } from './routes/AdminRoutes';
 
 import ProtectedAdminRoute from './routes/ProtectedAdminRoute';
@@ -321,6 +323,8 @@ const App = ({ data }) => {
           <Route path="/dashboard-messages" element={<SellerProtectedRoute> <ShopInboxPage /> </SellerProtectedRoute>} />
           <Route path="/dashboard/promotion" element={<SellerProtectedRoute ><PromotionPage /></SellerProtectedRoute>} />
 
+          <Route path="/dashboard/inventory" element={<SellerProtectedRoute ><InventoryPage /></SellerProtectedRoute>} />
+
           {/* shop campaign */}
           <Route path="/dashboard-add-campaign" element={<SellerProtectedRoute> <CampaignHeroPage /> </SellerProtectedRoute>} />
           <Route path="/dashboard-create-campaign" element={<SellerProtectedRoute> <CreateCampaignPage /> </SellerProtectedRoute>} />
@@ -360,8 +364,10 @@ const App = ({ data }) => {
           <Route path="/admin/dashboard/send-notification" element={<ProtectedAdminRoute> <NotificationPage /> </ProtectedAdminRoute>} />
           <Route path="/admin/dashboard/event" element={<ProtectedAdminRoute> <EventPage /> </ProtectedAdminRoute>} />
 
+          
           <Route path="/admin/dashboard/product/pending" element={<ProtectedAdminRoute> <AdminPendingProductPage /> </ProtectedAdminRoute>} />
-
+          /admin/dashboard/payment-dashboard
+          <Route path="/admin/dashboard/payment-dashboard" element={<ProtectedAdminRoute> <AdminPayoutDashboardPage /> </ProtectedAdminRoute>} />
         </Routes>
         <ToastContainer
           position="top-right"

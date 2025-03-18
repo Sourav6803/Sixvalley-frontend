@@ -203,19 +203,21 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
     }
   };
 
+  console.log("status-->", status)
+
   const updateOrderStatus = async (id) => {
     try {
       // Update order status in the backend
       await axios.put(
         `${server}/order/update-order-status/${id}`,
-        { status },
+        { status: status },
         { withCredentials: true }
       );
       toast.success("Order confirmed!");
 
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      // setTimeout(() => {
+      //   window.location.reload();
+      // }, 1000);
     } catch (err) {
       toast.error("Error Updating Status");
     }
@@ -568,6 +570,7 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
                                         onClick={() => {
                                           setApprovedModalOpen(true);
                                           setOrderId(order?._id);
+                                          setStatus("Confirmed");
                                         }}
                                         disabled={isDisabled}
                                         className={`px-3 py-1 rounded-md shadow-md ${
@@ -669,7 +672,7 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
             <Modal
               open={approvedModalOpen}
               onClose={() => setApprovedModalOpen(false)}
-              onConfirm={() => updateOrderStatus(orderId, "Confirmed")}
+              onConfirm={() => updateOrderStatus(orderId, status)}
               title="Want to Approved this Order ?"
               buttonText={"Accept Order"}
               message="If approved this order will be moved to Confirmed tab."

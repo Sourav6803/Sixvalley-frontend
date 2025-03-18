@@ -26,6 +26,7 @@ import FeatureDealAddProductPage from "../pages/admin/Deal/FeatureDealAddProduct
 import NotificationPage from "../pages/admin/NotificationPage";
 import EventPage from "../pages/admin/Event/EventPage";
 import AdminPendingProductPage from "../pages/admin/Product/AdminPendingProductPage";
+import AdminPayoutDashboardPage from "../pages/admin/Payment/PayoutDashboardPage";
 
 export {
   AdminDashboardPage,
@@ -55,5 +56,6 @@ export {
   FeatureDealAddProductPage,
   NotificationPage,
   EventPage, 
-  AdminPendingProductPage
+  AdminPendingProductPage,
+  AdminPayoutDashboardPage
 };
