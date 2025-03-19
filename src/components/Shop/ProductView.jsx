@@ -6,30 +6,12 @@ import { Carousel } from 'react-responsive-carousel';
 
 const ProductView = () => {
     const { id } = useParams();
-    console.log("id:", id)
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
     const { singleProduct } = useSelector((state) => state.products);
-
-    console.log("singleProduct;", singleProduct)
-
-    // const [images, setImages] = useState([]);
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
-    // const [mainCategory, setMainCategory] = useState("")
-    // const [subCategory, setSubCategory] = useState("");
-    // const [brand, setBrand] = useState("");
-    // const [productType, setProductType] = useState("")
-    // const [sku, setSku] = useState("")
-    // const [unit, setUnit] = useState("");
-
-    // const [discountType, setDiscountType] = useState("")
-    // const [discountPrice, setDiscountPrice] = useState();
-    // const [stock, setStock] = useState();
-    // const [taxAmount, setTaxAmount] = useState();
-    // const [shippingCost, setShippingCost] = useState("")
-    // const [isDisabled, setIsDisabled] = useState(true);
 
     // Fetch category on mount
     useEffect(() => {
@@ -38,38 +20,13 @@ const ProductView = () => {
         }
     }, [id, dispatch]);
 
-
-
     // Update state when singleCategory is fetched
     useEffect(() => {
         if (singleProduct) {
             setName(singleProduct?.name);
             setDescription(singleProduct?.description);
-            // setBrand(singleProduct?.brand)
-            // setMainCategory(singleProduct.category)
-            // setSubCategory(singleProduct.subcategory)
-            // setProductType(singleProduct?.productType)
-            // setSku(singleProduct?.sku)
-            // setDiscountPrice(singleProduct?.afterDiscountPrice)
-            // setDiscountType(singleProduct?.discountType)
-            // setUnit(singleProduct?.unit)
-            // setStock(singleProduct?.stock)
-            // setTaxAmount(singleProduct?.taxAmount)
-            // setShippingCost(singleProduct?.shippingCost)
-            // setImages(singleProduct?.images.map(img => img.url))
         }
     }, [singleProduct]);
-
-    // Enable or disable submit button based on form validation
-    // useEffect(() => {
-    //     if (name.length > 1 && images) {
-    //         setIsDisabled(false);
-    //     } else {
-    //         setIsDisabled(true);
-    //     }
-    // }, [name, images]);
-
-    
 
     return (
         <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 lg:p-8">
@@ -130,7 +87,7 @@ const ProductView = () => {
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center space-x-4">
                             <div className="text-gray-700">{singleProduct?.sold_out} Sold</div>
-                            <div className="text-blue-600">★ {singleProduct?.ratings ? singleProduct?.ratings : 1}</div>
+                            <div className="text-blue-600">★ {singleProduct?.ratings?.totalRatings ? singleProduct?.totalRatings : 1}</div>
                             <div className="text-gray-700">{singleProduct?.reviews.length ? singleProduct?.reviews.length : "No "} Reviews</div>
                         </div>
                         <div>

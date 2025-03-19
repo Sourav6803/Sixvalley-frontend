@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
@@ -15,22 +15,152 @@ const NewProductCard = ({ data, isEvent }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const [selectedAttributes, setSelectedAttributes] = useState({});
+    const [currentVariant, setCurrentVariant] = useState(null);
+
   const isItemInCart = cart && cart.find((i) => i._id === data._id);
 
-  const addToCartHandler = async () => {
-    if (data.stock < count) {
-      toast.error("Product stock limited!");
+  // Default to first variant if available
+  const [selectedVariant] = useState(data?.variants?.[0] || {});
+
+  useEffect(() => {
+      if (data?.variants?.length > 0) {
+        const firstVariant = data.variants[0];
+        
+        // Extract default selected attributes from the first variant
+        const defaultAttributes = firstVariant.attributes.reduce((acc, attr) => {
+          acc[attr.key] = attr.value;
+          return acc;
+        }, {});
+    
+        setSelectedAttributes(defaultAttributes);
+        setCurrentVariant(firstVariant);
+      }
+    }, [data?.variants]);
+
+  // const addToCartHandler = async () => {
+  //   if (data.stock < count) {
+  //     toast.error("Product stock limited!");
+  //   } else {
+  //     const cartData = { ...data, qty: count };
+  //     dispatch(addTocart(cartData));
+  //     toast.success("Item added to cart successfully!");
+  //     user?._id &&
+  //       data?._id &&
+  //       (await axios.post(`${server}/activity/logActivity`, {
+  //         userId: user._id,
+  //         type: "add_to_cart",
+  //         productId: data?._id, // Make sure `data` holds the current product details
+  //       }));
+  //   }
+  // };
+
+ // Reusable function to log user activity
+  const logActivity = useCallback(
+    async (type, productId) => {
+      try {
+        if (productId && user?._id) {
+          await axios.post(`${server}/activity/logActivity`, {
+            userId: user._id,
+            type,
+            productId,
+          });
+        }
+      } catch (error) {
+        console.error(`Error logging ${type} activity:`, error.message);
+      }
+    },
+    [user]
+  );
+
+  // Reusable function to track campaign interactions
+  const trackInteraction = useCallback(
+    async (interactionType, productId) => {
+      try {
+        const campaignId = data?.campaignInfo?.campaignId || null;
+        await axios.post(`${server}/campaign/trackInteraction`, {
+          productId,
+          campaignId,
+          interactionType,
+        });
+      } catch (error) {
+        console.error(
+          `Error tracking ${interactionType} interaction:`,
+          error.message
+        );
+      }
+    },
+    [data]
+  );
+
+
+  const addToCartHandler = async (id) => {
+
+    const isItemExists = cart?.some((item) =>
+      currentVariant ? item.variantId === currentVariant._id : item.productId === data?._id
+    );
+    // Check if a variant is selected
+    if (currentVariant) {
+      // Create the cart item with the selected variant details
+
+      // Ensure variant has stock
+      if (currentVariant.stock < count) {
+        toast.error("Selected variant is out of stock!");
+        return;
+      }
+      const cartData = {
+        
+        currentVariant,
+        ...data, // Include current variant details
+        qty: count, // Include quantity
+      };
+
+      // Check if the item already exists in the cart
+      const isItemExists =
+        cart &&
+        cart?.some((item) =>
+          currentVariant ? item.currentVariant._id === currentVariant._id : item.productId === data?._id
+        );;
+      if (isItemExists) {
+        toast.error("Item with the selected variant is already in the cart!");
+      } else {
+        if (currentVariant.stock < count) {
+          toast.error("Product stock limited!");
+        } else {
+          dispatch(addTocart(cartData));
+          toast.success("Item added to cart successfully!");
+          user?._id &&
+            data._id &&
+            (await axios.post(`${server}/activity/logActivity`, {
+              userId: user?._id,
+              type: "add_to_cart",
+              productId: data._id, // Make sure `data` holds the current product details
+            }));
+        }
+      }
     } else {
-      const cartData = { ...data, qty: count };
-      dispatch(addTocart(cartData));
-      toast.success("Item added to cart successfully!");
-      user?._id &&
-        data?._id &&
-        (await axios.post(`${server}/activity/logActivity`, {
-          userId: user._id,
-          type: "add_to_cart",
-          productId: data?._id, // Make sure `data` holds the current product details
-        }));
+      // Handle the case where no variant is selected
+      const isItemExists = cart && cart.find((item) => item._id === id);
+      if (isItemExists) {
+        toast.error("Item already in cart!");
+      } else {
+        if (data.stock < count) {
+          toast.error("Product stock limited!");
+        } else {
+          await logActivity("click", data?._id);
+          await trackInteraction("click", data?._id); // Now this should always execute
+          const cartData = { ...data, qty: count };
+          dispatch(addTocart(cartData));
+          toast.success("Item added to cart successfully!");
+          user?._id &&
+            data?._id &&
+            (await axios.post(`${server}/activity/logActivity`, {
+              userId: user._id,
+              type: "add_to_cart",
+              productId: data._id, // Make sure `data` holds the current product details
+            }));
+        }
+      }
     }
   };
 
@@ -68,7 +198,7 @@ const NewProductCard = ({ data, isEvent }) => {
         </div>
         <div className="flex justify-between mt-1 items-center">
           <h1 className="text-lg font-[14px] text-gray-700 dark:text-gray-200 md:text-xl">
-            ₹{data?.afterDiscountPrice}
+            ₹{currentVariant?.afterDiscountPrice ? currentVariant?.afterDiscountPrice : data?.afterDiscountPrice}
           </h1>
           {isItemInCart ? (
             <Link to="#" onClick={() => setOpenCart(true)}>

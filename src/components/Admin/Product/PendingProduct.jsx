@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { AiOutlineEye, AiOutlinePlus } from "react-icons/ai";
+import React, {  useEffect, useState } from "react";
+import { AiOutlineEye,  } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import {  useNavigate } from "react-router-dom";
 import { getAllProductsShop } from "../../../redux/actions/product";
 import axios from "axios";
 import { server } from "../../../server";
@@ -13,10 +13,9 @@ import productImage from "../icon/package-box.png";
 
 const PendingProduct = () => {
   const { products, isLoading } = useSelector((state) => state?.products);
-  const { allBrand } = useSelector((state) => state.brand);
 
   const pendingProducts =
-    products && products?.filter((product) => product.approved === "Pending");
+    products && products?.filter((product) => product.status === "Pending");
 
   const { seller } = useSelector((state) => state.seller);
 
@@ -27,16 +26,7 @@ const PendingProduct = () => {
     dispatch(getAllProductsShop(seller?._id));
   }, [dispatch, seller?._id]);
 
-  const { allCategory } = useSelector((state) => state?.category);
-  const { allSubCategory } = useSelector((state) => state?.subCategory);
-  const { allSubSubCategory } = useSelector((state) => state?.subSubCategory);
-
-  const [mainCategory, setMainCategory] = useState("");
-  const [subCategory, setSubCategory] = useState("");
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isDisabled, setIsDisabled] = useState(true);
-  const [allSubSubCategories, setAllSubSubCategories] = useState([]);
+  
   const [isDelete, setIsDelete] = useState(false);
   const [searchTearm, setSearchTearm] = useState("");
   const [searchData, setSearchData] = useState(null);
@@ -122,136 +112,12 @@ const PendingProduct = () => {
       {isLoading === true ? (
         <div className="flex items-center justify-center"></div>
       ) : (
-        <div className="w-full p-2 md:p-5 bg-gray-200">
+        <div className="w-full p-2 md:p-5 bg-gray-200 mt-5">
           <div className="flex items-center gap-2">
             <img src={productImage} alt="layout" className="h-8" />
             <h3 className="text-[20px] text-slate-600 font-Poppins font-semibold">
               Pending Product List: {products?.length}
             </h3>
-          </div>
-
-          {/* Search product */}
-
-          <div className="w-full mt-2 bg-white p-3 rounded-md hover:shadow-md">
-            {isLoading ? (
-              <div className="w-full h-screen flex items-start justify-center">
-                <Loader />
-              </div>
-            ) : (
-              <div className="p-4 rounded-md ">
-                <h2 className="my-3 text-[20px] text-gray-600 font-medium">
-                  Filter products{" "}
-                </h2>
-                <form className="items-center justify-around grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 ">
-                  <div className="flex mb-4 flex-col">
-                    <label
-                      className="block text-lg font-medium text-gray-700"
-                      htmlFor="main_category_select"
-                    >
-                      Brand *
-                    </label>
-                    <select
-                      id="main_category_select"
-                      className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                      value={brand}
-                      onChange={(e) => setBrand(e.target.value)}
-                    >
-                      <option value="" disabled>
-                        Select a Brand
-                      </option>
-                      {allBrand?.map((brand) => (
-                        <option key={brand.id} value={brand.id}>
-                          {brand.brandName}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="flex mb-4 flex-col">
-                    <label
-                      className="block text-lg font-medium text-gray-700"
-                      htmlFor="main_category_select"
-                    >
-                      {" "}
-                      Category *
-                    </label>
-                    <select
-                      id="main_category_select"
-                      className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                      value={mainCategory}
-                      onChange={(e) => setMainCategory(e.target.value)}
-                    >
-                      <option value="" disabled>
-                        Select a category
-                      </option>
-                      {allCategory?.map((category) => (
-                        <option key={category.id} value={category.id}>
-                          {category.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="flex mb-4 flex-col">
-                    <label
-                      className="block text-lg font-medium text-gray-700"
-                      htmlFor="main_category_select"
-                    >
-                      Sub category *
-                    </label>
-                    <select
-                      id="main_category_select"
-                      className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                      value={subCategory}
-                      onChange={(e) => setSubCategory(e.target.value)}
-                    >
-                      <option value="" disabled>
-                        Select a sub category
-                      </option>
-                      {allSubCategory?.map((category) => (
-                        <option key={category.id} value={category.id}>
-                          {category.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="flex mb-4 flex-col">
-                    <label
-                      className="block text-lg font-medium text-gray-700"
-                      htmlFor="main_category_select"
-                    >
-                      Sub Sub category *
-                    </label>
-                    <select
-                      id="main_category_select"
-                      className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                      value={subCategory}
-                      onChange={(e) => setAllSubSubCategories(e.target.value)}
-                    >
-                      <option value="" disabled>
-                        Select a sub sub category
-                      </option>
-                      {allSubSubCategory?.map((category) => (
-                        <option key={category.id} value={category.id}>
-                          {category.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </form>
-              </div>
-            )}
-            <div className="mt-1 flex items-center justify-end">
-              <button
-                type="submit"
-                className={`text-white w-[15vw] bg-blue-600 hover:bg-blue-800 font-semibold text-center border rounded-md py-2 px-5 flex items-center justify-center ${
-                  isDisabled && isSubmitting && "cursor-not-allowed"
-                }`}
-              >
-                {isSubmitting ? <Loader /> : "Search"}
-              </button>
-            </div>
           </div>
 
           {/* Product table */}

@@ -67,6 +67,7 @@ const Header = ({ activeHeading, searchContentOpen, setSearchContentOpen }) => {
   const admin = user?.role === "Admin";
 
   const handleSearchChange = (e) => {
+    e.preventDefault();
     const term = e.target.value;
     setSearchTearm(term);
     const filterProducts =
@@ -364,7 +365,7 @@ const Header = ({ activeHeading, searchContentOpen, setSearchContentOpen }) => {
   };
 
   const handleSearch = async (e) => {
-    e.preventDefault();
+    
     setShowSuggestions(false);
 
     try {

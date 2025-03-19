@@ -325,6 +325,8 @@ const App = ({ data }) => {
 
           <Route path="/dashboard/inventory" element={<SellerProtectedRoute ><InventoryPage /></SellerProtectedRoute>} />
 
+          <Route path="/dashboard/update-inventory" element={<SellerProtectedRoute ><InventoryPage /></SellerProtectedRoute>} />
+
           {/* shop campaign */}
           <Route path="/dashboard-add-campaign" element={<SellerProtectedRoute> <CampaignHeroPage /> </SellerProtectedRoute>} />
           <Route path="/dashboard-create-campaign" element={<SellerProtectedRoute> <CreateCampaignPage /> </SellerProtectedRoute>} />
@@ -363,10 +365,11 @@ const App = ({ data }) => {
           <Route path="/admin/dashboard/feature-deal/add-product/:id" element={<ProtectedAdminRoute> <FeatureDealAddProductPage /> </ProtectedAdminRoute>} />
           <Route path="/admin/dashboard/send-notification" element={<ProtectedAdminRoute> <NotificationPage /> </ProtectedAdminRoute>} />
           <Route path="/admin/dashboard/event" element={<ProtectedAdminRoute> <EventPage /> </ProtectedAdminRoute>} />
+          <Route path="/admin/dashboard/event" element={<ProtectedAdminRoute> <EventPage /> </ProtectedAdminRoute>} />
 
           
-          <Route path="/admin/dashboard/product/pending" element={<ProtectedAdminRoute> <AdminPendingProductPage /> </ProtectedAdminRoute>} />
-          /admin/dashboard/payment-dashboard
+          <Route path="/admin/dashboard/approved-product" element={<ProtectedAdminRoute> <AdminPendingProductPage /> </ProtectedAdminRoute>} />
+          
           <Route path="/admin/dashboard/payment-dashboard" element={<ProtectedAdminRoute> <AdminPayoutDashboardPage /> </ProtectedAdminRoute>} />
         </Routes>
         <ToastContainer

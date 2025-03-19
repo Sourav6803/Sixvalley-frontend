@@ -14,7 +14,7 @@ import { createProduct } from "../../../redux/actions/product";
 import socketIO from "socket.io-client";
 import { LoadingModal } from "./LoadingModal";
 import { FaQuestionCircle, FaTimes } from "react-icons/fa";
-import Loader from "../../../pages/Loader";
+
 import ProductHighlights from "./ProductHighlights";
 import { v4 as uuidv4 } from "uuid";
 import ReturnPolicyForm from "./ReturnPolicyForm";
@@ -72,7 +72,7 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
     replacementWindowDays: null,
     returnReason: [],
   });
-  console.log("return policy-->", returnPolicy)
+  
   const [load, setIsLoading] = useState(false);
 
   const dispatch = useDispatch();

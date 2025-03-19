@@ -508,7 +508,7 @@ const ProductDetails = ({ data }) => {
                       )}
                     </div>
 
-                    <div className="mt-2">
+                    {/* <div className="mt-2">
                       {attributeKeys.map((key) => (
                         <div key={key} className="mb-4">
                           <label className="block text-base text-slate-600 font-semibold mb-2">
@@ -588,16 +588,16 @@ const ProductDetails = ({ data }) => {
                           </div>
                         </div>
                       ))}
-                    </div>
+                    </div> */}
 
 
                     {/* Product Variations Component */}
-      <ProductVariations
-        data={data}
-        attributeKeys={attributeKeys}
-        selectedAttributes={selectedAttributes}
-        handleAttributeChange={handleAttributeChange}
-      />
+                    <ProductVariations
+                      data={data}
+                      attributeKeys={attributeKeys}
+                      selectedAttributes={selectedAttributes}
+                      handleAttributeChange={handleAttributeChange}
+                    />
 
                     {invalidCombo && currentVariant !== null && (
                       <div className="mt-4 text-red-500">

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import Header from '../../components/Layout/Header'
-import Footer from '../../components/Layout/Footer'
 import ProductDetails from "../../components/Products/ProductDetails"
 import { useParams, useSearchParams } from 'react-router-dom'
 import SuggestedProduct from '../../components/Products/SuggestedProduct'

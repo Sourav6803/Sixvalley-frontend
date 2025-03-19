@@ -33,13 +33,13 @@ const AllOrders = () => {
     }
   };
 
-  const handleCheckboxChange = (orderId) => {
-    if (selectedOrders.includes(orderId)) {
-      setSelectedOrders(selectedOrders.filter((id) => id !== orderId));
-    } else {
-      setSelectedOrders([...selectedOrders, orderId]);
-    }
-  };
+  // const handleCheckboxChange = (orderId) => {
+  //   if (selectedOrders.includes(orderId)) {
+  //     setSelectedOrders(selectedOrders.filter((id) => id !== orderId));
+  //   } else {
+  //     setSelectedOrders([...selectedOrders, orderId]);
+  //   }
+  // };
 
   const handleSearchTypeChange = (e) => {
     const selectedType = e.target.value;

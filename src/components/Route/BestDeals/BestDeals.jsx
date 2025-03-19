@@ -33,7 +33,6 @@ const BestDeals = () => {
       .then(res => {
         const deals = res.data?.data || [];
         const activeDeal = deals.find(deal => deal.publish === true);
-        console.log(activeDeal)
         setDeal(activeDeal);
         setLoading(false);
       })

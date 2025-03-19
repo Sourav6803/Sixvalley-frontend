@@ -424,7 +424,7 @@ const AdminSideBar = () => {
 
   return (
     <section
-      className={`bg-[#2a2589]  max-sm:hidden 1000px:block max-h-screen p-5 pt-8 sticky top-0 left-0 ${
+      className={`bg-[#2a2589]   max-sm:hidden 1000px:block max-h-screen p-5 pt-8 sticky top-0 left-0 ${
         open ? "w-72" : "w-20"
       } duration-300 overflow-y-scroll overflow-x-hidden `}
     >

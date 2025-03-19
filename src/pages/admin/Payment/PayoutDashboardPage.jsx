@@ -1,12 +1,13 @@
 import React, {  useState } from "react";
-import { useDispatch,  } from "react-redux";
 
-import DashboardSideBar from "../../../components/Shop/Layout/DashboardSidebar";
+
+
 import DashboardHeader from "../../../components/Shop/Layout/DashboardHeader";
 import PayoutDashboard from "../../../components/Admin/Payment/PayoutDashboard";
+import AdminSideBar from "../../../components/Admin/Layout/AdminSidebar";
 
 const AdminPayoutDashboardPage = () => {
-  const dispatch = useDispatch();
+ 
 
   const [navOpen, setNavOpen] = useState(false);
 
@@ -18,7 +19,7 @@ const AdminPayoutDashboardPage = () => {
       <DashboardHeader navOpen={navOpen} setNavOpen={setNavOpen} />
 
       <div className="flex  w-full">
-        <DashboardSideBar
+        <AdminSideBar
           active={4}
           navOpen={navOpen}
           setNavOpen={setNavOpen}

@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { getAllOrdersOfAdmin } from "../../../redux/actions/order";
 
 import PendingProduct from "../../../components/Admin/Product/PendingProduct";
-import DashboardSideBar from "../../../components/Shop/Layout/DashboardSidebar";
+
 import DashboardHeader from "../../../components/Shop/Layout/DashboardHeader";
+import AdminSideBar from "../../../components/Admin/Layout/AdminSidebar";
 
 const AdminPendingProductPage = () => {
   const dispatch = useDispatch();
@@ -21,7 +22,7 @@ const AdminPendingProductPage = () => {
       <DashboardHeader navOpen={navOpen} setNavOpen={setNavOpen} />
 
       <div className="flex  w-full">
-        <DashboardSideBar
+        <AdminSideBar
           active={4}
           navOpen={navOpen}
           setNavOpen={setNavOpen}
