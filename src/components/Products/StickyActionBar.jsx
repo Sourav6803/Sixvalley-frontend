@@ -1,5 +1,98 @@
+// import { AiFillHeart, AiOutlineShoppingCart } from "react-icons/ai";
+// import { useSelector } from "react-redux";
+// import { toast } from "react-toastify";
+
+// const StickyActionBar = ({
+//   click,
+//   isAuthenticated,
+//   addToWishlistHandler,
+//   removeFromWishlistHandler,
+//   addToCartHandler,
+//   data,
+//   currentVariant,
+//   cart
+// }) => {
+
+
+//   const {openCart} = useSelector(state => state.cart)
+
+
+    
+//     const getStockStatus = () => {
+//         // Check if the product is already in the cart
+//         const isInCart = cart?.length > 0 && cart?.some((item) =>
+        
+//           currentVariant ? item.currentVariant._id === currentVariant._id : item.productId === data?._id
+//         );
+      
+//         if (isInCart) {
+//           return "GO TO CART";
+//         }
+      
+//         if (currentVariant) {
+//           return currentVariant.stock > 0 ? "ADD TO CART" : "OUT OF STOCK";
+//         }
+      
+//         return data?.stock > 0 ? "ADD TO CART" : "OUT OF STOCK";
+//       };
+      
+      
+//   return (
+//     <div className="fixed bottom-0 left-0 w-full bg-white shadow-lg border-t p-3 flex justify-around items-center z-50 md:hidden">
+//       {/* Wishlist Button */}
+//       <div
+//         className={`w-[48%] flex justify-center items-center py-1 rounded-md font-semibold text-lg ${
+//           click
+//             ? "bg-red-100 border border-red-500 text-red-600"
+//             : "bg-white border border-gray-300 text-gray-600"
+//         } cursor-pointer transition-all`}
+//         onClick={
+//           click
+//             ? () => removeFromWishlistHandler(data)
+//             : () => addToWishlistHandler(data)
+//         }
+//         title={click ? "Remove from wishlist" : "Add to wishlist"}
+//       >
+//         <AiFillHeart
+//           size={22}
+//           className="mr-2"
+//           color={click ? "red" : "gray"}
+//         />
+//         WISHLIST
+//       </div>
+
+//       {/* Add to Cart Button */}
+//       <div
+//         className={`w-[48%] flex justify-center items-center py-1 rounded-md font-semibold text-lg text-white cursor-pointer transition-all ${
+//           getStockStatus() === "ADD TO CART"
+//             ? "bg-[#ff5722] hover:bg-[#e64a19]"
+//             : getStockStatus() === "GO TO CART"
+//             ? "bg-blue-500 hover:bg-blue-600"
+//             : "bg-gray-400 cursor-not-allowed"
+//         }`}
+//         onClick={
+//           isAuthenticated
+//             ? getStockStatus() === "ADD TO CART"
+//               ? () => addToCartHandler(data?._id)
+//               : getStockStatus() === "GO TO CART"
+//               ? ()=> {}
+//               : () => {}
+//             : () => toast.info("Login to add items to the cart.")
+//         }
+//       >
+//         <AiOutlineShoppingCart size={22} className="mr-2" />
+//         {getStockStatus()}
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default StickyActionBar;
+
 import { AiFillHeart, AiOutlineShoppingCart } from "react-icons/ai";
 import { toast } from "react-toastify";
+import { useDispatch, useSelector } from "react-redux";
+import { toggleCart } from "../../redux/actions/cart";
 
 const StickyActionBar = ({
   click,
@@ -11,77 +104,82 @@ const StickyActionBar = ({
   currentVariant,
   cart
 }) => {
+  const {  cartOpen } = useSelector(state => state.cart); // Assume sidebar/cart state is in Redux
 
-    
-    const getStockStatus = () => {
-        // Check if the product is already in the cart
-        const isInCart = cart?.length && cart?.some((item) =>
-        
-          currentVariant ? item.currentVariant._id === currentVariant._id : item.productId === data?._id
-        );
+  const dispatch = useDispatch();
+  
+      const handleToggleCart = () => {
+          dispatch(toggleCart()); // Dispatch the action to toggle the cart state
+        };
 
-        // console.log("isInCart-->", currentVariant)
-      
-        if (isInCart) {
-          return "GO TO CART";
-        }
-      
-        if (currentVariant) {
-          return currentVariant.stock > 0 ? "ADD TO CART" : "OUT OF STOCK";
-        }
-      
-        return data?.stock > 0 ? "ADD TO CART" : "OUT OF STOCK";
-      };
-      
-      
+  const getStockStatus = () => {
+    const isInCart = cart?.some((item) =>
+      currentVariant ? item.currentVariant?._id === currentVariant?._id : item.productId === data?._id
+    );
+
+    if (isInCart) return "GO TO CART";
+    if (currentVariant) return currentVariant.stock > 0 ? "ADD TO CART" : "OUT OF STOCK";
+    return data?.stock > 0 ? "ADD TO CART" : "OUT OF STOCK";
+  };
+
+  const handleCartAction = () => {
+    if (!isAuthenticated) {
+      toast.info("Please login to add items to the cart.");
+      return;
+    }
+
+    const status = getStockStatus();
+    if (status === "ADD TO CART") addToCartHandler(data?._id);
+    else if (status === "GO TO CART") toast.info("Item is already in your cart!");
+  };
+
   return (
-    <div className="fixed bottom-0 left-0 w-full bg-white shadow-lg border-t p-3 flex justify-around items-center z-50 md:hidden">
+    <div
+      className={`fixed bottom-0 left-0 w-full bg-white shadow-lg border-t p-3 flex justify-around items-center 
+      z-40 md:hidden transition-all duration-300 ${
+         cartOpen ? "hidden" : "block"
+      }`}
+    >
       {/* Wishlist Button */}
-      <div
-        className={`w-[48%] flex justify-center items-center py-1 rounded-md font-semibold text-lg ${
-          click
-            ? "bg-red-100 border border-red-500 text-red-600"
-            : "bg-white border border-gray-300 text-gray-600"
-        } cursor-pointer transition-all`}
-        onClick={
-          click
-            ? () => removeFromWishlistHandler(data)
-            : () => addToWishlistHandler(data)
-        }
+      <button
+        className={`w-[48%] flex justify-center items-center py-2 rounded-md font-semibold text-lg transition-all
+          ${click ? "bg-red-100 border border-red-500 text-red-600" : "bg-gray-100 border border-gray-300 text-gray-600"}
+        `}
+        onClick={() => (click ? removeFromWishlistHandler(data) : addToWishlistHandler(data))}
         title={click ? "Remove from wishlist" : "Add to wishlist"}
+        aria-label="Wishlist button"
       >
-        <AiFillHeart
-          size={22}
-          className="mr-2"
-          color={click ? "red" : "gray"}
-        />
+        <AiFillHeart size={22} className="mr-2" color={click ? "red" : "gray"} />
         WISHLIST
-      </div>
+      </button>
 
       {/* Add to Cart Button */}
-      <div
-        className={`w-[48%] flex justify-center items-center py-1 rounded-md font-semibold text-lg text-white cursor-pointer transition-all ${
-          getStockStatus() === "ADD TO CART"
-            ? "bg-[#ff5722] hover:bg-[#e64a19]"
-            : getStockStatus() === "GO TO CART"
-            ? "bg-blue-500 hover:bg-blue-600"
-            : "bg-gray-400 cursor-not-allowed"
-        }`}
+      <button
+        className={`w-[48%] flex justify-center items-center py-2 rounded-md font-semibold text-lg text-white transition-all
+          ${getStockStatus() === "ADD TO CART" ? "bg-[#ff5722] hover:bg-[#e64a19]"
+          : getStockStatus() === "GO TO CART" ? "bg-blue-500 hover:bg-blue-600"
+          : "bg-gray-400 cursor-not-allowed"}
+        `}
+        // onClick={handleCartAction}
         onClick={
-          isAuthenticated
-            ? getStockStatus() === "ADD TO CART"
-              ? () => addToCartHandler(data?._id)
-              : getStockStatus() === "GO TO CART"
-              ? ()=> {}
-              : () => {}
-            : () => toast.info("Login to add items to the cart.")
-        }
+                     isAuthenticated
+                       ? getStockStatus() === "ADD TO CART"
+                         ? () => addToCartHandler(data?._id)
+                         : getStockStatus() === "GO TO CART"
+                         ? ()=> {handleToggleCart()}
+                         : () => {}
+                       : () => toast.info("Login to add items to the cart.")
+                   }
+        disabled={getStockStatus() === "OUT OF STOCK"}
+        title={getStockStatus()}
+        aria-label="Cart action button"
       >
         <AiOutlineShoppingCart size={22} className="mr-2" />
         {getStockStatus()}
-      </div>
+      </button>
     </div>
   );
 };
 
 export default StickyActionBar;
+

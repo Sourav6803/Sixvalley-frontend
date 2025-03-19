@@ -18,3 +18,9 @@ export const addTocart = (data) => async (dispatch, getState) => {
     localStorage.setItem("cartItems", JSON.stringify(getState().cart.cart));
     return data;
   };
+
+  export const toggleCart = () => (dispatch) => {
+    dispatch({
+      type: "toggleCart",
+    });
+  };

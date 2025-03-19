@@ -2,6 +2,7 @@ import { createReducer } from "@reduxjs/toolkit";
 
 const initialState = {
     cart: localStorage.getItem("cartItems") ? JSON.parse(localStorage.getItem("cartItems")) : [],
+    openCart: false, // New state for openCart
 };
 
 export const cartReducer = createReducer(initialState, {
@@ -25,4 +26,13 @@ export const cartReducer = createReducer(initialState, {
             cart: state?.cart?.filter((i) => i?._id !== action.payload),
         };
     },
+
+    toggleCart: (state) => {
+        state.openCart = !state.openCart; // Toggle the openCart state
+      },
+      setCartOpen: (state, action) => {
+        if (state.openCart !== action.payload) {
+          state.openCart = action.payload;
+        }
+      },
 });

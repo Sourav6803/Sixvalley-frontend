@@ -16,7 +16,7 @@ import { BiMenuAltLeft, BiMicrophone, BiSearch } from "react-icons/bi";
 import { CgProfile } from "react-icons/cg";
 import DropDown from "./DropDown.jsx";
 import Navbar from "../Layout/Navbar.jsx";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { server } from "../../server";
 import Cart from "../Cart/Cart";
 import Wishlist from "../Wishlist/Wishlist";
@@ -36,6 +36,7 @@ import { toast } from "react-toastify";
 import { format } from "timeago.js";
 import socketIO from "socket.io-client";
 import SearchPage from "./SearchPage.jsx";
+import { toggleCart } from "../../redux/actions/cart.js";
 
 const ENDPOINT = "http://localhost:4000";
 const socketId = socketIO(ENDPOINT, { transports: ["websocket"] });
@@ -50,10 +51,10 @@ const Header = ({ activeHeading, searchContentOpen, setSearchContentOpen }) => {
   const [active, setActive] = useState(false);
   const [dropDown, setDropDown] = useState(false);
   const { allProducts } = useSelector((state) => state.products);
-  const [openCart, setOpenCart] = useState(false);
+  // const [ setOpenCart] = useState(false);
   const [openWishlist, setOpenWishlist] = useState(false);
   const [open, setOpen] = useState(false);
-  const { cart } = useSelector((state) => state.cart);
+  const { cart, openCart } = useSelector((state) => state.cart);
   const [searchOpen, setSearchOpen] = useState(false);
   const [notficationOpen, setNotificationOpen] = useState(false);
   const [loading, setIsLoading] = useState(false);
@@ -63,8 +64,11 @@ const Header = ({ activeHeading, searchContentOpen, setSearchContentOpen }) => {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
+   
 
   const admin = user?.role === "Admin";
+
+  const dispatch = useDispatch()
 
   const handleSearchChange = (e) => {
     e.preventDefault();
@@ -89,6 +93,11 @@ const Header = ({ activeHeading, searchContentOpen, setSearchContentOpen }) => {
       .catch((error) => {
         toast.error(error?.response?.data?.message);
       });
+  };
+
+  const handleToggleCart = () => {
+    dispatch(toggleCart()); // Dispatch the action to toggle the cart state
+    setNotificationOpen(false); // Close notification panel if open
   };
 
   window.addEventListener("scroll", () => {
@@ -173,7 +182,7 @@ const Header = ({ activeHeading, searchContentOpen, setSearchContentOpen }) => {
 
   const handleCartClose = (e) => {
     if (e.target.id === "screen") {
-      setOpenCart(false);
+      // setOpenCart(false);
     }
   };
 
@@ -392,7 +401,7 @@ const Header = ({ activeHeading, searchContentOpen, setSearchContentOpen }) => {
   const handleSearchInput = async (e) => {
     setQuery(e.target.value);
 
-    if (e.target.value.length >= 2) {
+    if (e.target?.value?.length >= 2) {
       // Show suggestions when the query is long enough
       fetchSuggestions(e.target.value);
     } else {
@@ -571,7 +580,8 @@ const Header = ({ activeHeading, searchContentOpen, setSearchContentOpen }) => {
             <div className={`${styles.noramlFlex}`}>
               <div
                 className="relative cursor-pointer mr-[15px]"
-                onClick={() => setOpenCart(true)}
+                // onClick={() => setOpenCart(true)}
+                onClick={handleSearchInput}
               >
                 <AiOutlineShoppingCart
                   size={30}
@@ -604,7 +614,7 @@ const Header = ({ activeHeading, searchContentOpen, setSearchContentOpen }) => {
             </div>
 
             {/* cart popup */}
-            {openCart ? <Cart setOpenCart={setOpenCart} /> : null}
+            {openCart ? <Cart  /> : null}
 
             {/* wishlist popup */}
             {openWishlist ? (
@@ -750,10 +760,7 @@ const Header = ({ activeHeading, searchContentOpen, setSearchContentOpen }) => {
 
             <div
               className="relative mr-[20px]"
-              onClick={() => {
-                setOpenCart(true);
-                setNotificationOpen(false);
-              }}
+              onClick={handleToggleCart}
             >
               <AiOutlineShoppingCart
                 size={30}
@@ -770,7 +777,7 @@ const Header = ({ activeHeading, searchContentOpen, setSearchContentOpen }) => {
 
           {/* cart popup */}
           {openCart ? (
-            <Cart setOpenCart={setOpenCart} handleCartClose={handleCartClose} />
+            <Cart  handleCartClose={handleCartClose} />
           ) : null}
 
           {/* wishlist popup */}

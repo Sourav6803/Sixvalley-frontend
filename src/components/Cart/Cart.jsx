@@ -6,16 +6,20 @@ import { HiOutlineMinus, HiPlus } from "react-icons/hi";
 import styles from "../../styles/styles";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { addTocart, removeFromCart } from "../../redux/actions/cart";
+import { addTocart, removeFromCart, toggleCart } from "../../redux/actions/cart";
 import { toast } from "react-toastify";
 import emptyCart from "../../Assests/empty-cart.png"
 import insurence from "../../Assests/insurance.png"
 
 
-const Cart = ({ setOpenCart , handleCartClose}) => {
+const Cart = () => {
     const { cart } = useSelector((state) => state?.cart);
     const [loading, setLoading] = useState(false)
     const dispatch = useDispatch();
+
+    const handleToggleCart = () => {
+        dispatch(toggleCart()); // Dispatch the action to toggle the cart state
+      };
     
     const removeFromCartHandler = (data) => {
         dispatch(removeFromCart(data));
@@ -59,7 +63,7 @@ const Cart = ({ setOpenCart , handleCartClose}) => {
     };
 
     return (
-        <div id="screen" onClick={handleCartClose} className="fixed top-0 left-0 w-full bg-[#0000004b] h-screen z-[1000]">
+        <div id="screen" onClick={handleToggleCart} className="fixed top-0 left-0 w-full bg-[#0000004b] h-screen z-[1000]">
             {
                 !loading && <div className="fixed top-0 right-0 h-full w-[80%] 800px:w-[25%] bg-white flex flex-col overflow-y-scroll justify-between shadow-sm">
 
@@ -73,7 +77,10 @@ const Cart = ({ setOpenCart , handleCartClose}) => {
                                     <RxCross1
                                         size={25}
                                         className="cursor-pointer"
-                                        onClick={() => setOpenCart(false)}
+                                        onClick={(e) => {
+                                            e.stopPropagation(); // Prevent bubbling
+                                            handleToggleCart();
+                                          }}
                                     />
                                 </div>
                             </div>
@@ -96,7 +103,10 @@ const Cart = ({ setOpenCart , handleCartClose}) => {
                                     <RxCross1
                                         size={25}
                                         className="border border-blue-600 rounded-md px-2 py-1 hover:border-2"
-                                        onClick={() => setOpenCart(false)}
+                                        onClick={(e) => {
+                                            e.stopPropagation(); // Prevent bubbling
+                                            handleToggleCart();
+                                          }}
                                     />
                                 </div>
                                 {/* Item length */}

@@ -785,6 +785,8 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
       //   navigate("/dashboard-products");
       // }, 800);
 
+      setTimeout(()=> {window.location.reload()}, 800)
+
       // Clean up function to remove socket listener
       return () => {
         socketId.off("notification");
