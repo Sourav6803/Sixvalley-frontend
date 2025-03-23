@@ -995,7 +995,7 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
                   <input
                     type={attr.type}
                     className="mt-2 w-full text-xs p-2 border rounded-md"
-                    placeholder={`Enter ${attr.name} values (comma separated)`}
+                    placeholder={`Enter ${attr.name} `}
                     value={attributes[index]?.values.join(", ") || ""}
                     onChange={(e) =>
                       handleAttributeChange(index, e.target.value)

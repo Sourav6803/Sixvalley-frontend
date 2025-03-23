@@ -7,7 +7,7 @@ import axios from "axios";
 import { loadSeller } from "../../redux/actions/user";
 import { toast } from "react-toastify";
 
-const ShopSettings = ({ sidebarOpen }) => {
+const ShopProfile = ({ sidebarOpen }) => {
   const { seller } = useSelector((state) => state.seller);
   const [avatar, setAvatar] = useState();
   const [shopName, setShopName] = useState(seller && seller?.shopName);
@@ -207,4 +207,4 @@ const ShopSettings = ({ sidebarOpen }) => {
   );
 };
 
-export default ShopSettings;
+export default ShopProfile;

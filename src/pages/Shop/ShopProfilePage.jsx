@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import ShopSettings from "../../components/Shop/ShopSettings";
+import ShopSettings from "../../components/Shop/ShopProfile";
 import DashboardHeader from "../../components/Shop/Layout/DashboardHeader";
 import DemoSideBar from "../../components/Shop/Layout/DemoSidebar";
+import ShopProfile from "../../components/Shop/ShopProfile";
 
-const ShopSettingsPage = () => {
+const ShopProfilePage = () => {
   const [navOpen, setNavOpen] = useState(false);
   const [open, setOpen] = useState(true);
   return (
@@ -18,9 +19,9 @@ const ShopSettingsPage = () => {
         setOpen={setOpen}
       />
 
-      <ShopSettings sidebarOpen={open} setOpen={setOpen} />
+      <ShopProfile sidebarOpen={open} setOpen={setOpen} />
     </div>
   );
 };
 
-export default ShopSettingsPage;
+export default ShopProfilePage;

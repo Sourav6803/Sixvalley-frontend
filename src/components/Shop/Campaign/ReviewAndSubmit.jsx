@@ -259,6 +259,7 @@ import { MdCancel, } from "react-icons/md";
 import { FaChevronLeft } from "react-icons/fa";
 import { FcIdea } from "react-icons/fc";
 import { toast } from "react-toastify";
+import { server } from "../../../server";
 
 
 const ReviewAndSubmit = ({ campaignData,  onDiscard , open , setReviewSubmitOpen, resetForm}) => {
@@ -267,7 +268,7 @@ const ReviewAndSubmit = ({ campaignData,  onDiscard , open , setReviewSubmitOpen
   const handleSubmit = async () => {
     try {
       const response = await fetch(
-        "http://localhost:8000/api/v2/campaign/register",
+        `${server}/campaign/register`,
         {
           method: "POST",
           headers: {
@@ -426,6 +427,7 @@ const ReviewAndSubmit = ({ campaignData,  onDiscard , open , setReviewSubmitOpen
             <tbody>
               {campaignData?.selectedProducts?.map((product) => (
                 <tr key={product._id} className="border-t">
+                  {console.log(product)}
                   <td className="px-4 py-2 flex items-center gap-4">
                     <img
                       src={product.product?.images[0]?.url}
@@ -443,12 +445,12 @@ const ReviewAndSubmit = ({ campaignData,  onDiscard , open , setReviewSubmitOpen
                       </p>
                     </div>
                   </td>
-                  <td className="px-4 py-2">{product?.product?.ratings || "-"}</td>
-                  <td className="px-4 py-2">{product?.product?.sold_out || "-"}</td>
+                  <td className="px-4 py-2">{product?.product?.ratings.totalRating || "-"}</td>
+                  <td className="px-4 py-2">{product?.product?.sold_out ? product?.product?.sold_out : product?.product?.sold_out || "-"}</td>
                   <td className="px-4 py-2">
-                    ₹{product?.product?.afterDiscountPrice || "-"}
+                    ₹{product?.product?.afterDiscountPrice ? product?.product?.afterDiscountPrice : product?.product?.afterDiscountPrice || "-"}
                   </td>
-                  <td className="px-4 py-2">{product?.product?.stock || "-"}</td>
+                  <td className="px-4 py-2">{product?.product?.stock ? product?.product?.stock : product?.product?.stock || "-"}</td>
                   <td className="px-4 py-2">{product?.cpc || "-"}</td>
                 </tr>
               ))}

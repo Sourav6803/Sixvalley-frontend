@@ -24,6 +24,7 @@ import {
 import { getAllProductsShop } from "../../../redux/actions/product";
 import { getAllSellers } from "../../../redux/actions/sellers";
 import { AiOutlineQrcode } from "react-icons/ai";
+import { LiaWalletSolid } from "react-icons/lia";
 import { FcAdvertising } from "react-icons/fc";
 import { VscGraph } from "react-icons/vsc";
 import { server } from "../../../server";
@@ -97,7 +98,6 @@ const DemoSideBar = ({ open, setOpen }) => {
         toast.error(err.response.data.message);
       });
   };
-
 
   const Menus = [
     {
@@ -192,21 +192,23 @@ const DemoSideBar = ({ open, setOpen }) => {
     },
     {
       title: "Upload Product",
-      icon : <FaClipboardList />,
+      icon: <FaClipboardList />,
       // notication: confirmedProduct?.length,
       link: "/dashboard/catalog/upload-catalog",
     },
     {
-          title: "Inventory",
-          icon : <MdOutlineInventory />,
-          // notication: confirmedProduct?.length,
-          link: "/dashboard/inventory",
-        },
-    {
-      title: "Product Reviews",
-      icon: <MdOutlineStarBorder />,
-      link: "#",
+      title: "Inventory",
+      icon: <MdOutlineInventory />,
+      // notication: confirmedProduct?.length,
+      link: "/dashboard/inventory",
     },
+    {
+      title: "Payout",
+      icon: <LiaWalletSolid />,
+      // notication: confirmedProduct?.length,
+      link: "/dashboard/payout",
+    },
+    
     {
       title: "Banner Setup",
       spacing: true,
@@ -239,13 +241,13 @@ const DemoSideBar = ({ open, setOpen }) => {
       link: "/dashboard/promotion",
     },
     {
-          title: "Business Dashboard",
-          spacing: true,
-          subHeader: true,
-          // subHeading: "PROMOTION MANAGEMENT",
-          icon: <VscGraph />,
-          link: "/shop/business-dashboard",
-        },
+      title: "Business Dashboard",
+      spacing: true,
+      subHeader: true,
+      // subHeading: "PROMOTION MANAGEMENT",
+      icon: <VscGraph />,
+      link: "/shop/business-dashboard",
+    },
     {
       title: "Inbox",
       spacing: true,
@@ -282,7 +284,7 @@ const DemoSideBar = ({ open, setOpen }) => {
       title: "Shop Setting",
       icon: <IoHomeOutline />,
       spacing: true,
-      link: "/settings",
+      link: "/shop/dashboard/settings",
     },
   ];
 
@@ -335,10 +337,13 @@ const DemoSideBar = ({ open, setOpen }) => {
               }`}
               onClick={() => toggleMenu(index)}
             >
-              <span  className="text-2xl block float-left hover:scale-110">
+              <span className="text-2xl block float-left hover:scale-110">
                 {menu.icon}
               </span>
-              <Link to={menu?.link} className={`text-base font-medium flex-1 ${!open && "hidden"}`} >
+              <Link
+                to={menu?.link}
+                className={`text-base font-medium flex-1 ${!open && "hidden"}`}
+              >
                 {menu.title}
               </Link>
               {menu.subMenu && (
@@ -360,8 +365,8 @@ const DemoSideBar = ({ open, setOpen }) => {
                       </li>
                     </Link>
                     {subMenuItem?.notication ? (
-                            <div
-                              className={`mr-3 flex items-center justify-center
+                      <div
+                        className={`mr-3 flex items-center justify-center
                                   ${
                                     subMenuItem.title ===
                                     ("Confirmed" ||
@@ -378,27 +383,25 @@ const DemoSideBar = ({ open, setOpen }) => {
                                       ? "bg-[#4345af]"
                                       : "bg-[#fb9ba0]"
                                   } text-white rounded-full w-6 h-6 text-xs`}
-                            >
-                              {subMenuItem.notication}
-                            </div>
-                          ) : (
-                            ""
-                          )}
+                      >
+                        {subMenuItem.notication}
+                      </div>
+                    ) : (
+                      ""
+                    )}
                   </div>
-                  
                 ))}
               </ul>
-              
             )}
           </React.Fragment>
         ))}
       </ul>
       <div
-              onClick={logoutHandler}
-              className="mt-10 mb-3 mx-1 cursor-pointer  rounded-lg h-10 text-center flex items-center justify-center text-white bg-[#b7418c]"
-            >
-              <button className="w-fit">Logout</button>
-            </div>
+        onClick={logoutHandler}
+        className="mt-10 mb-3 mx-1 cursor-pointer  rounded-lg h-10 text-center flex items-center justify-center text-white bg-[#b7418c]"
+      >
+        <button className="w-fit">Logout</button>
+      </div>
     </section>
   );
 };

@@ -323,12 +323,7 @@ const ReadyToShipOrderTable = ({ confirmedOrder, isLoading }) => {
                                               </span>{" "}
                                               {product?.category}
                                             </p>
-                                            <p className="font-normal text-gray-800 dark:text-white text-[12px] ">
-                                              <span className="font-bold text-gray-800 dark:text-white text-[12px]">
-                                                Sub Category:{" "}
-                                              </span>
-                                              {product?.subCategory}
-                                            </p>
+                                            
                                           </div>
                                         </div>
                                       ))}

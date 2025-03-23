@@ -20,8 +20,8 @@ const NewProductCard = ({ data, isEvent }) => {
 
   const isItemInCart = cart && cart.find((i) => i._id === data._id);
 
-  // Default to first variant if available
-  const [selectedVariant] = useState(data?.variants?.[0] || {});
+
+
 
   useEffect(() => {
       if (data?.variants?.length > 0) {
@@ -137,6 +137,7 @@ const NewProductCard = ({ data, isEvent }) => {
               productId: data._id, // Make sure `data` holds the current product details
             }));
         }
+        await trackInteraction("click", data?._id)
       }
     } else {
       // Handle the case where no variant is selected

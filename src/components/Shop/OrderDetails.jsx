@@ -32,6 +32,12 @@ const OrderDetails = () => {
 
     const data = orders?.find((item) => item._id === id);
 
+    useEffect(() => {
+        if (data?.status) {
+            setStatus(data.status);
+        }
+    }, [data?.status]);
+
     const orderUpdateHandler = async () => {
         try {
             // Update order status in the backend

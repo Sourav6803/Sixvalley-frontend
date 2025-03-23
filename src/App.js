@@ -15,7 +15,7 @@ import { ShopHomePage } from './ShopRoutes'
 import SellerProtectedRoute from './routes/SellerProtectedRoute';
 import {
    ShopAllEvent, ShopAllOrders, ShopAllProducts, ShopCreateEvent, ShopCreateProduct, ShopDashboardPage,
-  ShopPreviewPage, ShopOrderDetails, ShopAllRefunds, ShopSettingsPage, ShopWithDrawMoneyPage, ShopInboxPage, ShopAllCupoun,
+  ShopPreviewPage, ShopOrderDetails, ShopAllRefunds, ShopWithDrawMoneyPage, ShopInboxPage, ShopAllCupoun,
   ShopBannerPage,
   ShopProductView,
   ShopPackagingOrderPage,
@@ -45,7 +45,14 @@ import {
   ParticipateDealPage,
   BusinessDashboardPage,
   UploadProductPage,
-  InventoryPage
+  InventoryPage, 
+  SellerPaymentPage,
+  PreviousPaymentPage,
+  UpcomingPaymentPage,
+  PreviousPaymentsDetailsPage,
+  ShopProfilePage,
+  ShopSettingsPage,
+  
 } from './routes/ShopRoutes';
 import { getAllProducts } from './redux/actions/product';
 import { getAllEvents } from './redux/actions/event';
@@ -89,20 +96,7 @@ import UserCardPage from './pages/User/UserCardPage.jsx';
 import UserAddressPage from './pages/User/UserAddressPage.jsx';
 import ContactUsPage from './pages/ContactUsPage.jsx';
 import ShopConfirmedOrderPage from './pages/Shop/ShopConfirmedOrderPage.jsx';
-import SellerCreate from './components/Shop/SellerCreate.jsx';
 import ShopCreate from './components/Shop/ShopCreate.jsx';
-
-
-
-
-// if ('serviceWorker' in navigator) {
-//   navigator.serviceWorker.register('/firebase-messaging-sw.js')
-//     .then((registration) => {
-//       console.log('Service Worker registered with scope:', registration.scope);
-//     }).catch((err) => {
-//       console.log('Service Worker registration failed:', err);
-//     });
-// }
 
 
 const App = ({ data }) => {
@@ -287,7 +281,8 @@ const App = ({ data }) => {
           <Route path='/dashboard' element={<SellerProtectedRoute  ><ShopDashboardPage /></SellerProtectedRoute>} />
           <Route path='/dashboard/product-view/:id' element={<SellerProtectedRoute  ><ShopProductView /></SellerProtectedRoute>} />
           <Route path='/dashboard/brand' element={<SellerProtectedRoute ><BrandPage /></SellerProtectedRoute>} />
-
+          {/* <Route path='/shop/settings/v2' element={<SellerProtectedRoute ><ShopSettingsPage /></SellerProtectedRoute>} /> */}
+          <Route path='/shop/dashboard/settings' element={<SellerProtectedRoute><ShopSettingsPage /></SellerProtectedRoute>} />
           <Route path='/dashboard-create-product' element={<SellerProtectedRoute ><ShopCreateProduct /></SellerProtectedRoute>} />
           <Route path='/dashboard/catalog/upload-catalog' element={<SellerProtectedRoute ><UploadProductPage /></SellerProtectedRoute>} />
           <Route path='/dashboard-products' element={<SellerProtectedRoute ><ShopAllProducts /></SellerProtectedRoute>} />
@@ -315,7 +310,7 @@ const App = ({ data }) => {
           <Route path='/dashboard-refunds' element={<SellerProtectedRoute ><ShopAllRefunds /></SellerProtectedRoute>} />
           <Route path='/dashboard-coupouns' element={<SellerProtectedRoute ><ShopAllCupoun /></SellerProtectedRoute>} />
           <Route path="/shop/preview/:id" element={<ShopPreviewPage />} />
-          <Route path="/settings" element={<SellerProtectedRoute ><ShopSettingsPage /></SellerProtectedRoute>} />
+          <Route path="/shop/profile" element={<SellerProtectedRoute ><ShopProfilePage /></SellerProtectedRoute>} />
           <Route path='/dashboard-orders' element={<SellerProtectedRoute ><ShopAllOrders /></SellerProtectedRoute>} />
           <Route path='/order/:id' element={<SellerProtectedRoute ><ShopOrderDetails /></SellerProtectedRoute>} />
           <Route path='/seller/refund/order/:id' element={<SellerProtectedRoute ><RefundDetailsPage /></SellerProtectedRoute>} />
@@ -333,6 +328,11 @@ const App = ({ data }) => {
           <Route path="/dashboard/participate-deal/:id" element={<SellerProtectedRoute> <ParticipateDealPage /> </SellerProtectedRoute>} />
 
           <Route path="/shop/business-dashboard" element={<SellerProtectedRoute> <BusinessDashboardPage /> </SellerProtectedRoute>} />
+          <Route path="/dashboard/payout" element={<SellerProtectedRoute> <SellerPaymentPage /> </SellerProtectedRoute>} />
+
+          <Route path="/dashboard/payout/previous-payment" element={<SellerProtectedRoute> <PreviousPaymentPage /> </SellerProtectedRoute>} />
+          <Route path="/dashboard/payout/upcoming-payment" element={<SellerProtectedRoute> <UpcomingPaymentPage /> </SellerProtectedRoute>} />
+          <Route path="/dashboard/payout/upcoming-payment/payment-details" element={<SellerProtectedRoute> <PreviousPaymentsDetailsPage /> </SellerProtectedRoute>} />
 
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<ProtectedAdminRoute> <AdminDashboardPage /> </ProtectedAdminRoute>} />

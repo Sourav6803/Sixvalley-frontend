@@ -61,7 +61,7 @@ const ProductCard = ({ data }) => {
   const trackInteraction = useCallback(
     async (interactionType, productId) => {
       try {
-        const campaignId = data?.campaignInfo?.campaignId || null;
+        const campaignId = data?.campaignInfo[0]?.campaignId || null;
         await axios.post(`${server}/campaign/trackInteraction`, {
           productId,
           campaignId,
@@ -98,6 +98,7 @@ const ProductCard = ({ data }) => {
 
     try {
       await logActivity("click", data?._id);
+      await trackInteraction("view", data?._id); // Now this should always execute
       await trackInteraction("click", data?._id); // Now this should always execute
 
       // Dispatch action only after tracking is complete

@@ -95,7 +95,7 @@ const Dashboard = ({ open }) => {
     } else if (activeTab === "High Returns ") {
       sortedProducts.sort((a, b) => b.returnRate - a.returnRate); // Descending order (Highest Returns First)
     } else if (activeTab === "Low Ratings") {
-      sortedProducts.sort((a, b) => a.ratings - b.ratings); // Ascending order (Lowest Ratings First)
+      sortedProducts.sort((a, b) => a.ratings?.totalRating - b.ratings.totalRating); // Ascending order (Lowest Ratings First)
     }
   
     setFilteredProducts(sortedProducts);
@@ -560,7 +560,7 @@ const Dashboard = ({ open }) => {
                                 {/* ✅ Final Price After Discount */}
                                 <td className="p-2 text-center">₹ {product?.afterDiscountPrice * product.sold_out || 0}</td>
                                 <td className="p-2 text-center">{product?.returnRate || 0}</td>
-                                <td className="p-2 text-center"> {product?.ratings || 0}</td>
+                                <td className="p-2 text-center"> {product?.ratings?.totalRating || 0}</td>
                               </tr>
                             );
                           })

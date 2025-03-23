@@ -154,7 +154,8 @@ const CampaignListing = ({ allCampaigns }) => {
                     {campaign?.bidStrategy && "Daily"}{" "}
                   </td>
                   <td className="py-3 px-4 text-[10px] sm:text-sm text-center">
-                    ₹{campaign?.totalBudget || 0 - campaign.adMetrics?.adSpend}{" "}
+                    {/* ₹{campaign?.totalBudget || 0 - campaign.adMetrics?.adSpend}{" "} */}
+                    ₹{campaign?.bidStrategy?.dailyBudget?.amount.toFixed(2)}{" "}
                     for today
                   </td>
                   <td className="py-3 px-4 text-[10px] sm:text-sm">
@@ -170,7 +171,7 @@ const CampaignListing = ({ allCampaigns }) => {
                     {campaign.adMetrics?.revenue}
                   </td>
                   <td className="py-3 px-4 text-[10px] sm:text-sm">
-                    {campaign.adMetrics?.ROI}
+                    {campaign.adMetrics?.ROI.toFixed(2)}
                   </td>
                   <td className="py-3 px-4">
                     <div className="flex space-x-2 sm:space-x-4">

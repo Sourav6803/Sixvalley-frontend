@@ -8,7 +8,8 @@ import ShopPreviewPage from "../pages/Shop/ShopPreviewPage"
 import ShopAllOrders from "../pages/Shop/Order/ShopAllOrders.jsx"
 import ShopOrderDetails from "../pages/Shop/ShopOrderDetails";
 import ShopAllRefunds from "../pages/Shop/ShopAllRefunds";
-import ShopSettingsPage from "../pages/Shop/ShopSettingsPage";
+// import ShopSettingsPage from "../pages/Shop/ShopProfilePage.jsx";
+
 import ShopWithDrawMoneyPage from "../pages/Shop/ShopWithDrawMoneyPage";
 import ShopInboxPage from "../pages/Shop/ShopInboxPage";
 
@@ -44,10 +45,18 @@ import ParticipateDealPage from "../pages/Shop/promotions/ParticipateDealPage.js
 import BusinessDashboardPage from "../pages/Shop/BusinessDashboardPage.jsx"
 import UploadProductPage from "../pages/Shop/Product/UploadProductPage.jsx";
 import InventoryPage from "../pages/Shop/InventoryPage/InventoryPage.jsx";
+import SellerPaymentPage from "../pages/Shop/Payment/PaymentPage.jsx";
+import PreviousPaymentPage from "../pages/Shop/Payment/PreviousPayment.jsx";
+import UpcomingPaymentPage from "../pages/Shop/Payment/UpcomingPayment.jsx";
+import PreviousPaymentsDetailsPage from "../pages/Shop/Payment/PreviousPaymentsDetailsPage.jsx";
 
+import ShopProfilePage from "../pages/Shop/ShopProfilePage.jsx";
+import ShopSettingsPage from "../pages/Shop/ShopSettings/ShopSettingsPage.jsx";
+ 
 
 export {
     ShopDashboardPage,
+    ShopProfilePage,
     ShopCreateProduct,
     ShopAllProducts,
     ShopCreateEvent,
@@ -57,7 +66,6 @@ export {
     ShopAllOrders,
     ShopOrderDetails,
     ShopAllRefunds,
-    ShopSettingsPage,
     ShopWithDrawMoneyPage,
     ShopInboxPage,
     ShopAllCupoun,
@@ -90,5 +98,10 @@ export {
     ParticipateDealPage,
     BusinessDashboardPage,
     UploadProductPage,
-    InventoryPage
+    InventoryPage,
+    SellerPaymentPage,
+    PreviousPaymentPage,
+    UpcomingPaymentPage,
+    PreviousPaymentsDetailsPage,
+    ShopSettingsPage,
 }

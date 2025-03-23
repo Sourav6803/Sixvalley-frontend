@@ -34,6 +34,7 @@ import { toast } from "react-toastify";
 import { getAllOrdersOfShop } from "../../../redux/actions/order";
 import { format } from "timeago.js";
 import socketIO from "socket.io-client";
+import { LiaWalletSolid } from "react-icons/lia";
 
 const ENDPOINT = "http://localhost:4000";
 const socketId = socketIO(ENDPOINT, { transports: ["websocket"] });
@@ -45,6 +46,7 @@ const DashboardHeader = ({ navOpen, setNavOpen }) => {
   const [notficationOpen, setNotificationOpen] = useState(false);
   const [loading, setIsLoading] = useState(false);
   const [notifications, setNotifications] = useState([]);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
 
   const [active, setActive] = useState(false);
   const navigate = useNavigate();
@@ -167,23 +169,25 @@ const DashboardHeader = ({ navOpen, setNavOpen }) => {
       ],
     },
     {
-          title: "Upload Product",
-          icon : <FaClipboardList />,
-          // notication: confirmedProduct?.length,
-          link: "/dashboard/catalog/upload-catalog",
+      title: "Upload Product",
+      icon: <FaClipboardList />,
+      // notication: confirmedProduct?.length,
+      link: "/dashboard/catalog/upload-catalog",
     },
     {
       title: "Inventory",
-      icon : <MdOutlineInventory />,
+      icon: <MdOutlineInventory />,
       // notication: confirmedProduct?.length,
       link: "/dashboard/inventory",
     },
 
     {
-      title: "Product Reviews",
-      icon: <MdOutlineStarBorder />,
-      link: "#",
+      title: "Payout",
+      icon: <LiaWalletSolid />,
+      // notication: confirmedProduct?.length,
+      link: "/dashboard/payout",
     },
+
     {
       title: "Banner Setup",
       spacing: true,
@@ -259,7 +263,7 @@ const DashboardHeader = ({ navOpen, setNavOpen }) => {
       title: "Shop Setting",
       icon: <IoHomeOutline />,
       spacing: true,
-      link: "/settings",
+      link: "/shop/dashboard/settings",
     },
   ];
 
@@ -426,7 +430,11 @@ const DashboardHeader = ({ navOpen, setNavOpen }) => {
 
   return (
     <>
-      <div className="w-full h-[80px] shadow fixed top-0 left-0 z-30 flex items-center justify-between px-4 bg-white" id="notification" onClick={handleNotificationClose}>
+      <div
+        className="w-full h-[80px] shadow fixed top-0 left-0 z-30 flex items-center justify-between px-4 bg-white"
+        id="notification"
+        onClick={handleNotificationClose}
+      >
         <div className=" flex items-center gap-1">
           <div className=" 800px:hidden">
             <GiHamburgerMenu size={35} onClick={() => setNavOpen(true)} />
@@ -446,35 +454,14 @@ const DashboardHeader = ({ navOpen, setNavOpen }) => {
                 className="text-2xl cursor-pointer dark:text-white text-black"
                 size={38}
               />
-              {/* <span className="absolute -top-1 -right-1 bg-[#1f614d] rounded-full w-[20px] h-[20px] text-[12px] flex items-center justify-center text-white ">
-                {notifications?.length > 0 && (
-                  <span className="absolute top-1 right-1  rounded-full w-3 h-3 text-[12px] flex items-center justify-center">
-                    {notifications?.length}
-                  </span>
-                )}
-              </span> */}
 
               {notifications?.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-[#1f614d] rounded-full w-[20px] h-[20px] text-[12px] flex items-center justify-center text-white">
                   {notifications.length}
                 </span>
               )}
-
             </div>
-            <Link to="/dashboard/coupons" className="hidden md:block">
-              <AiOutlineGift
-                color="#555"
-                size={30}
-                className="cursor-pointer"
-              />
-            </Link>
-            <Link to="/dashboard-events" className="hidden md:block">
-              <MdOutlineLocalOffer
-                color="#555"
-                size={30}
-                className="cursor-pointer"
-              />
-            </Link>
+
             <Link to="/dashboard-products" className="hidden md:block">
               <FiShoppingBag
                 color="#555"
@@ -492,17 +479,50 @@ const DashboardHeader = ({ navOpen, setNavOpen }) => {
                 className="cursor-pointer"
               />
             </Link>
-            <Link to={"#"}>
+
+            {/* <Link to={"/shop/profile"}>
               <img
                 src={seller?.avatar?.url || "placeholder.jpg"}
                 alt="Seller Avatar"
                 className="w-[40px] h-[40px] rounded-full object-cover border-[3px] border-[#33a466]"
               />
-            </Link>
+            </Link> */}
+
+            {/* Profile Dropdown */}
+            <div className="relative">
+              <img
+                src={seller?.avatar?.url || "/placeholder.jpg"}
+                alt="Seller Avatar"
+                className="w-10 h-10 rounded-full object-cover cursor-pointer border-[3px] border-green-500"
+                onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+              />
+
+              {profileMenuOpen && (
+                <div className="absolute right-0 mt-2 w-44 bg-white shadow-lg rounded-md border border-gray-300">
+                  <Link
+                    to="/shop/profile"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Profile
+                  </Link>
+                  <Link
+                    to="/shop/dashboard/settings"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Settings
+                  </Link>
+                  <button
+                    className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                    onClick={logoutHandler}
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
 
             {notficationOpen && (
               <div className="absolute right-5 top-16 w-[320px] sm:w-[420px] max-h-[400px] bg-white shadow-lg rounded-lg z-20 overflow-hidden border border-gray-400">
-                {/* Header */}
                 <div className="p-4 bg-gray-200 border-b border-gray-400 flex justify-between items-center">
                   <h5 className="text-lg font-semibold text-gray-700">
                     Notifications
@@ -517,7 +537,6 @@ const DashboardHeader = ({ navOpen, setNavOpen }) => {
                   )}
                 </div>
 
-                {/* Notification List */}
                 <div
                   id="screen"
                   onClick={handleNotificationClose}
@@ -531,14 +550,12 @@ const DashboardHeader = ({ navOpen, setNavOpen }) => {
                         }`}
                         key={index}
                       >
-                        {/* Notification Image */}
                         <img
                           src={item?.image?.url || "/placeholder-image.png"}
                           alt={item?.title || "Notification"}
                           className="w-12 h-12 rounded-full object-cover mr-3"
                         />
 
-                        {/* Notification Content */}
                         <div className="flex-1">
                           <p className="text-sm font-semibold text-gray-800">
                             {item?.title}
@@ -553,7 +570,6 @@ const DashboardHeader = ({ navOpen, setNavOpen }) => {
                           </p>
                         </div>
 
-                        {/* Mark as Read Button */}
                         {!item.isRead && (
                           <button
                             className="ml-3 text-xs text-blue-600 hover:underline"

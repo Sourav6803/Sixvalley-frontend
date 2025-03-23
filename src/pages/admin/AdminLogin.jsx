@@ -8,9 +8,6 @@ import AdminLogin from '../../components/Admin/AdminLogin.jsx';
 
 const AdminLoginPage = () => {
     const { isAdmin } = useSelector(state => state.admin)
-    
-
-    console.log("admin", isAdmin)
 
     const navigate = useNavigate()
 
@@ -22,9 +19,9 @@ const AdminLoginPage = () => {
 
     return (
         <div >
-            <Header />
+            {/* <Header /> */}
             <AdminLogin />
-            <Footer />
+            {/* <Footer /> */}
         </div>
     )
 }

@@ -1,13 +1,31 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CiCircleRemove } from "react-icons/ci";
 import ManualCampaign from "./ManualCampaign";
 import SmartCampaign from "./SmartCampaign";
 import NewCatalogBooster from "./NewCatalogBooster";
+import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 
 const CreateCampaign = ({ open }) => {
   const [selectedCampaign, setSelectedCampaign] = useState("manual"); // Default to Manual Campaign
   const [selectedCatalog, setSelectedCatalog] = useState("");
   const [budgetOption, setBudgetOption] = useState("");
+  const location = useLocation(); 
+ 
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const tab = queryParams.get("tab") || "manual";
+    setSelectedCampaign(tab);
+  }, [location.search]);
+
+  useEffect(() => {
+    if (selectedCampaign) {
+      navigate(`/dashboard-create-campaign?tab=${selectedCampaign}`);
+    }
+  }, [selectedCampaign, navigate])
+
+ 
 
   const campaigns = [
     {

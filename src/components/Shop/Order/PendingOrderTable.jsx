@@ -16,8 +16,6 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
   const [searchTearm, setSearchTearm] = useState("");
   const [searchData, setSearchData] = useState([]);
 
-  const [searchDateType, setSearchDateType] = useState("");
-
   const [filterOrders, setFilterOrders] = useState(null);
 
   const [isDisabled, setIsDisabled] = useState(false);
@@ -203,7 +201,7 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
     }
   };
 
-  console.log("status-->", status)
+  
 
   const updateOrderStatus = async (id) => {
     try {
@@ -215,9 +213,11 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
       );
       toast.success("Order confirmed!");
 
-      // setTimeout(() => {
-      //   window.location.reload();
-      // }, 1000);
+      setApprovedModalOpen(false)
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (err) {
       toast.error("Error Updating Status");
     }
@@ -423,12 +423,7 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
                                             </span>{" "}
                                             {product?.category}
                                           </p>
-                                          <p className="font-normal text-gray-800 dark:text-white text-[12px] ">
-                                            <span className="font-bold text-gray-800 dark:text-white text-[12px]">
-                                              Sub Category:{" "}
-                                            </span>
-                                            {product?.subCategory}
-                                          </p>
+                                          
                                         </div>
                                       </div>
                                     ))}

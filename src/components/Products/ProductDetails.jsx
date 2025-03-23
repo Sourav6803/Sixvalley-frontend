@@ -213,11 +213,15 @@ const ProductDetails = ({ data }) => {
     [user]
   );
 
+  console.log("data", data);
+
   // Reusable function to track campaign interactions
   const trackInteraction = useCallback(
+    
     async (interactionType, productId) => {
       try {
-        const campaignId = data?.campaignInfo?.campaignId || null;
+        
+        const campaignId = data?.campaignInfo?.[0]?.campaignId || null;
         await axios.post(`${server}/campaign/trackInteraction`, {
           productId,
           campaignId,
@@ -243,76 +247,141 @@ const ProductDetails = ({ data }) => {
     dispatch(addToWishlist(data));
   };
 
-  const addToCartHandler = async (id) => {
+  // const addToCartHandler = async (id) => {
 
+  //   const isItemExists = cart?.some((item) =>
+  //     currentVariant ? item.variantId === currentVariant._id : item.productId === data?._id
+  //   );
+  //   // Check if a variant is selected
+  //   if (currentVariant) {
+  //     // Create the cart item with the selected variant details
+
+  //     // Ensure variant has stock
+  //     if (currentVariant.stock < count) {
+  //       toast.error("Selected variant is out of stock!");
+  //       return;
+  //     }
+  //     const cartData = {
+        
+  //       currentVariant,
+  //       ...data, // Include current variant details
+  //       qty: count, // Include quantity
+  //     };
+
+  //     // Check if the item already exists in the cart
+  //     const isItemExists =
+  //       cart &&
+  //       cart?.some((item) =>
+  //         currentVariant ? item?.currentVariant._id === currentVariant?._id : item?.productId === data?._id
+  //       );
+  //     if (isItemExists) {
+  //       toast.error("Item with the selected variant is already in the cart!");
+  //     } else {
+  //       if (currentVariant.stock < count) {
+  //         toast.error("Product stock limited!");
+  //       } else {
+  //         dispatch(addTocart(cartData));
+  //         toast.success("Item added to cart successfully!");
+  //         user?._id &&
+  //           data._id &&
+  //           (await axios.post(`${server}/activity/logActivity`, {
+  //             userId: user?._id,
+  //             type: "add_to_cart",
+  //             productId: data._id, // Make sure `data` holds the current product details
+  //           }));
+  //           await trackInteraction("click", data?._id); // Now this should always execute
+  //           await trackInteraction("view", data?._id);
+  //       }
+  //     }
+  //   } else {
+  //     // Handle the case where no variant is selected
+  //     const isItemExists = cart && cart.find((item) => item._id === id);
+  //     if (isItemExists) {
+  //       toast.error("Item already in cart!");
+  //     } else {
+  //       if (data.stock < count) {
+  //         toast.error("Product stock limited!");
+  //       } else {
+  //         await logActivity("click", data?._id);
+  //         await trackInteraction("click", data?._id); // Now this should always execute
+  //         const cartData = { ...data, qty: count };
+  //         dispatch(addTocart(cartData));
+  //         toast.success("Item added to cart successfully!");
+  //         user?._id &&
+  //           data?._id &&
+  //           (await axios.post(`${server}/activity/logActivity`, {
+  //             userId: user._id,
+  //             type: "add_to_cart",
+  //             productId: data._id, // Make sure `data` holds the current product details
+  //           }));
+  //       }
+  //     }
+  //   }
+  // };
+
+
+  const addToCartHandler = async (id) => {
     const isItemExists = cart?.some((item) =>
       currentVariant ? item.variantId === currentVariant._id : item.productId === data?._id
     );
-    // Check if a variant is selected
+  
     if (currentVariant) {
-      // Create the cart item with the selected variant details
-
-      // Ensure variant has stock
       if (currentVariant.stock < count) {
         toast.error("Selected variant is out of stock!");
         return;
       }
+  
       const cartData = {
-        
         currentVariant,
-        ...data, // Include current variant details
-        qty: count, // Include quantity
+        ...data,
+        qty: count,
       };
-
-      // Check if the item already exists in the cart
-      const isItemExists =
-        cart &&
-        cart?.some((item) =>
-          currentVariant ? item.currentVariant._id === currentVariant._id : item.productId === data?._id
-        );;
+  
       if (isItemExists) {
         toast.error("Item with the selected variant is already in the cart!");
-      } else {
-        if (currentVariant.stock < count) {
-          toast.error("Product stock limited!");
-        } else {
-          dispatch(addTocart(cartData));
-          toast.success("Item added to cart successfully!");
-          user?._id &&
-            data._id &&
-            (await axios.post(`${server}/activity/logActivity`, {
-              userId: user?._id,
-              type: "add_to_cart",
-              productId: data._id, // Make sure `data` holds the current product details
-            }));
-        }
+        return;
+      }
+  
+      dispatch(addTocart(cartData));
+      toast.success("Item added to cart successfully!");
+  
+      // Log user activity
+      if (user?._id && data?._id) {
+        await axios.post(`${server}/activity/logActivity`, {
+          userId: user._id,
+          type: "add_to_cart",
+          productId: data._id,
+        });
       }
     } else {
-      // Handle the case where no variant is selected
-      const isItemExists = cart && cart.find((item) => item._id === id);
       if (isItemExists) {
         toast.error("Item already in cart!");
-      } else {
-        if (data.stock < count) {
-          toast.error("Product stock limited!");
-        } else {
-          await logActivity("click", data?._id);
-          await trackInteraction("click", data?._id); // Now this should always execute
-          const cartData = { ...data, qty: count };
-          dispatch(addTocart(cartData));
-          toast.success("Item added to cart successfully!");
-          user?._id &&
-            data?._id &&
-            (await axios.post(`${server}/activity/logActivity`, {
-              userId: user._id,
-              type: "add_to_cart",
-              productId: data._id, // Make sure `data` holds the current product details
-            }));
-        }
+        return;
+      }
+  
+      if (data.stock < count) {
+        toast.error("Product stock limited!");
+        return;
+      }
+  
+      const cartData = { ...data, qty: count };
+      dispatch(addTocart(cartData));
+      toast.success("Item added to cart successfully!");
+  
+      if (user?._id && data?._id) {
+        await axios.post(`${server}/activity/logActivity`, {
+          userId: user._id,
+          type: "add_to_cart",
+          productId: data._id,
+        });
       }
     }
+  
+    // Ensure `trackInteraction` executes at the end of the function
+    await trackInteraction("click", data?._id);
+    await trackInteraction("view", data?._id);
   };
-
+  
   const decreamentCount = () => {
     if (count > 1) {
       setCount(count - 1);
