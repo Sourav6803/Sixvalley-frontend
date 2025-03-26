@@ -1,383 +1,538 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
-import Layout from "./icon/layout.png";
-import axios from "axios";
-import { server } from '../../server';
-import { toast } from 'react-toastify';
-import Loader from '../../pages/Loader';
-import { useDispatch, useSelector } from 'react-redux';
-import { Link } from "react-router-dom";
-import Modal from '../../utils/Modal';
-import { AiFillDelete } from "react-icons/ai";
-import AllBrand from './AllBrand';
-import { requestFCMToken } from '../../utils/firebaseUtils';
-import socketIO from "socket.io-client";
+// import React, { useState, useEffect, useCallback } from 'react';
+// import Layout from "./icon/layout.png";
+// import axios from "axios";
+// import { server } from '../../server';
+// import { toast } from 'react-toastify';
+// import Loader from '../../pages/Loader';
+// import { useDispatch, useSelector } from 'react-redux';
+// import { Link } from "react-router-dom";
+// import Modal from '../../utils/Modal';
+// import { AiFillDelete } from "react-icons/ai";
+// import AllBrand from './AllBrand';
+// import { requestFCMToken } from '../../utils/firebaseUtils';
+// import socketIO from "socket.io-client";
 
-const ENDPOINT = "http://localhost:4000";
-const socketId = socketIO(ENDPOINT, { transports: ["websocket"] });
+// const ENDPOINT = "http://localhost:4000";
+// const socketId = socketIO(ENDPOINT, { transports: ["websocket"] });
 
 
 
-const Notification = () => {
+// const Notification = () => {
 
-    const { success, error, allCategory } = useSelector((state) => state?.category);
+//     const { success, error, allCategory } = useSelector((state) => state?.category);
 
-    const [fcmToken, setFcmToken] = useState(null)
+//     const [fcmToken, setFcmToken] = useState(null)
 
-    useEffect(() => {
-        const fetchFcmToken = async () => {
-            try {
-                const token = await requestFCMToken()
-                setFcmToken(token)
+//     useEffect(() => {
+//         const fetchFcmToken = async () => {
+//             try {
+//                 const token = await requestFCMToken()
+//                 setFcmToken(token)
 
-            } catch (err) {
-                console.log("error getting FCM token", err)
-            }
-        }
-        fetchFcmToken()
-    }, []);
+//             } catch (err) {
+//                 console.log("error getting FCM token", err)
+//             }
+//         }
+//         fetchFcmToken()
+//     }, []);
 
-    const dispatch = useDispatch();
+//     const dispatch = useDispatch();
 
-    const [open, setOpen] = useState(false);
+//     const [open, setOpen] = useState(false);
 
-    const [image, setImage] = useState(null);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [isDisabled, setIsDisabled] = useState(true);
-    const [allCategories, setAllCategories] = useState([]);
-    const [categoryId, setCategoryId] = useState("");
-    const [isDelete, setIsDelete] = useState(false);
-    const [searchTearm, setSearchTearm] = useState("")
-    const [searchData, setSearchData] = useState(null)
+//     const [image, setImage] = useState(null);
+//     const [isSubmitting, setIsSubmitting] = useState(false);
+//     const [isDisabled, setIsDisabled] = useState(true);
+//     const [allCategories, setAllCategories] = useState([]);
+//     const [categoryId, setCategoryId] = useState("");
+//     const [isDelete, setIsDelete] = useState(false);
+//     const [searchTearm, setSearchTearm] = useState("")
+//     const [searchData, setSearchData] = useState(null)
 
-    const [title, setTitle] = useState("")
-    const [content, setContent] = useState("")
+//     const [title, setTitle] = useState("")
+//     const [content, setContent] = useState("")
 
-    useEffect(() => {
-        setAllCategories(allCategory);
-    }, [allCategory]);
+//     useEffect(() => {
+//         setAllCategories(allCategory);
+//     }, [allCategory]);
 
-    const handleFileInputChange = useCallback((e) => {
-        const file = e.target.files[0];
-        setImage(file);
-    }, []);
+//     const handleFileInputChange = useCallback((e) => {
+//         const file = e.target.files[0];
+//         setImage(file);
+//     }, []);
 
-    useEffect(() => {
-        if (title.length > 1 && content && image) {
-            setIsDisabled(false);
-        } else {
-            setIsDisabled(true);
-        }
-    }, [title, content, image]);
+//     useEffect(() => {
+//         if (title.length > 1 && content && image) {
+//             setIsDisabled(false);
+//         } else {
+//             setIsDisabled(true);
+//         }
+//     }, [title, content, image]);
 
-    const handleChange = useCallback((e) => {
-        const inputValue = e.target.value;
-        setTitle(inputValue.charAt(0).toUpperCase() + inputValue.slice(1));
-    }, []);
+//     const handleChange = useCallback((e) => {
+//         const inputValue = e.target.value;
+//         setTitle(inputValue.charAt(0).toUpperCase() + inputValue.slice(1));
+//     }, []);
 
-    const handleSubmit = useCallback(async (e) => {
-        e.preventDefault();
+//     const handleSubmit = useCallback(async (e) => {
+//         e.preventDefault();
 
-        if (!title || !content || !image) {
-            toast.error("Please fill in all required fields.");
-            return;
-        }
+//         if (!title || !content || !image) {
+//             toast.error("Please fill in all required fields.");
+//             return;
+//         }
 
-        const config = {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            },
-            withCredentials: true
-        };
+//         const config = {
+//             headers: {
+//                 'Content-Type': 'multipart/form-data'
+//             },
+//             withCredentials: true
+//         };
 
-        setIsSubmitting(true);
+//         setIsSubmitting(true);
 
-        const newForm = new FormData();
-        newForm.append("title", title);
-        newForm.append("content", content);
-        if (image) {
-            newForm.append("image", image);
-        }
+//         const newForm = new FormData();
+//         newForm.append("title", title);
+//         newForm.append("content", content);
+//         if (image) {
+//             newForm.append("image", image);
+//         }
 
-        const res = await axios.post(`${server}/admin/send-notifications`, {
-            title: title,
-            content: content,
-            image: image
-        }, config)
+//         const res = await axios.post(`${server}/admin/send-notifications`, {
+//             title: title,
+//             content: content,
+//             image: image
+//         }, config)
 
-        if (res.data.success === true) {
-            toast.success(res.data.message || "Notification send to all user successfully")
+//         if (res.data.success === true) {
+//             toast.success(res.data.message || "Notification send to all user successfully")
 
-            setTimeout(() => window.location.reload(), 1000)
-            socketId.emit("notification", {
-                title: title,
-                content: content,
-                image: image
-            })
-            setTitle('')
-            setContent('')
-            setImage(null)
-        }
+//             setTimeout(() => window.location.reload(), 1000)
+//             socketId.emit("notification", {
+//                 title: title,
+//                 content: content,
+//                 image: image
+//             })
+//             setTitle('')
+//             setContent('')
+//             setImage(null)
+//         }
 
-        setIsSubmitting(false);
+//         setIsSubmitting(false);
         
 
 
-    }, [title, content, image,]);
+//     }, [title, content, image,]);
 
-    const handleDelete = useCallback(async (id) => {
-        try {
-            setIsDelete(true)
-            const res = await axios.delete(`${server}/category/delete-category/${id}`, { withCredentials: true });
+//     const handleDelete = useCallback(async (id) => {
+//         try {
+//             setIsDelete(true)
+//             const res = await axios.delete(`${server}/category/delete-category/${id}`, { withCredentials: true });
 
-            toast.success(res.data.message || "Category Deleted");
-            setIsDelete(false)
-            setAllCategories(allCategories.filter(cat => cat._id !== id));
-            setOpen(false);
-        } catch (err) {
-            toast.error("Error deleting category");
-            setIsDelete(false)
-        }
-    }, [allCategories]);
+//             toast.success(res.data.message || "Category Deleted");
+//             setIsDelete(false)
+//             setAllCategories(allCategories.filter(cat => cat._id !== id));
+//             setOpen(false);
+//         } catch (err) {
+//             toast.error("Error deleting category");
+//             setIsDelete(false)
+//         }
+//     }, [allCategories]);
 
-    useEffect(() => {
-        if (error) {
-            setIsSubmitting(false);
-            toast.error(error);
-            setTimeout(() => {
-                window.location.reload();
-            }, 2000);
-        }
-        if (success) {
-            setIsSubmitting(false);
-            toast.success("Category created successfully!");
-            setTimeout(() => {
-                window.location.reload()
-            }, 1000)
-        }
-    }, [dispatch, error, success, allCategory]);
+//     useEffect(() => {
+//         if (error) {
+//             setIsSubmitting(false);
+//             toast.error(error);
+//             setTimeout(() => {
+//                 window.location.reload();
+//             }, 2000);
+//         }
+//         if (success) {
+//             setIsSubmitting(false);
+//             toast.success("Category created successfully!");
+//             setTimeout(() => {
+//                 window.location.reload()
+//             }, 1000)
+//         }
+//     }, [dispatch, error, success, allCategory]);
 
-    useEffect(() => {
-        if (searchTearm) {
-            const filterCategory = allCategories.filter((catg) =>
-                catg.name.toLowerCase().includes(searchTearm.toLowerCase())
-            );
-            setSearchData(filterCategory);
-        } else {
-            setSearchData(null);
-        }
-    }, [searchTearm, allCategories]);
+//     useEffect(() => {
+//         if (searchTearm) {
+//             const filterCategory = allCategories.filter((catg) =>
+//                 catg.name.toLowerCase().includes(searchTearm.toLowerCase())
+//             );
+//             setSearchData(filterCategory);
+//         } else {
+//             setSearchData(null);
+//         }
+//     }, [searchTearm, allCategories]);
 
-    const handleSearch = (e) => {
-        e.preventDefault();
-        const filterCategory = allCategories.filter((catg) =>
-            catg.name.toLowerCase().includes(searchTearm.toLowerCase())
-        );
-        setSearchData(filterCategory);
+//     const handleSearch = (e) => {
+//         e.preventDefault();
+//         const filterCategory = allCategories.filter((catg) =>
+//             catg.name.toLowerCase().includes(searchTearm.toLowerCase())
+//         );
+//         setSearchData(filterCategory);
+//     };
+
+//     return (
+//         <div className='w-full p-2 md:p-5 bg-gray-200'>
+//             <div className='flex items-center gap-2'>
+//                 <img src={Layout} alt='layout' className='h-5' />
+//                 <h3 className="text-[20px] text-slate-600 font-Poppins font-semibold">Notification Setup</h3>
+//             </div>
+
+//             <div className="w-full mt-2 bg-white p-3 rounded-md">
+//                 {
+//                     isSubmitting ? (<div className='w-full h-full flex items-start justify-center'><Loader /></div>) : (
+//                         <div className='items-center justify-around grid grid-cols-1 lg:grid-cols-2 gap-4'>
+//                             <div className="p-4 rounded-md">
+//                                 <form>
+//                                     <div className="mb-4">
+//                                         <label htmlFor="name" className="block text-lg font-medium text-gray-700">Notification Name *</label>
+//                                         <input
+//                                             type="text"
+//                                             name="title"
+//                                             placeholder='Enter title...'
+//                                             autoComplete="title"
+//                                             required
+//                                             value={title}
+//                                             onChange={handleChange}
+//                                             className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-base placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition duration-300"
+//                                         />
+//                                     </div>
+
+//                                     <div className="mb-4">
+//                                         <label htmlFor="priority" className="block text-lg font-medium text-gray-700">Description</label>
+//                                         <textarea
+//                                             type="text"
+//                                             name="content"
+//                                             autoComplete="content"
+//                                             placeholder='Enter description'
+//                                             required
+//                                             value={content}
+//                                             onChange={(e) => setContent(e.target.value)}
+//                                             className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-base placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition duration-300"
+//                                         />
+//                                     </div>
+
+//                                     <div className="flex mt-3 flex-col">
+//                                         <label className="block text-lg font-medium text-gray-700" htmlFor="file_input">Notification Logo *</label>
+//                                         <input
+//                                             className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-base placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition duration-300"
+//                                             id="file_input"
+//                                             name="image"
+//                                             type="file"
+//                                             accept=".jpg, .jpeg, .png"
+//                                             onChange={handleFileInputChange}
+//                                         />
+//                                     </div>
+//                                 </form>
+//                             </div>
+
+//                             <div className="flex items-center justify-center p-4 rounded-md">
+//                                 <div className="border p-2 md:h-[40vh] h-[30vh] md:w-[60vh] w-[60vh] rounded-md overflow-hidden">
+//                                     {image ? (
+//                                         <img src={URL.createObjectURL(image)} alt="avatar" className="h-full w-full object-cover" />
+//                                     ) : (
+//                                         <img src="https://6valley.6amtech.com/public/assets/back-end/img/image-place-holder.png" alt="User" className="h-full w-full object-cover" />
+//                                     )}
+//                                 </div>
+//                             </div>
+//                         </div>
+
+//                     )
+//                 }
+//                 <div className='mt-3 mr-3 flex items-center justify-end'>
+//                     <button onClick={handleSubmit} type="submit" className={`text-white w-[10vw] bg-blue-700 hover:bg-blue-800 font-semibold text-center border rounded-md py-2 px-5 flex items-center justify-center ${isDisabled && isSubmitting && "cursor-not-allowed"}`}>
+//                         Send
+//                     </button>
+//                 </div>
+//             </div>
+
+//             <div className='w-full mt-2 bg-white p-3 rounded-md  gap-2'>
+//                 <div className='grid grid-cols-1 md:grid-cols-2 '>
+//                     <div className='flex items-center justify-center '>
+//                         <div className='text-[20px] font-medium text-slate-700 text-center'>Notification List {AllBrand?.length}</div>
+//                     </div>
+
+//                     <div className='mt-2 flex items-center justify-center'>
+//                         <div className="w-120 bg-white  shadow-lg ">
+//                             <form className="flex items-center justify-center p-2">
+//                                 <input
+//                                     type="text"
+//                                     placeholder="Search by  name"
+//                                     value={searchTearm}
+//                                     onChange={(e) => setSearchTearm(e.target.value)}
+//                                     className="w-full rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
+//                                 />
+//                                 <button type="submit" onClick={handleSearch}
+//                                     className="bg-blue-800 text-white rounded-md px-4 py-1 ml-2 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50">
+//                                     Search
+//                                 </button>
+//                             </form>
+//                         </div>
+//                     </div>
+//                 </div>
+
+//                 <div className='w-full  bg-white '>
+//                     <section className="container px-4 mt-2 ">
+
+//                         <div className="flex flex-col mt-6">
+//                             <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+//                                 <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
+//                                     <div className="overflow-hidden border border-gray-200 dark:border-gray-700 md:rounded-lg">
+//                                         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+//                                             <thead className="bg-gray-50 dark:bg-gray-800">
+//                                                 <tr>
+//                                                     <th scope="col" className="py-3.5 px-4 text-sm font-normal text-center  text-gray-500 dark:text-gray-400 whitespace-nowrap">
+//                                                         Id
+//                                                     </th>
+
+//                                                     <th scope="col" className="pl-12 pr-12 py-3.5 text-sm font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
+//                                                         Category Logo
+//                                                     </th>
+
+//                                                     <th scope="col" className="px-4 py-3.5 text-sm font-normal text-centert text-gray-500 dark:text-gray-400 whitespace-nowrap">
+//                                                         Name
+//                                                     </th>
+
+//                                                     <th scope="col" className="px-4 py-3.5 text-sm font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
+//                                                         Priority
+//                                                     </th>
+
+//                                                     <th scope="col" className="relative py-3.5 px-4 whitespace-nowrap">
+//                                                         <span className="sr-only">Delete</span>
+//                                                     </th>
+//                                                 </tr>
+//                                             </thead>
+//                                             <tbody className="bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-900">
+//                                                 {(searchData || allCategories)?.length > 0 ? (searchData || allCategories)?.map((cat, index) => (
+//                                                     <tr key={index}>
+//                                                         <td className="px-2 py-4 text-sm font-medium  ">
+//                                                             <div className='text-center'>
+//                                                                 <h2 className="font-medium text-gray-800 dark:text-white ">{cat._id}</h2>
+//                                                             </div>
+//                                                         </td>
+//                                                         <td className="px-4  py-2 fw-full ">
+//                                                             <div className="w-full flex items-center justify-center  gap-x-3">
+//                                                                 <img className="object-cover w-10 h-10 rounded-full" src={cat?.image?.url} alt="Imag" />
+//                                                             </div>
+//                                                         </td>
+//                                                         <td className="px-4 py-4 text-sm ">
+//                                                             <div className='text-center'>
+//                                                                 <h4 className="text-gray-700 dark:text-gray-200">{cat?.name}</h4>
+//                                                             </div>
+//                                                         </td>
+//                                                         <td className="px-4 py-4 text-sm whitespace-nowrap">
+//                                                             <h4 className="text-gray-700 text-center dark:text-gray-200">{cat?.priroity}</h4>
+//                                                         </td>
+//                                                         <td className="px-4 py-4 text-sm whitespace-nowrap">
+//                                                             <div className='flex items-center justify-end'>
+//                                                                 <div className='w-full mt-4 flex items-center justify-center gap-2 bg-white  '>
+//                                                                     <button
+//                                                                         className="text-xl border-2 rounded-md p-1 border-blue-400 transition-colors duration-200"
+//                                                                         onClick={() => { setOpen(true); setCategoryId(cat?._id) }}
+//                                                                     >
+//                                                                         <AiFillDelete className="text-red-500" />
+//                                                                     </button>
+
+//                                                                     <Link to={`/admin/dashboard/category/${cat?._id}`}>
+//                                                                         <button className="text-gray-500 border-2 rounded-md p-1 border-blue-400 transition-colors duration-200 dark:hover:text-yellow-500 dark:text-gray-300 hover:text-yellow-500 focus:outline-none">
+//                                                                             <svg xmlns="http://www.w3.org/2000/svg" color='blue' fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5">
+//                                                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+//                                                                             </svg>
+//                                                                         </button>
+//                                                                     </Link>
+
+//                                                                 </div>
+//                                                             </div>
+//                                                         </td>
+//                                                     </tr>
+//                                                 )) : (
+//                                                     <tr>
+//                                                         <td colSpan="5" className="text-center py-4 text-gray-500 dark:text-gray-400">No categories found</td>
+//                                                     </tr>
+//                                                 )}
+//                                             </tbody>
+//                                         </table>
+//                                     </div>
+//                                 </div>
+//                             </div>
+//                         </div>
+
+//                     </section>
+//                 </div>
+//             </div>
+
+//             <div className="  text-center text-lg font-semibold mt-3">Jamalpur Bazar. Copyright sourav@2024</div>
+
+//             <Modal
+//                 open={open}
+//                 onClose={() => setOpen(false)}
+//                 onConfirm={() => handleDelete(categoryId)}
+//                 title="Delete Confirmation"
+//                 message="Are you sure you want to delete this category?"
+//                 isDelete={isDelete}
+//             />
+//         </div>
+//     );
+// };
+
+// export default Notification;
+
+
+
+
+
+
+
+
+
+
+
+
+
+import { useState } from "react";
+
+export default function AdminNotification() {
+  const [notificationType, setNotificationType] = useState("push");
+  const [recipient, setRecipient] = useState("all_users");
+  const [title, setTitle] = useState("");
+  const [message, setMessage] = useState("");
+  const [features, setFeatures] = useState("");
+  const [schedule, setSchedule] = useState("");
+  const [template, setTemplate] = useState("");
+  const [history, setHistory] = useState([]);
+
+  const sendNotification = () => {
+    if (!title || !message) return alert("Title and message are required");
+    const newNotification = {
+      id: history.length + 1,
+      title,
+      message,
+      features,
+      schedule,
+      template,
+      recipient,
+      notificationType,
+      date: new Date().toLocaleString(),
     };
+    setHistory([newNotification, ...history]);
+    setTitle("");
+    setMessage("");
+    setFeatures("");
+    setSchedule("");
+    setTemplate("");
+  };
 
-    return (
-        <div className='w-full p-2 md:p-5 bg-gray-200'>
-            <div className='flex items-center gap-2'>
-                <img src={Layout} alt='layout' className='h-5' />
-                <h3 className="text-[20px] text-slate-600 font-Poppins font-semibold">Notification Setup</h3>
-            </div>
+  return (
+    <div className="max-w-4xl mx-auto p-6 space-y-6">
+      <div className="bg-white shadow-md p-6 rounded-lg">
+        <h2 className="text-xl font-semibold mb-4">Send Notification</h2>
 
-            <div className="w-full mt-2 bg-white p-3 rounded-md">
-                {
-                    isSubmitting ? (<div className='w-full h-full flex items-start justify-center'><Loader /></div>) : (
-                        <div className='items-center justify-around grid grid-cols-1 lg:grid-cols-2 gap-4'>
-                            <div className="p-4 rounded-md">
-                                <form>
-                                    <div className="mb-4">
-                                        <label htmlFor="name" className="block text-lg font-medium text-gray-700">Notification Name *</label>
-                                        <input
-                                            type="text"
-                                            name="title"
-                                            placeholder='Enter title...'
-                                            autoComplete="title"
-                                            required
-                                            value={title}
-                                            onChange={handleChange}
-                                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-base placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition duration-300"
-                                        />
-                                    </div>
+        <select 
+          className="w-full p-2 border rounded-md mb-3"
+          value={notificationType} 
+          onChange={(e) => setNotificationType(e.target.value)}
+        >
+          <option value="push">Push Notification</option>
+          <option value="in_app">App Notification</option>
+          <option value="email">Email</option>
+          <option value="sms">SMS</option>
+        </select>
 
-                                    <div className="mb-4">
-                                        <label htmlFor="priority" className="block text-lg font-medium text-gray-700">Description</label>
-                                        <textarea
-                                            type="text"
-                                            name="content"
-                                            autoComplete="content"
-                                            placeholder='Enter description'
-                                            required
-                                            value={content}
-                                            onChange={(e) => setContent(e.target.value)}
-                                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-base placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition duration-300"
-                                        />
-                                    </div>
+        <select 
+          className="w-full p-2 border rounded-md mb-3"
+          value={recipient} 
+          onChange={(e) => setRecipient(e.target.value)}
+        >
+          <option value="all_users">All Users</option>
+          <option value="all_sellers">All Sellers</option>
+          <option value="specific">Specific Users/Sellers</option>
+        </select>
 
-                                    <div className="flex mt-3 flex-col">
-                                        <label className="block text-lg font-medium text-gray-700" htmlFor="file_input">Notification Logo *</label>
-                                        <input
-                                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-base placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition duration-300"
-                                            id="file_input"
-                                            name="image"
-                                            type="file"
-                                            accept=".jpg, .jpeg, .png"
-                                            onChange={handleFileInputChange}
-                                        />
-                                    </div>
-                                </form>
-                            </div>
+        <select 
+          className="w-full p-2 border rounded-md mb-3"
+          value={template} 
+          onChange={(e) => setTemplate(e.target.value)}
+        >
+          <option value="">Select Template</option>
+          <option value="discount">Discount Offer</option>
+          <option value="new_feature">New Feature Announcement</option>
+          <option value="reminder">Event Reminder</option>
+        </select>
 
-                            <div className="flex items-center justify-center p-4 rounded-md">
-                                <div className="border p-2 md:h-[40vh] h-[30vh] md:w-[60vh] w-[60vh] rounded-md overflow-hidden">
-                                    {image ? (
-                                        <img src={URL.createObjectURL(image)} alt="avatar" className="h-full w-full object-cover" />
-                                    ) : (
-                                        <img src="https://6valley.6amtech.com/public/assets/back-end/img/image-place-holder.png" alt="User" className="h-full w-full object-cover" />
-                                    )}
-                                </div>
-                            </div>
-                        </div>
+        <input 
+          className="w-full p-2 border rounded-md mb-3" 
+          placeholder="Title" 
+          value={title} 
+          onChange={(e) => setTitle(e.target.value)} 
+        />
+        <textarea 
+          className="w-full p-2 border rounded-md mb-3" 
+          placeholder="Message" 
+          value={message} 
+          onChange={(e) => setMessage(e.target.value)} 
+        />
 
-                    )
-                }
-                <div className='mt-3 mr-3 flex items-center justify-end'>
-                    <button onClick={handleSubmit} type="submit" className={`text-white w-[10vw] bg-blue-700 hover:bg-blue-800 font-semibold text-center border rounded-md py-2 px-5 flex items-center justify-center ${isDisabled && isSubmitting && "cursor-not-allowed"}`}>
-                        Send
-                    </button>
-                </div>
-            </div>
+        <textarea 
+          className="w-full p-2 border rounded-md mb-3" 
+          placeholder="New Features Included (optional)" 
+          value={features} 
+          onChange={(e) => setFeatures(e.target.value)} 
+        />
 
-            <div className='w-full mt-2 bg-white p-3 rounded-md  gap-2'>
-                <div className='grid grid-cols-1 md:grid-cols-2 '>
-                    <div className='flex items-center justify-center '>
-                        <div className='text-[20px] font-medium text-slate-700 text-center'>Notification List {AllBrand?.length}</div>
-                    </div>
+        <input 
+          type="datetime-local"
+          className="w-full p-2 border rounded-md mb-3"
+          value={schedule} 
+          onChange={(e) => setSchedule(e.target.value)}
+        />
 
-                    <div className='mt-2 flex items-center justify-center'>
-                        <div className="w-120 bg-white  shadow-lg ">
-                            <form className="flex items-center justify-center p-2">
-                                <input
-                                    type="text"
-                                    placeholder="Search by  name"
-                                    value={searchTearm}
-                                    onChange={(e) => setSearchTearm(e.target.value)}
-                                    className="w-full rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
-                                />
-                                <button type="submit" onClick={handleSearch}
-                                    className="bg-blue-800 text-white rounded-md px-4 py-1 ml-2 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50">
-                                    Search
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
+        <button 
+          className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600"
+          onClick={sendNotification}
+        >
+          {schedule ? "Schedule Notification" : "Send Notification"}
+        </button>
+      </div>
 
-                <div className='w-full  bg-white '>
-                    <section className="container px-4 mt-2 ">
-
-                        <div className="flex flex-col mt-6">
-                            <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                                <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-                                    <div className="overflow-hidden border border-gray-200 dark:border-gray-700 md:rounded-lg">
-                                        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                            <thead className="bg-gray-50 dark:bg-gray-800">
-                                                <tr>
-                                                    <th scope="col" className="py-3.5 px-4 text-sm font-normal text-center  text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                                                        Id
-                                                    </th>
-
-                                                    <th scope="col" className="pl-12 pr-12 py-3.5 text-sm font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                                                        Category Logo
-                                                    </th>
-
-                                                    <th scope="col" className="px-4 py-3.5 text-sm font-normal text-centert text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                                                        Name
-                                                    </th>
-
-                                                    <th scope="col" className="px-4 py-3.5 text-sm font-normal text-center text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                                                        Priority
-                                                    </th>
-
-                                                    <th scope="col" className="relative py-3.5 px-4 whitespace-nowrap">
-                                                        <span className="sr-only">Delete</span>
-                                                    </th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-900">
-                                                {(searchData || allCategories)?.length > 0 ? (searchData || allCategories)?.map((cat, index) => (
-                                                    <tr key={index}>
-                                                        <td className="px-2 py-4 text-sm font-medium  ">
-                                                            <div className='text-center'>
-                                                                <h2 className="font-medium text-gray-800 dark:text-white ">{cat._id}</h2>
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-4  py-2 fw-full ">
-                                                            <div className="w-full flex items-center justify-center  gap-x-3">
-                                                                <img className="object-cover w-10 h-10 rounded-full" src={cat?.image?.url} alt="Imag" />
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-4 py-4 text-sm ">
-                                                            <div className='text-center'>
-                                                                <h4 className="text-gray-700 dark:text-gray-200">{cat?.name}</h4>
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-4 py-4 text-sm whitespace-nowrap">
-                                                            <h4 className="text-gray-700 text-center dark:text-gray-200">{cat?.priroity}</h4>
-                                                        </td>
-                                                        <td className="px-4 py-4 text-sm whitespace-nowrap">
-                                                            <div className='flex items-center justify-end'>
-                                                                <div className='w-full mt-4 flex items-center justify-center gap-2 bg-white  '>
-                                                                    <button
-                                                                        className="text-xl border-2 rounded-md p-1 border-blue-400 transition-colors duration-200"
-                                                                        onClick={() => { setOpen(true); setCategoryId(cat?._id) }}
-                                                                    >
-                                                                        <AiFillDelete className="text-red-500" />
-                                                                    </button>
-
-                                                                    <Link to={`/admin/dashboard/category/${cat?._id}`}>
-                                                                        <button className="text-gray-500 border-2 rounded-md p-1 border-blue-400 transition-colors duration-200 dark:hover:text-yellow-500 dark:text-gray-300 hover:text-yellow-500 focus:outline-none">
-                                                                            <svg xmlns="http://www.w3.org/2000/svg" color='blue' fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5">
-                                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                                                                            </svg>
-                                                                        </button>
-                                                                    </Link>
-
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                )) : (
-                                                    <tr>
-                                                        <td colSpan="5" className="text-center py-4 text-gray-500 dark:text-gray-400">No categories found</td>
-                                                    </tr>
-                                                )}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </section>
-                </div>
-            </div>
-
-            <div className="  text-center text-lg font-semibold mt-3">Jamalpur Bazar. Copyright sourav@2024</div>
-
-            <Modal
-                open={open}
-                onClose={() => setOpen(false)}
-                onConfirm={() => handleDelete(categoryId)}
-                title="Delete Confirmation"
-                message="Are you sure you want to delete this category?"
-                isDelete={isDelete}
-            />
+      <div className="bg-white shadow-md p-6 rounded-lg">
+        <h2 className="text-xl font-semibold mb-4">Notification History</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse border border-gray-200">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border p-2">Title</th>
+                <th className="border p-2">Message</th>
+                <th className="border p-2">Features</th>
+                <th className="border p-2">Recipient</th>
+                <th className="border p-2">Type</th>
+                <th className="border p-2">Date</th>
+                <th className="border p-2">Schedule</th>
+                <th className="border p-2">Template</th>
+              </tr>
+            </thead>
+            <tbody>
+              {history.map((n) => (
+                <tr key={n.id} className="text-center">
+                  <td className="border p-2">{n.title}</td>
+                  <td className="border p-2">{n.message}</td>
+                  <td className="border p-2">{n.features}</td>
+                  <td className="border p-2">{n.recipient}</td>
+                  <td className="border p-2">{n.notificationType}</td>
+                  <td className="border p-2">{n.date}</td>
+                  <td className="border p-2">{n.schedule ? n.schedule : "Instant"}</td>
+                  <td className="border p-2">{n.template}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-    );
-};
+      </div>
+    </div>
+  );
+}
 
-export default Notification;

@@ -84,13 +84,26 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
     setTagInput(e.target.value);
   };
   
+  // const handleKeyDown = (e) => {
+  //   if (e.key === "," || e.key === "Enter") {
+  //     e.preventDefault(); // Prevent form submission (if Enter is pressed)
+  
+  //     // Add new tag if not empty
+  //     if (tagInput.trim() !== "") {
+  //       setTags([...tags, tagInput.trim()]);
+  //       setTagInput(""); // Clear input after adding
+  //     }
+  //   }
+  // };
+
   const handleKeyDown = (e) => {
-    if (e.key === "," || e.key === "Enter") {
+    if (e.key === "Enter" || e.key === "," || tagInput.endsWith(",")) {
       e.preventDefault(); // Prevent form submission (if Enter is pressed)
   
       // Add new tag if not empty
-      if (tagInput.trim() !== "") {
-        setTags([...tags, tagInput.trim()]);
+      const newTag = tagInput.trim().replace(/,$/, ""); // Remove trailing comma
+      if (newTag !== "") {
+        setTags([...tags, newTag]);
         setTagInput(""); // Clear input after adding
       }
     }
@@ -99,6 +112,8 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
   const removeTag = (index) => {
     setTags(tags.filter((_, i) => i !== index));
   };
+
+  console.log("tags", tags)
 
   const handleInputChange =
     (setter, fieldName, isNested = false) =>
@@ -333,7 +348,6 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
     );
   };
   
-  
   // Handles changes in variation inputs (price, stock, discount)
   const handleVariationChange = (id, field, value) => {
     const updatedVariations = variations.map((variation) =>
@@ -470,6 +484,8 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
     );
   };
 
+  console.log("return policy-->", returnPolicy)
+
   // Auto-trigger the function when all conditions are met
   useEffect(() => {
     if (isFormValid()) {
@@ -582,6 +598,8 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
     return Object.keys(newErrors).length === 0; // Return true if no errors
   };
 
+
+
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
@@ -594,7 +612,7 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
           ? variations
           : Object.values(variations);
 
-          console.log("varaiations array-->", variationsArray)
+         
   
         // Format attributes with sections
         const formattedAttributes = Object.entries(attributesBySection).map(
@@ -706,6 +724,7 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
         newForm.append("variants", JSON.stringify(variantsData)); // ✅ Correctly include variations with images & attributes
         newForm.append("images", JSON.stringify(uploadedMainImages));
         newForm.append("attributeSection", JSON.stringify(formattedAttributes));
+        newForm.append("returnPolicy", JSON.stringify(returnPolicy))
   
         if (highlights?.length > 0) {
           newForm.append("keyPoints", JSON.stringify(formattedHighlights));
@@ -1411,7 +1430,7 @@ const ProductForm = ({ selectedCategory, primaryImage }) => {
               )}
             </div>
 
-            <div className="w-full">
+            <div className="w-full ">
               <div className="flex items-center justify-between">
                 <label className="block text-sm font-semibold text-gray-700">
                   Search Tags <span className="text-red-500">*</span>
