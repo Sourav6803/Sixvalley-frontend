@@ -197,6 +197,12 @@ const App = ({ data }) => {
     }
   };
 
+  useEffect(()=> {
+    if(isAuthenticated){
+      checkNotificationPermission()
+    }
+  }, [isAuthenticated])
+  
   useEffect(() => {
     const consent = localStorage.getItem('cookieConsent');
 

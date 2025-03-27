@@ -29,9 +29,9 @@ messaging.onBackgroundMessage((payload) => {
 
     const notificationOptions = {
         body: payload.notification?.body || "You have a new message.",
-        icon: payload.data?.icon ,
+        icon: payload.notification?.icon ,
         image: payload.notification?.image, // Display image
-        data: { click_action: payload.fcmOptions?.link },
+        data: { click_action: payload.click_action },
         requireInteraction: true
     };
 
