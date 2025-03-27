@@ -24,11 +24,27 @@ messaging.onBackgroundMessage((payload) => {
     console.log('[firebase-messaging-sw.js] Received background message', payload);
 
     const notificationTitle = payload.notification.title;
+
+   
+
     const notificationOptions = {
-        body: payload.notification.body,
-        icon: '/gift.png' // Replace with your app's logo or notification icon
+        body: payload.notification?.body || "You have a new message.",
+        icon: payload.data?.icon ,
+        image: payload.notification?.image, // Display image
+        data: { click_action: payload.fcmOptions?.link },
+        requireInteraction: true
     };
-    /* eslint-disable no-restricted-globals */
+
+    console.log("notification option", notificationOptions)
 
     self.registration.showNotification(notificationTitle, notificationOptions);
+});
+
+self.addEventListener("notificationclick", (event) => {
+    event.notification.close();
+    if (event.notification.data && event.notification.data.click_action) {
+        event.waitUntil(
+            clients.openWindow(event.notification.data.click_action)
+        );
+    }
 });

@@ -142,22 +142,22 @@ const App = ({ data }) => {
         
 
         // Make API call to update deviceToken
-        // if (isAuthenticated && !user?.deviceToken) {
-        //   console.log("update device token api calling");
-        //   await axios.put(`${server}/user/update-device-token`, { fcmToken: token }, {
-        //     headers: {
-        //       'Content-Type': 'application/json',
-        //     },
-        //     withCredentials: true, // Include cookies with the request
-        //   });
-        // }
+        if (isAuthenticated ) {
+          console.log("update device token api calling");
+          await axios.put(`${server}/user/update-device-token`, { fcmToken: token }, {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            withCredentials: true, // Include cookies with the request
+          });
+        }
 
-        await axios.put(`${server}/user/update-device-token`, { fcmToken: token }, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          withCredentials: true, // Include cookies with the request
-        });
+        // await axios.put(`${server}/user/update-device-token`, { fcmToken: token }, {
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //   },
+        //   withCredentials: true, // Include cookies with the request
+        // });
       } catch (error) {
         console.error("Error during notification setup:", error);
       }
