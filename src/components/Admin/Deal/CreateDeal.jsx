@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { server } from "../../../server";
+import { server, serverTwo } from "../../../server";
 import axios from "axios";
 import Select from "react-select";
 import { toast } from "react-toastify";
@@ -29,9 +29,13 @@ const CreateDeal = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get(`${server}/category/names`);
-        if (response && response?.data) {
-          setAllCategory(response?.data);
+        const response = await axios.get(`${serverTwo}/category/all-main-cat`);
+
+        console.log("data-->", response.data)
+        if (response?.data) {
+          // Extract only the category names
+          const categoryNames = response.data.mainCategories.map(category => category.name);
+          setAllCategory(categoryNames);
         }
       } catch (error) {
         console.error("Error fetching categories:", error);

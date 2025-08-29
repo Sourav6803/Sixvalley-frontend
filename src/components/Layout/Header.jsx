@@ -482,13 +482,16 @@ const Header = ({ activeHeading, searchContentOpen, setSearchContentOpen }) => {
               </div>
             )}
 
-            
-
-            
-
             {searchContentOpen && (
               <div className="fixed  h-[600px] w-[46vw] shadow z-50 ">
-                <SearchPage results={results} query={query} showSuggestions={showSuggestions} setShowSuggestions={setShowSuggestions} suggestions={suggestions} setQuery={setQuery} />
+                <SearchPage
+                  results={results}
+                  query={query}
+                  showSuggestions={showSuggestions}
+                  setShowSuggestions={setShowSuggestions}
+                  suggestions={suggestions}
+                  setQuery={setQuery}
+                />
               </div>
             )}
           </div>
@@ -614,7 +617,7 @@ const Header = ({ activeHeading, searchContentOpen, setSearchContentOpen }) => {
             </div>
 
             {/* cart popup */}
-            {openCart ? <Cart  /> : null}
+            {openCart ? <Cart /> : null}
 
             {/* wishlist popup */}
             {openWishlist ? (
@@ -669,7 +672,7 @@ const Header = ({ activeHeading, searchContentOpen, setSearchContentOpen }) => {
                 )}
               </div>
             </div>
-            
+
             <div
               className="relative cursor-pointer "
               onClick={() => setNotificationOpen(!notficationOpen)}
@@ -758,10 +761,7 @@ const Header = ({ activeHeading, searchContentOpen, setSearchContentOpen }) => {
               </div>
             )}
 
-            <div
-              className="relative mr-[20px]"
-              onClick={handleToggleCart}
-            >
+            <div className="relative mr-[20px]" onClick={handleToggleCart}>
               <AiOutlineShoppingCart
                 size={30}
                 color=""
@@ -776,9 +776,7 @@ const Header = ({ activeHeading, searchContentOpen, setSearchContentOpen }) => {
           </div>
 
           {/* cart popup */}
-          {openCart ? (
-            <Cart  handleCartClose={handleCartClose} />
-          ) : null}
+          {openCart ? <Cart handleCartClose={handleCartClose} /> : null}
 
           {/* wishlist popup */}
 
@@ -886,26 +884,38 @@ const Header = ({ activeHeading, searchContentOpen, setSearchContentOpen }) => {
 
               {/* <Navbar active={activeHeading} /> */}
               {user && (
-                <div className="flex mx-4 items-center justify-between">
-                  <div className="text-gray-700">{user?.name}</div>
-                  <div>
-                    <img
-                      src={`${user?.avatar?.url}`}
-                      alt=""
-                      className="w-[50px] h-[50px] rounded-sm border-[3px]  "
-                    />
+                // <div className="flex mx-4 items-center justify-between">
+                //   <div className="text-gray-700">{user?.name}</div>
+                //   <div>
+                //     <img
+                //       src={`${user?.avatar?.url}`}
+                //       alt=""
+                //       className="w-[50px] h-[50px] rounded-sm border-[3px]  "
+                //     />
+                //   </div>
+                // </div>
+                <div className="flex items-center justify-between px-4 py-3 ">
+                  <div className="text-gray-800 font-semibold text-sm">
+                    {user.name}
                   </div>
+                  <img
+                    src={user?.avatar?.url}
+                    alt="User Avatar"
+                    className="w-12 h-12 rounded-full border"
+                  />
                 </div>
               )}
 
               <hr className="mt-3" />
+
+              
 
               <ul className="pt-2">
                 {ProfileMenu.map((menu, index) => (
                   <React.Fragment key={index}>
                     <li
                       className={`text-gray-700 text-sm flex items-center gap-x-3  cursor-pointer p-2 hover:bg-[#a4c7ff] mx-2 rounded-md ${
-                        menu?.spacing ? "mt-3" : "mt-2"
+                        menu?.spacing ? "mt-1" : "mt-2"
                       }`}
                       onClick={() => toggleMenu(index)}
                     >
@@ -1012,12 +1022,10 @@ const Header = ({ activeHeading, searchContentOpen, setSearchContentOpen }) => {
           <div className="md:flex">
             <div className="w-full p-1">
               <div className="relative flex items-center justify-between bg-white rounded-lg shadow-sm border-2">
-                
                 <span className="absolute left-3 text-gray-500">
                   <BiSearch />
                 </span>
 
-                
                 <input
                   type="text"
                   className="bg-white h-8 w-full pl-10 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 hover:cursor-pointer"
@@ -1036,7 +1044,6 @@ const Header = ({ activeHeading, searchContentOpen, setSearchContentOpen }) => {
                 </span>
               </div>
 
-              
               {isListening && (
                 <div className="flex items-center justify-center mt-2">
                   <div className="flex items-center space-x-1">
@@ -1048,7 +1055,6 @@ const Header = ({ activeHeading, searchContentOpen, setSearchContentOpen }) => {
                 </div>
               )}
 
-              
               {searchTearm && searchData?.length > 0 && (
                 <div className="absolute bg-slate-100 shadow max-h-60 w-full z-10 left-0 p-3 overflow-y-auto">
                   {searchData.map((i, index) => (
@@ -1078,7 +1084,29 @@ const Header = ({ activeHeading, searchContentOpen, setSearchContentOpen }) => {
       )}
 
       {/* CSS for dot animation */}
-      <style jsx>
+      {/* <style jsx>
+        {`
+          .dot-animate {
+            width: 6px;
+            height: 6px;
+            background-color: blue;
+            border-radius: 50%;
+            animation: dot-blink 1s infinite;
+          }
+
+          @keyframes dot-blink {
+            0%,
+            100% {
+              opacity: 0;
+            }
+            50% {
+              opacity: 1;
+            }
+          }
+        `}
+      </style> */}
+
+      <style>
         {`
           .dot-animate {
             width: 6px;

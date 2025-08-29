@@ -18,6 +18,9 @@ const Checkout = () => {
   const [address1, setAddress1] = useState("");
   const [address2, setAddress2] = useState("");
   const [zipCode, setZipCode] = useState(null);
+  const [state, setState] = useState('')
+  const [addressType, setAddressType] = useState('')
+  const [location, setLocation] = useState({})
   const [couponCode, setCouponCode] = useState("");
   const [couponCodeData, setCouponCodeData] = useState(null);
   const [discountPrice, setDiscountPrice] = useState(null);
@@ -30,54 +33,6 @@ const Checkout = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
-  // const subTotalPrice = cart.reduce(
-  //   (acc, item) => acc + item?.qty * item?.afterDiscountPrice,
-  //   0
-  // );
-
-  // // this is shipping cost variable
-  // const shipping = cart?.reduce(
-  //   (acc, item) => acc + item?.shippingCost,
-  //   0
-  // );
-
-  // const totalOriginalPrice = cart?.reduce(
-  //   (acc, item) => acc + item?.qty * item?.originalPrice,
-  //   0
-  // );
-
-  // const totalPrice = cart?.reduce(
-  //   (acc, item) => acc + item?.qty * item?.afterDiscountPrice,
-  //   0
-  // );
-
-  // const totalDiscountPrice = cart?.reduce(
-  //   (acc, item) => acc + item?.qty * (item?.originalPrice - item?.afterDiscountPrice),
-  //   0
-  // );
-
-  // const deliverCharge = shipping
-
-  // const totalCartPrice = totalPrice + shipping - couponAmount
-
-  // const paymentSubmit = () => {
-  //   if (address1 === "" || address2 === "" || zipCode === null || country === "" || city === "") {
-  //     toast.error("Please choose your delivery address!")
-  //   } else {
-  //     const shippingAddress = {
-  //       address1, address2, zipCode, country, city
-  //     };
-
-  //     const orderData = { cart, totalOriginalPrice, totalDiscountPrice, totalPrice, couponAmount, subTotalPrice, deliverCharge, shipping, discountPrice, shippingAddress, user, couponCode, totalCartPrice }
-
-  //     // update local storage with the updated orders array
-  //     localStorage.setItem("latestOrder", JSON.stringify(orderData));
-  //     navigate("/payment");
-  //   }
-  // };
-
-   // const discountPercentenge = couponCodeData ? discountPrice : "";
 
   // Ensure cart items with variants are handled correctly
 const subTotalPrice = cart.reduce(
@@ -130,7 +85,7 @@ const paymentSubmit = () => {
     return;
   }
 
-  const shippingAddress = { address1, address2, zipCode, country, city };
+  const shippingAddress = { address1, address2, zipCode, country, city, state, addressType, location };
 
   const orderData = {
     cart,
@@ -178,6 +133,12 @@ const paymentSubmit = () => {
             setAddress2={setAddress2}
             zipCode={zipCode}
             setZipCode={setZipCode}
+            state={state}
+            setState={setState}
+            addressType={addressType}
+            setAddressType={setAddressType}
+            location={location}
+            setLocation={setLocation}
           />
         </div>
 
@@ -204,13 +165,13 @@ const paymentSubmit = () => {
       </div>
 
       <div className="flex w-full max-w-3xl items-center justify-between mx-auto p-4 bg-white shadow-lg rounded-md">
-        {/* Payment Amount Section */}
+        
         <div className="mt-5">
           <h5 className="text-md font-semibold text-gray-700">Your Payment Amount</h5>
           <h5 className="text-xl font-bold text-gray-900">₹ {totalCartPrice}</h5>
         </div>
 
-        {/* Payment Button */}
+        
         <div
           className="bg-blue-600 mt-5 py-3 px-6 rounded-lg cursor-pointer hover:bg-blue-700 transition duration-300"
           onClick={paymentSubmit}
@@ -238,6 +199,12 @@ const ShippingInfo = ({
   setAddress2,
   zipCode,
   setZipCode,
+  location,
+  setLocation,
+  state,
+  setState, 
+  addressType, 
+  setAddressType
 }) => {
 
   const [selectedAddress, setSelectedAddress] = useState({
@@ -246,6 +213,9 @@ const ShippingInfo = ({
     zipCode: '',
     country: '',
     city: '',
+    state: '',
+    addressType: '', 
+    location: {}
   });
 
   const navigate = useNavigate()
@@ -259,9 +229,36 @@ const ShippingInfo = ({
       setZipCode(defaultAddress.zipCode);
       setCountry(defaultAddress.country);
       setCity(defaultAddress.city);
+      setState(defaultAddress.state)
+      setAddressType(defaultAddress.addressType)
+      setLocation(defaultAddress?.location)
       setSelectedAddress(defaultAddress);
     }
   }, [user?.addresses, setAddress1, setAddress2, setCity, setCountry, setZipCode]);
+
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          console.log("Lat:", latitude, "Lng:", longitude);
+
+          // ye tum address ke sath bhej sakte ho backend me
+          setSelectedAddress((prev) => ({
+            ...prev,
+            location: {
+              type: "Point",
+              coordinates: [longitude, latitude],
+            },
+          }));
+        },
+        (error) => {
+          console.error("Location fetch failed:", error);
+        }
+      );
+    }
+  }, []);
 
   const handleAddressChange = (item) => {
     setSelectedAddress({
@@ -581,11 +578,6 @@ const CartData = ({
 
 export default Checkout;
 
-
-
-
-
-//
 
 
 

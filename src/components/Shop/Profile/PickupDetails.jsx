@@ -13,6 +13,9 @@ import { Country, City, State } from "country-state-city";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 
+import districtData from "../../../static/india-districts.json";
+
+
 const faqData = [
   {
     question: "How does product pickup work?",
@@ -41,10 +44,15 @@ const PickupDetails = ({ onNext, completedSteps, onDataUpdate }) => {
     roomNumber: "",
     address: "",
     state: "",
+    district: "",
     city: "",
     street: "",
     landmark: "",
     zipCode: "",
+    location: {
+      type: "Point",
+      coordinates: [],
+    },
   });
 
   const [openIndex, setOpenIndex] = useState(null);
@@ -58,25 +66,35 @@ const PickupDetails = ({ onNext, completedSteps, onDataUpdate }) => {
     isoCode: "IN",
   };
   const [states, setStates] = useState([]);
+  const [dist, setDistrict] = useState([]);
   const [cities, setCities] = useState([]);
+
 
   const countries = Country.getAllCountries();
   const selectedCountry = countries.find((c) => c.isoCode === "IN") || null;
 
   const [selectedState, setSelectedState] = useState(null);
 
-  // Load states of India on component mount
+  // Load states of India on component mount 
   useEffect(() => {
     const initialStates = State.getStatesOfCountry(defaultCountry.isoCode);
     setStates(initialStates);
   }, []);
 
-  const handleStateChange = (state) => {
-    console.log(state);
+  const handleStateChange = async(state) => {
     setSelectedState(state);
     setPickupData((prevData) => ({ ...prevData, state: state.name }));
+
     setCities(City.getCitiesOfState(selectedCountry.isoCode, state.isoCode));
+    
+    fetchDistrictsByState(state.name); // fetch districts from local JSON
   };
+
+  const fetchDistrictsByState = (stateName) => {
+    const districts = districtData[stateName] || [];
+    setDistrict(districts);
+  };
+
 
   const handleCityChange = (e) => {
     const city = e.target.value;
@@ -144,11 +162,16 @@ const PickupDetails = ({ onNext, completedSteps, onDataUpdate }) => {
             }
           );
 
+          const add = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+          console.log("add-->", add)
+
           if (response.data.results.length > 0) {
             const addressComponents =
               response.data.results[0].address_components;
 
             const formattedAddress = response.data.results[0].formatted_address;
+
+            console.log("formattedAddress--",response.data.results );
 
             const stateName = addressComponents.find((c) =>
               c.types.includes("administrative_area_level_1")
@@ -201,13 +224,80 @@ const PickupDetails = ({ onNext, completedSteps, onDataUpdate }) => {
     );
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Call onDataUpdate with the updated data
-    onDataUpdate(pickupData);
-    // Move to the next step
-    onNext();
+  const geocodeAddress = async (addressData) => {
+    try {
+      const response = await axios.get(
+        "https://api.opencagedata.com/geocode/v1/json",
+        {
+          params: {
+            q: `${addressData.address1}, ${addressData.city}, ${addressData.state}, ${addressData.country}, ${addressData.zipCode}`,
+            key: "505c278939b94c40b75291402921ffb0",
+            limit: 1,
+          },
+        }
+      );
+
+      if (response.data.results.length > 0) {
+        const { lat, lng } = response.data.results[0].geometry;
+        return {
+          type: "Point",
+          coordinates: [lng, lat], // GeoJSON format: [longitude, latitude]
+        };
+      }
+      return null;
+    } catch (error) {
+      console.error("Geocoding error:", error);
+      return null;
+    }
   };
+
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   // Call onDataUpdate with the updated data
+  //   onDataUpdate(pickupData);
+  //   // Move to the next step
+  //   onNext();
+  // };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      // Create a copy of pickupData to modify
+      const submissionData = { ...pickupData };
+
+      // If location coordinates are empty, try to geocode the address
+      if (!submissionData.location.coordinates.length) {
+        const geocodedLocation = await geocodeAddress({
+          address1: submissionData.address,
+          city: submissionData.city,
+          state: submissionData.state,
+          country: "India", // Assuming India as default
+          zipCode: submissionData.zipCode,
+        });
+
+        if (geocodedLocation) {
+          submissionData.location = geocodedLocation;
+        } else {
+          console.warn("Could not determine location coordinates");
+          // Continue without coordinates if geocoding fails
+        
+        }
+      }
+
+
+      // Call onDataUpdate with the complete data
+      onDataUpdate(submissionData);
+
+      // Move to the next step
+      onNext();
+    } catch (error) {
+      console.error("Submission error:", error);
+      // Handle error (show toast, etc.)
+    }
+  };
+
+  console.log("pickupData-->", pickupData);
 
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-8">

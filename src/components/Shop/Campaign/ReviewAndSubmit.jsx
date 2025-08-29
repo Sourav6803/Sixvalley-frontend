@@ -1,287 +1,35 @@
-// import React, { useState } from "react";
-
-// import { MdCancel, MdInfo } from "react-icons/md";
-// import { FaChevronLeft } from "react-icons/fa";
-// import { FcIdea } from "react-icons/fc";
-
-// const ReviewAndSubmit = ({ campaignData, open }) => {
-//   const [errors, setErrors] = useState({});
-//   const [error, setError] = useState(null);
-
-//   console.log("campaign data-", campaignData);
-
-//   // Validate required fields
-//   // const validate = () => {
-//   //   const validationErrors = {};
-
-//   //   if (!campaignDetails.campaignName.trim()) {
-//   //     validationErrors.campaignName = "Campaign Name is required";
-//   //   }
-//   //   if (!campaignDetails.budget) {
-//   //     validationErrors.budget = "Budget is required";
-//   //   }
-//   //   if (!campaignDetails.startDate || !campaignDetails.endDate) {
-//   //     validationErrors.duration = "Campaign duration is required";
-//   //   }
-//   //   if (catalogs.length === 0) {
-//   //     validationErrors.catalogs = "At least one catalog must be selected";
-//   //   }
-
-//   //   setErrors(validationErrors);
-//   //   return Object.keys(validationErrors).length === 0;
-//   // };
-
-//   const handleSubmit = async () => {
-//     try {
-//       const response = await fetch(
-//         "http://localhost:8000/api/v2/campaign/register",
-//         {
-//           method: "POST",
-//           headers: {
-//             "Content-Type": "application/json",
-//           },
-//           body: JSON.stringify(campaignData),
-//         }
-//       );
-
-//       if (response) {
-//         console.log("Campaign created successfully:", response);
-//         // Redirect to another page or show success message
-//       } else {
-//         setError(response.message || "Something went wrong. Please try again.");
-//       }
-//     } catch (error) {
-//       console.error("Error creating campaign:", error);
-//       setError("An error occurred while submitting the campaign.");
-//     }
-//   };
-
-//   const handleSubmitCampaign = async () => {
-//     // Validate form data
-//     //   if (!campaignName || !category || !selectedCampaign || !selectedProducts  ) {
-//     //    setError("Please fill in all required fields.");
-//     //    return;
-//     //  }
-
-//     console.log("campaign data--", campaignData);
-
-//     try {
-//       const response = await fetch(
-//         "http://localhost:8000/api/v2/campaign/register",
-//         {
-//           method: "POST",
-//           headers: {
-//             "Content-Type": "application/json",
-//           },
-//           body: JSON.stringify(campaignData),
-//         }
-//       );
-
-//       if (response) {
-//         console.log("Campaign created successfully:", response);
-//         // Redirect to another page or show success message
-//       } else {
-//         setError(response.message || "Something went wrong. Please try again.");
-//       }
-//     } catch (error) {
-//       console.error("Error creating campaign:", error);
-//       setError("An error occurred while submitting the campaign.");
-//     }
-//   };
-
-//   return (
-//     <div className={` absolute top-20 inset-0 bg-white flex flex-col items-center justify-center z-50 p-2 ${
-//         open ? "md:ml-72" : "md:ml-20"
-//       }`}>
-//       <div className="flex items-center justify-between mb-4 w-[80%]">
-//         <div className="flex items-center gap-1">
-//           <FaChevronLeft />
-//           <h2 className="text-lg font-semibold ">Review & Submit</h2>
-//         </div>
-
-//         <div className="flex items-center gap-1">
-//           <MdCancel />
-//           <h2 className="text-lg font-semibold"> Discard Campaign</h2>
-//         </div>
-//       </div>
-//       <div className="review-section mb-4 flex items-center justify-between w-[80%]">
-//         <div>
-//           <h3 className="text-md font-medium">Campaign Details</h3>
-//           <div className="review-item">
-//             <span>Campaign Type:</span>
-//             <span>{campaignData.campaignType}</span>
-//           </div>
-//           <div className="review-item">
-//             <span>Campaign Name:</span>
-//             <span>{campaignData.campaignName || "-"}</span>
-//             {errors.campaignName && (
-//               <p className="text-red-500 text-sm">{errors.campaignName}</p>
-//             )}
-//           </div>
-//           <div className="review-item">
-//             <span>Budget:</span>
-//             <span>{campaignData?.bidStrategy?.dailyBudget.amount || "-"}</span>
-//             {errors.budget && (
-//               <p className="text-red-500 text-sm">{errors.budget}</p>
-//             )}
-//           </div>
-//           <div className="review-item">
-//             <span>Duration:</span>
-//             <span>
-//               {campaignData.schedule.startDate && campaignData.schedule.endDate
-//                 ? `${campaignData.schedule.startDate}, ${campaignData.schedule.startTime} to ${campaignData.schedule.endDate}, ${campaignData.schedule.endTime}`
-//                 : "-"}
-//             </span>
-//             {errors.duration && (
-//               <p className="text-red-500 text-sm">{errors.duration}</p>
-//             )}
-//           </div>
-//         </div>
-
-//         <div className="flex flex-col ">
-//           <div className="flex items-center gap-2">
-//             <FcIdea />
-//             <h1>TIP</h1>
-//           </div>
-
-//           <h2 className="text-sm font-semibold">
-//             Run atleast 3 days to get upto 2x more orders
-//           </h2>
-
-//           <p className="text-gray-500 text-xs">
-//             Campaign that runs for more days are viewed by more buyers. This
-//             increase the chance of getting more orders.
-//           </p>
-//         </div>
-//       </div>
-
-//       <div className=" mb-4 w-[80%]">
-//         <h3 className="text-md font-medium">
-//           Products : {campaignData.selectedProducts.length}{" "}
-//         </h3>
-
-//         <div className="overflow-x-auto">
-//           <table className="min-w-full divide-y divide-gray-200 border border-gray-200 mt-3">
-//             <thead className="text-slate-700 text-[16px] font-[400]">
-//               <tr className="bg-gray-100">
-//                 <th className="py-2 px-2 text-sm font-normal text-center text-gray-500"></th>
-//                 <th className="border px-4 py-2">Product</th>
-//                 <th className="border px-4 py-2">Rating</th>
-//                 <th className="border px-4 py-2">Orders</th>
-//                 <th className="border px-4 py-2">Price</th>
-//                 <th className="border px-4 py-2">Stock</th>
-//                 <th className="border px-4 py-2 flex items-center">
-//                   CPC (Cost Per Click)
-//                   <MdInfo className="ml-2" />
-//                 </th>
-//               </tr>
-//             </thead>
-
-//             <tbody className="text-slate-600 text-sm divide-y divide-gray-200">
-//               {campaignData?.selectedProducts?.map((product) => {
-//                 return (
-//                   <tr key={product._id}>
-//                     {/* Product Details */}
-//                     <td className="border px-4 py-2">
-//                       <div className="flex items-center gap-x-2">
-//                         <img
-//                           className="object-cover w-[50px] h-[50px] rounded-md"
-//                           src={product.product?.images[0]?.url}
-//                           alt="Product"
-//                         />
-//                         <div>
-//                           <h2 className="font-normal text-gray-800 text-[12px]">
-//                             {product.product?.name?.length > 30
-//                               ? product.product.name.slice(0, 30) + "..."
-//                               : product.product?.name}
-//                           </h2>
-//                           <p className="font-normal text-gray-800 text-[12px]">
-//                             <span className="font-bold">Category:</span>{" "}
-//                             {product?.product?.category}
-//                           </p>
-//                           <p className="font-normal text-gray-800 text-[12px]">
-//                             <span className="font-bold">ID:</span>{" "}
-//                             {product?.product?._id}
-//                           </p>
-//                         </div>
-//                       </div>
-//                     </td>
-
-//                     {/* Product Ratings */}
-//                     <td className="border px-6 py-2 text-center">
-//                       {product?.product?.ratings}
-//                     </td>
-
-//                     {/* Product Sold Out */}
-//                     <td className="border px-4 py-2 text-center">
-//                       {product?.product?.sold_out}
-//                     </td>
-
-//                     {/* Product Stock */}
-//                     <td className="border px-4 py-2 text-center">
-//                       {product?.product?.stock}
-//                     </td>
-//                     {/* Product Price */}
-//                     <td className="border px-4 py-2 text-center">
-//                       ₹{product?.product?.afterDiscountPrice}
-//                     </td>
-
-//                     <td className="border px-4 py-2 text-cente">
-//                       {product?.product?.stock}
-//                     </td>
-
-//                     <td className="border px-4 py-2">{product?.cpc}</td>
-//                   </tr>
-//                 );
-//               })}
-//             </tbody>
-//           </table>
-//         </div>
-//       </div>
-
-//       <div className="actions flex justify-end gap-4">
-//         <button
-//           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-//           onClick={handleSubmit}
-//         >
-//           Submit
-//         </button>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default ReviewAndSubmit;
 
 
 import React, { useState } from "react";
-import { MdCancel, } from "react-icons/md";
+import { MdCancel } from "react-icons/md";
 import { FaChevronLeft } from "react-icons/fa";
 import { FcIdea } from "react-icons/fc";
 import { toast } from "react-toastify";
 import { server } from "../../../server";
 
 
-const ReviewAndSubmit = ({ campaignData,  onDiscard , open , setReviewSubmitOpen, resetForm}) => {
+const ReviewAndSubmit = ({
+  campaignData,
+  onDiscard,
+  open,
+  setReviewSubmitOpen,
+  resetForm,
+}) => {
   const [error, setError] = useState(null);
 
   const handleSubmit = async () => {
     try {
-      const response = await fetch(
-        `${server}/campaign/register`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(campaignData),
-        }
-      );
+      const response = await fetch(`${server}/campaign/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(campaignData),
+      });
 
       if (response.ok) {
         toast.success("Campaign created successfully");
-        setReviewSubmitOpen(false)
-        
+        setReviewSubmitOpen(false);
       } else {
         toast.error("Something went wrong. Please try again.");
         throw new Error("Something went wrong. Please try again.");
@@ -328,16 +76,16 @@ const ReviewAndSubmit = ({ campaignData,  onDiscard , open , setReviewSubmitOpen
 
   return (
     <div
-    className={`absolute top-20 left-0  inset-0 bg-white h-screen flex flex-col items-center justify-start p-4 overflow-y-auto transition-all duration-300 ${
-      open ? "md:ml-72" : "md:ml-20"
-    }`}
-  >
+      className={`absolute top-20 left-0  inset-0 bg-white h-screen flex flex-col items-center justify-start p-4 overflow-y-auto transition-all duration-300 ${
+        open ? "md:ml-72" : "md:ml-20"
+      }`}
+    >
       {/* Header Section */}
       <div className="flex items-center justify-between w-full max-w-5xl mb-6">
         <div className="flex items-center gap-2 ">
           <FaChevronLeft
             className="text-blue-600 cursor-pointer md:text-lg text-[14px] "
-            onClick={()=> setReviewSubmitOpen(false)}
+            onClick={() => setReviewSubmitOpen(false)}
           />
           <h2 className="text-[16px] md:text-2xl font-semibold text-gray-800">
             Review & Submit
@@ -348,7 +96,9 @@ const ReviewAndSubmit = ({ campaignData,  onDiscard , open , setReviewSubmitOpen
           onClick={() => {
             setReviewSubmitOpen(false);
             resetForm();
-            setTimeout(()=>{window.location.reload()}, 1000)
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
           }}
         >
           <MdCancel className="text-lg" />
@@ -379,14 +129,18 @@ const ReviewAndSubmit = ({ campaignData,  onDiscard , open , setReviewSubmitOpen
           <div className="flex justify-between items-center">
             <span className="text-gray-600">Budget:</span>
             <span className="text-gray-800 font-medium">
-              ₹{campaignData?.bidStrategy?.dailyBudget?.amount || "-"}
+              <span className="text-green-600 font-semibold">₹</span>{campaignData?.bidStrategy?.dailyBudget?.amount || "-"}
             </span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-gray-600">Duration:</span>
             <span className="text-gray-800 font-medium text-xs md:text-[14px]">
               {campaignData.schedule.startDate && campaignData.schedule.endDate
-                ? `${formatMongoDate(new Date(campaignData.schedule.startDate))}, ${campaignData.schedule.startTime} to ${formatMongoDate(new Date(campaignData.schedule.endDate))}, ${campaignData.schedule.endTime}`
+                ? `${formatMongoDate(
+                    new Date(campaignData.schedule.startDate)
+                  )}, ${campaignData.schedule.startTime} to ${formatMongoDate(
+                    new Date(campaignData.schedule.endDate)
+                  )}, ${campaignData.schedule.endTime}`
                 : "-"}
             </span>
           </div>
@@ -445,12 +199,40 @@ const ReviewAndSubmit = ({ campaignData,  onDiscard , open , setReviewSubmitOpen
                       </p>
                     </div>
                   </td>
-                  <td className="px-4 py-2">{product?.product?.ratings.totalRating || "-"}</td>
-                  <td className="px-4 py-2">{product?.product?.sold_out ? product?.product?.sold_out : product?.product?.sold_out || "-"}</td>
+                  
+                  
                   <td className="px-4 py-2">
-                    ₹{product?.product?.afterDiscountPrice ? product?.product?.afterDiscountPrice : product?.product?.afterDiscountPrice || "-"}
+                    <div className="flex items-center gap-2">
+                      <svg
+                        class="w-4 h-4 text-yellow-300 me-1"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="currentColor"
+                        viewBox="0 0 22 20"
+                      >
+                        <path d="M20.924 7.625a1.523 1.523 0 0 0-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 0 0-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 0 0 1.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 0 0 2.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 0 0 2.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 0 0 .387-1.575Z" />
+                      </svg>
+                      <p className="ms-2 text-sm font-bold text-gray-900 dark:text-white">
+                        {product?.product?.ratings?.totalRating || 1}
+                      </p>
+                      
+                    </div>
                   </td>
-                  <td className="px-4 py-2">{product?.product?.stock ? product?.product?.stock : product?.product?.stock || "-"}</td>
+                  <td className="px-4 py-2 items-center">
+                    {product?.product?.sold_out
+                      ? product?.product?.sold_out
+                      : product?.product?.sold_out || 0}
+                  </td>
+                  
+
+                  <td className="px-4 py-2">
+                    <span className="text-green-600 font-semibold">₹</span>
+                    {product?.product?.variants[0]?.afterDiscountPrice ? product?.product?.variants[0]?.afterDiscountPrice : product?.product?.afterDiscountPrice}
+                  </td>
+                  
+                  <td className="px-4 py-2">
+                    {product?.product?.variants[0]?.stock ? product?.product?.variants[0]?.stock : product?.product?.stock}
+                  </td>
                   <td className="px-4 py-2">{product?.cpc || "-"}</td>
                 </tr>
               ))}
@@ -476,14 +258,9 @@ const ReviewAndSubmit = ({ campaignData,  onDiscard , open , setReviewSubmitOpen
       </div>
 
       {/* Error Message */}
-      {error && (
-        <div className="mt-4 text-red-600 font-medium">
-          {error}
-        </div>
-      )}
+      {error && <div className="mt-4 text-red-600 font-medium">{error}</div>}
     </div>
   );
 };
 
 export default ReviewAndSubmit;
-

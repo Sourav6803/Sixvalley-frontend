@@ -25,8 +25,6 @@ const CreateCampaign = ({ open }) => {
     }
   }, [selectedCampaign, navigate])
 
- 
-
   const campaigns = [
     {
       id: "manual",

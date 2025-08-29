@@ -553,6 +553,8 @@ const ParticipateDeal = ({ open }) => {
                                 (p) => p._id === product._id
                               );
 
+                              console.log("pddd->", product.variants)
+
                             return (
                               <tr
                                 key={product._id}
@@ -599,16 +601,32 @@ const ParticipateDeal = ({ open }) => {
 
                                 {/* ✅ Pricing Details */}
                                 <td className="p-2 text-center">
-                                  ₹{Math.floor(product.afterDiscountPrice)}
+                                  ₹{Math.floor(product.variants.length > 0 ? product.variants[0].afterDiscountPrice : product.afterDiscountPrice)}
                                 </td>
                                 <td className="p-2 text-center">
-                                  ₹{product.originalPrice}
+                                  ₹{product.variants.length > 0 ? product.variants[0].originalPrice : product.originalPrice}
                                 </td>
-                                <td className="p-2 text-center">
+                                {/* <td className="p-2 text-center">
                                   {product?.dicountType === "Flat" ? (
                                     <p>Flat ₹{product?.discountAmount} off</p>
                                   ) : (
                                     <p>{product?.discountAmount}% off</p>
+                                  )}
+                                </td> */}
+
+                                <td className="p-2 text-center">
+                                  {product.variants.length > 0 ? (
+                                    product.variants[0].discountType === "Flat" ? (
+                                      <p>Flat ₹{product.variants[0].discountAmount} off</p>
+                                    ) : (
+                                      <p>{product.variants[0].discountAmount}% off</p>
+                                    )
+                                  ) : (
+                                    product.discountType === "Flat" ? (
+                                      <p>Flat ₹{product.discountAmount} off</p>
+                                    ) : (
+                                      <p>{product.discountAmount}% off</p>
+                                    )
                                   )}
                                 </td>
 
@@ -654,7 +672,7 @@ const ParticipateDeal = ({ open }) => {
                                 </td>
 
                                 {/* ✅ Final Price After Discount */}
-                                <td className="p-2 text-center">
+                                {/* <td className="p-2 text-center">
                                   ₹
                                   {Math.floor(
                                     product.afterDiscountPrice -
@@ -662,7 +680,29 @@ const ParticipateDeal = ({ open }) => {
                                         100) *
                                         product.afterDiscountPrice
                                   )}
-                                </td>
+                                </td> */}
+
+<td className="p-2 text-center">
+  ₹
+  {(() => {
+    const selectedItem = product.variants.length > 0 ? product.variants[0] : product;
+    const basePrice = selectedItem.afterDiscountPrice;
+    const discountType = selectedItem.discountType;
+    
+    const userDiscount =
+      existingDiscount || discounts[product._id] || deal.minDiscount;
+
+    if (discountType === "Flat") {
+      const flat = Math.max(userDiscount, 50); // Min ₹50
+      return Math.max(0, Math.floor(basePrice - flat));
+    } else {
+      const percent = Math.max(userDiscount, 12); // Min 12%
+      const discounted = basePrice - (percent / 100) * basePrice;
+      return Math.floor(discounted);
+    }
+  })()}
+</td>
+
                               </tr>
                             );
                           })

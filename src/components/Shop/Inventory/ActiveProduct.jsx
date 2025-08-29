@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { SearchIcon } from "lucide-react";
 import ImageModal from "../../../utils/ImageModal";
-import MoreActions from "./MoreActions";
+
 import EditModal from "./EditModal";
 
 const ActiveProducts = ({ products, updateProduct }) => {
@@ -64,7 +64,6 @@ const ActiveProducts = ({ products, updateProduct }) => {
   const handleSaveVariant = (updatedVariant) => {
     updateProduct(updatedVariant);
   };
-
 
 
   // const openEditModal = (product, variant = null) => {

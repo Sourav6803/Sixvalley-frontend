@@ -30,11 +30,13 @@ import { VscGraph } from "react-icons/vsc";
 import { server } from "../../../server";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { useLocation } from "react-router-dom";
 
 const DemoSideBar = ({ open, setOpen }) => {
   const [subMenuOpen, setSubMenuOpen] = useState(null);
 
   const dispatch = useDispatch();
+  const location = useLocation();
 
   const { orders } = useSelector((state) => state.order);
   const { seller } = useSelector((state) => state.seller);
@@ -208,7 +210,7 @@ const DemoSideBar = ({ open, setOpen }) => {
       // notication: confirmedProduct?.length,
       link: "/dashboard/payout",
     },
-    
+
     {
       title: "Banner Setup",
       spacing: true,
@@ -328,13 +330,13 @@ const DemoSideBar = ({ open, setOpen }) => {
         />
       </div>
 
-      <ul className="pt-2 " key={""}>
+      {/* <ul className="pt-2 " key={""}>
         {Menus.map((menu, index) => (
           <React.Fragment key={index}>
             <li
               className={`text-gray-300 text-sm flex items-center gap-x-4  cursor-pointer p-2 hover:bg-[#657082] rounded-md ${
-                menu?.spacing ? "mt-3" : "mt-2"
-              }`}
+                menu?.spacing ? "mt-3" : "mt-2" 
+              } ${location.pathname === menu?.link ? "bg-[#657082]" : ""}`}
               onClick={() => toggleMenu(index)}
             >
               <span className="text-2xl block float-left hover:scale-110">
@@ -395,7 +397,116 @@ const DemoSideBar = ({ open, setOpen }) => {
             )}
           </React.Fragment>
         ))}
+      </ul> */}
+
+      <ul className="pt-2">
+        {Menus.map((menu, index) => {
+          const isMenuActive = location.pathname === menu.link;
+          const isSubMenuActive = menu?.submenuItems?.some(
+            (sub) => sub.link === location.pathname
+          );
+
+          return (
+            <React.Fragment key={index}>
+              {/* Main Menu Item */}
+              <li
+                className={`text-gray-300 text-sm flex items-center gap-x-4 cursor-pointer p-2 hover:bg-[#657082] rounded-md ${
+                  menu?.spacing ? "mt-3" : "mt-2"
+                } ${isMenuActive || isSubMenuActive ? "bg-[#657082]" : ""}`}
+                onClick={() => toggleMenu(index)}
+              >
+                <span className="text-2xl block float-left hover:scale-110">
+                  {menu.icon}
+                </span>
+
+                {/* If menu has link (some menus are only expandable) */}
+                {menu.link ? (
+                  <Link
+                    to={menu.link}
+                    className={`text-base font-medium flex-1 ${
+                      !open && "hidden"
+                    }`}
+                  >
+                    {menu.title}
+                  </Link>
+                ) : (
+                  <span
+                    className={`text-base font-medium flex-1 ${
+                      !open && "hidden"
+                    }`}
+                  >
+                    {menu.title}
+                  </span>
+                )}
+
+                {/* Chevron for SubMenu */}
+                {menu.subMenu && (
+                  <BsChevronDown
+                    className={`${
+                      (subMenuOpen === index || isSubMenuActive) && "rotate-180"
+                    }`}
+                  />
+                )}
+              </li>
+
+              {/* Sub Menu Items */}
+              {menu.subMenu &&
+                (subMenuOpen === index || isSubMenuActive) &&
+                open && (
+                  <ul>
+                    {menu.submenuItems.map((subMenuItem, subIndex) => {
+                      const isSubItemActive =
+                        location.pathname === subMenuItem.link;
+
+                      return (
+                        <div
+                          key={subIndex}
+                          className="flex items-center justify-between hover:bg-[#657082] rounded-md duration-300"
+                        >
+                          <Link to={subMenuItem.link} className="flex-1">
+                            <li
+                              className={`text-gray-300 text-sm font-semibold flex items-center cursor-pointer p-2 px-12 ${
+                                isSubItemActive ? "bg-[#657082]" : ""
+                              }`}
+                            >
+                              {subMenuItem.title}
+                            </li>
+                          </Link>
+
+                          {/* Notification Bubble */}
+                          {subMenuItem.notication ? (
+                            <div
+                              className={`mr-3 flex items-center justify-center
+                      ${
+                        [
+                          "Confirmed",
+                          "Processing",
+                          "Shipped",
+                          "Packaging",
+                        ].includes(subMenuItem.title)
+                          ? "bg-[#7a93e7]"
+                          : ["Delivered", "Out For Delivery"].includes(
+                              subMenuItem.title
+                            )
+                          ? "bg-[#4c9c1b8d]"
+                          : subMenuItem.title === "All"
+                          ? "bg-[#4345af]"
+                          : "bg-[#fb9ba0]"
+                      } text-white rounded-full w-6 h-6 text-xs`}
+                            >
+                              {subMenuItem.notication}
+                            </div>
+                          ) : null}
+                        </div>
+                      );
+                    })}
+                  </ul>
+                )}
+            </React.Fragment>
+          );
+        })}
       </ul>
+
       <div
         onClick={logoutHandler}
         className="mt-10 mb-3 mx-1 cursor-pointer  rounded-lg h-10 text-center flex items-center justify-center text-white bg-[#b7418c]"

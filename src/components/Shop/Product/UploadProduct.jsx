@@ -16,8 +16,6 @@ const UploadProduct = ({ sidebarOpen }) => {
   const [activeStep, setActiveStep] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState(null);
 
-  // console.log("selected category--->", selectedCategory)
-
   const [primaryImage, setPrimaryImage] = useState(null);
   const [productFormOpen, setProductFormOpen] = useState(false);
 
