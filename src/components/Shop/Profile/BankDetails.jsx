@@ -199,25 +199,7 @@ const BankDetails = ({ completedSteps, onNext, onPrevious, onDataUpdate }) => {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Bank Name */}
-            {/* <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Bank Name
-              </label>
-              <input
-                type="text"
-                name="bankName"
-                value={bankDetails.bankName}
-                onChange={handleInputChange}
-                className={`w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  !bankDetails.bankName && "border-red-500"
-                }`}
-              />
-              {!bankDetails.bankName && (
-                <p className="text-sm text-red-500 mt-1">
-                  Bank name is required.
-                </p>
-              )}
-            </div> */}
+            
 
             <div className="mb-4">
               <label className="block text-gray-700 font-medium">
@@ -393,7 +375,7 @@ const BankDetails = ({ completedSteps, onNext, onPrevious, onDataUpdate }) => {
                     : "bg-gray-300 cursor-not-allowed opacity-70"
                 }`}
                 onClick={handleSubmit}
-                disabled={!isValid}
+                // disabled={!isValid}
               >
                 Next
                 <FaArrowRight />

@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import Loader from "../../../pages/Loader";
 import { FaSearch } from "react-icons/fa";
 import { toast } from "react-toastify";
-import Modal from "../../../utils/Modal";
 import axios from "axios";
 import { server } from "../../../server";
 import {
@@ -10,50 +9,35 @@ import {
   formatMongoDate,
 } from "../../../utils/common-utils";
 
-const PendingOrderTable = ({ pendingOrder, isLoading }) => {
+const ReadyForPickupOrderTable = ({ readyForPickupOrder, isLoading }) => {
   const [selectedOrders, setSelectedOrders] = useState([]);
-
-  const [searchTearm, setSearchTearm] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [searchData, setSearchData] = useState([]);
-
   const [filterOrders, setFilterOrders] = useState(null);
-
   const [isDisabled, setIsDisabled] = useState(false);
-
   const [searchType, setSearchType] = useState("SKU ID");
   const [placeholder, setPlaceholder] = useState("Enter SKU ID");
-
-  const [orderId, setOrderId] = useState("");
-
-  const [approvedModalOpen, setApprovedModalOpen] = useState(false);
-  const [rejectModalOpen, setRejectedMoalOpen] = useState(false);
-  const [isDelete, setIsDelete] = useState(false);
-  const [status, setStatus] = useState("");
-
   const [filters, setFilters] = useState({
     shipmentType: "",
     slaStatus: "",
     searchType: "",
     searchTerm: "",
   });
-  
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const handleFilterChange = async (e) => {
     const { name, value } = e.target;
     const updatedFilters = { ...filters, [name]: value };
     setFilters(updatedFilters);
 
-    console.log("filters-", filters);
-    console.log("upda", updatedFilters);
-
-    // Call handleSubmit with the updated filters
     try {
       const response = await axios.get(`${server}/order/filter/orders`, {
-        params: updatedFilters,
+        params: { ...updatedFilters, status: "Confirmed" }, // Filter for confirmed orders ready for pickup
       });
       setFilterOrders(response.data.data);
       if (response.data.data?.length === 0) {
-        toast.info(`No order found by  ${value}`);
+        toast.info(`No orders found for ${value}`);
       }
     } catch (error) {
       console.error("Error filtering orders:", error);
@@ -63,7 +47,7 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
 
   const handleSelectAll = (event) => {
     if (event.target.checked) {
-      const allOrderIds = pendingOrder?.map((order) => order?._id);
+      const allOrderIds = readyForPickupOrder?.map((order) => order?._id);
       setSelectedOrders(allOrderIds);
     } else {
       setSelectedOrders([]);
@@ -99,29 +83,28 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
   };
 
   useEffect(() => {
-    if (searchTearm) {
-      const filterProduct = pendingOrder?.filter((order) =>
-        order?.name?.toLowerCase().includes(searchTearm.toLowerCase())
+    if (searchTerm) {
+      const filterProduct = readyForPickupOrder?.filter((order) =>
+        order?.name?.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setSearchData(filterProduct);
     } else {
       setSearchData(null);
     }
-  }, [searchTearm, pendingOrder]);
+  }, [searchTerm, readyForPickupOrder]);
 
   const handleSearch = (e) => {
     e.preventDefault();
 
-    const filterProduct = pendingOrder?.filter((order) => {
-      console.log("odrer", order?._id)
+    const filterProduct = readyForPickupOrder?.filter((order) => {
       // Check if the order's ID matches the search term
-      const orderIdMatch = order?._id?.toString().includes(searchTearm);
+      const orderIdMatch = order?._id?.toString().includes(searchTerm);
 
       // Check if any cart item's name or SKU matches the search term
       const cartMatch = order?.cart?.some(
         (cartItem) =>
-          cartItem?.name?.toLowerCase().includes(searchTearm.toLowerCase()) ||
-          cartItem?.sku?.toLowerCase().includes(searchTearm.toLowerCase())
+          cartItem?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          cartItem?.sku?.toLowerCase().includes(searchTerm.toLowerCase())
       );
 
       // Return true if either order ID or cart match
@@ -131,20 +114,17 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
     setSearchData(filterProduct);
   };
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
-
   // Get the data for the current page
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
 
   const currentData = (
-    filterOrders !== null ? filterOrders : searchData !== null ? searchData : pendingOrder
+    filterOrders !== null ? filterOrders : searchData !== null ? searchData : readyForPickupOrder
   )?.slice(indexOfFirstItem, indexOfLastItem);
 
   // Calculate total pages
   const totalPages = Math.ceil(
-    (pendingOrder || filterOrders)?.length / itemsPerPage
+    (readyForPickupOrder || filterOrders)?.length / itemsPerPage
   );
 
   const handleNext = () => {
@@ -159,29 +139,6 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
     }
   };
 
-  
-
-  const updateOrderStatus = async (id) => {
-    try {
-      // Update order status in the backend
-      await axios.put(
-        `${server}/order/update-order-status/${id}`,
-        { status: status },
-        { withCredentials: true }
-      );
-      toast.success("Order confirmed!");
-
-      setApprovedModalOpen(false)
-
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
-    } catch (err) {
-      toast.error("Error Updating Status");
-    }
-  };
-
-  
 
   return (
     <>
@@ -190,11 +147,11 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
           <Loader />
         </div>
       ) : (
-        <div className="w-full  bg-slate-50">
-          <div className="w-full mt-2 bg-white p-1 rounded-md  gap-2 ">
-            <div className="bg-white  rounded-lg p-2 flex flex-col md:flex-row items-center gap-2">
+        <div className="w-full bg-slate-50">
+          <div className="w-full mt-2 bg-white p-1 rounded-md gap-2">
+            <div className="bg-white rounded-lg p-2 flex flex-col md:flex-row items-center gap-2">
               <div className="flex flex-col md:flex-row md:justify-between items-center gap-4 w-full">
-                <div className="flex  items-center gap-4 w-full overflow-x-auto  relative">
+                <div className="flex items-center gap-4 w-full overflow-x-auto relative">
                   <h2 className="text-sm font-medium text-gray-700 whitespace-nowrap">
                     Filter by:
                   </h2>
@@ -202,7 +159,7 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
                     <select
                       name="shipmentType"
                       onChange={handleFilterChange}
-                      className=" p-2 mt-1 border rounded-md focus:outline-none  focus:ring-blue-500 text-[12px] focus:ring-1 cursor-pointer"
+                      className="p-2 mt-1 border rounded-md focus:outline-none focus:ring-blue-500 text-[12px] focus:ring-1 cursor-pointer"
                     >
                       <option className="text-[12px]" value="">
                         Shipment Type
@@ -221,7 +178,7 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
                     <select
                       name="slaStatus"
                       onChange={handleFilterChange}
-                      className=" p-2 mt-1 border rounded-md focus:outline-none  focus:ring-blue-500 text-[12px] focus:ring-1 cursor-pointer"
+                      className="p-2 mt-1 border rounded-md focus:outline-none focus:ring-blue-500 text-[12px] focus:ring-1 cursor-pointer"
                     >
                       <option className="text-[12px]" value="">
                         SLA Status
@@ -231,18 +188,6 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
                       <option value="Breached">Breached</option>
                     </select>
                   </div>
-
-                  {/* Dispatch Date Filter */}
-                  {/* <DateRangeFilter
-                      label="Dispatch Date"
-                      onApply={handleApplyDispatchDate}
-                    />
-
-                    
-                    <DateRangeFilter
-                      label="Order Date"
-                      onApply={handleApplyOrderDate}
-                    /> */}
                 </div>
 
                 <div className="md:w-[35%] w-full flex items-end border rounded-md overflow-hidden shadow-sm text-[12px] focus:ring-blue-500 focus:ring-1 cursor-pointer focus:border-blue-500">
@@ -253,17 +198,18 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
                   >
                     <option value="SKU ID">SKU ID</option>
                     <option value="Order ID">Order ID</option>
+                    <option value="Customer Name">Customer Name</option>
                   </select>
                   <input
                     type="text"
                     placeholder={placeholder}
                     className="w-2/3 p-2 text-[12px] focus:outline-none"
-                    onChange={(e) => setSearchTearm(e.target.value)}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                   />
                   <button
                     type="submit"
                     onClick={handleSearch}
-                    className="p-2   "
+                    className="p-2"
                   >
                     <FaSearch size={20} color="blue" />
                   </button>
@@ -271,8 +217,8 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
               </div>
             </div>
 
-            <div className="w-full  bg-white p-2 ">
-              <section className="container  mt-2 ">
+            <div className="w-full bg-white p-2">
+              <section className="container mt-2">
                 <div className="flex flex-col mt-6">
                   <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                     <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
@@ -286,33 +232,24 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
                                   onChange={handleSelectAll}
                                   checked={
                                     selectedOrders.length ===
-                                    pendingOrder?.length
+                                    readyForPickupOrder?.length
                                   }
                                 />
                               </th>
                               <th className="py-2 px-2 md:px-2 text-sm font-normal text-center text-gray-500 whitespace-nowrap">
                                 Product Details
                               </th>
-                              <th
-                                scope="col"
-                                className="py-2 px-2 text-sm font-normal text-center text-gray-500 whitespace-nowrap"
-                              >
+                              <th className="py-2 px-2 text-sm font-normal text-center text-gray-500 whitespace-nowrap">
                                 Order Date
                               </th>
                               <th className="py-2 px-2 text-sm font-normal text-center text-gray-500">
-                                Customer
-                                <br />
-                                Info
+                                Customer Info
                               </th>
                               <th className="py-2 px-2 text-sm font-normal text-center text-gray-500">
-                                Total
-                                <br />
-                                Amount
+                                Total Amount
                               </th>
                               <th className="py-2 px-2 text-sm font-normal text-center text-gray-500">
-                                Payment
-                                <br />
-                                Method
+                                Payment Method
                               </th>
                               <th className="py-2 px-2 text-sm font-normal text-center text-gray-500">
                                 Quantity
@@ -327,12 +264,10 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
                                 SKU Id
                               </th>
                               <th className="py-2 px-2 text-sm font-normal text-center text-gray-500">
-                                Dispatch
-                                <br />
-                                Date/SLA
+                                Dispatch Date/SLA
                               </th>
                               <th className="py-2 px-2 text-sm font-normal text-center text-gray-500">
-                                Actions
+                                Pickup Code
                               </th>
                             </tr>
                           </thead>
@@ -341,55 +276,53 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
                             {currentData?.length > 0 ? (
                               currentData?.map((order, index) => (
                                 <tr key={index}>
-                                  <td className="px-2 py-4 text-sm font-medium  ">
+                                  <td className="px-2 py-4 text-sm font-medium">
                                     <div className="text-center">
                                       <input
                                         type="checkbox"
                                         checked={selectedOrders.includes(
                                           order._id
                                         )}
-                                        onChange={() =>
-                                          handleCheckboxChange(order._id)
-                                        }
+                                        // onChange={() =>
+                                        //   handleCheckboxChange(order._id)
+                                        // }
                                       />
                                     </div>
                                   </td>
 
-                                  <td className="px-2 py-4 text-sm   ">
+                                  <td className="px-2 py-4 text-sm">
                                     {order?.cart?.map((product, index) => (
                                       <div
                                         key={index}
-                                        className="w-full flex items-center gap-x-1 justify-between "
+                                        className="w-full flex items-center gap-x-1 justify-between"
                                       >
                                         <div className="w-[30%] h-full flex items-center justify-center">
                                           <img
                                             className="object-cover w-[50px] h-[50px] rounded-md"
                                             src={product?.images[0]?.url}
-                                            alt="Imag"
+                                            alt="Product"
                                           />
                                         </div>
-                                        <div className=" h-full w-full">
-                                          <h2 className="font-normal text-gray-800 dark:text-white text-[12px] ">
+                                        <div className="h-full w-full">
+                                          <h2 className="font-normal text-gray-800 dark:text-white text-[12px]">
                                             {product?.name?.length > 30
-                                              ? product.name.slice(0, 30) +
-                                                "..."
+                                              ? product.name.slice(0, 30) + "..."
                                               : product?.name}
                                           </h2>
-                                          <p className="font-normal text-gray-800 dark:text-white text-[12px] ">
+                                          <p className="font-normal text-gray-800 dark:text-white text-[12px]">
                                             <span className="font-bold text-gray-800 dark:text-white text-[12px]">
                                               Category:
                                             </span>{" "}
                                             {product?.category}
                                           </p>
-                                          
                                         </div>
                                       </div>
                                     ))}
                                   </td>
 
-                                  <td className="px-4  py-2 w-[50px]  ">
+                                  <td className="px-4 py-2 w-[50px]">
                                     <div className="w-full gap-x-1 flex flex-col">
-                                      <h2 className="font-medium text-gray-600 text-[12px] ">
+                                      <h2 className="font-medium text-gray-600 text-[12px]">
                                         {formatMongoDate(
                                           new Date(order?.createdAt)
                                         )}
@@ -402,12 +335,11 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
                                     </div>
                                   </td>
 
-                                  <td className="px-2 py-2 text-[12px]  ">
+                                  <td className="px-2 py-2 text-[12px]">
                                     <div className="text-center flex flex-col gap-x-2">
                                       <h4 className="text-gray-700 dark:text-gray-200">
                                         {order?.user?.name?.length > 9
-                                          ? order?.user?.name.slice(0, 9) +
-                                            "..."
+                                          ? order?.user?.name.slice(0, 9) + "..."
                                           : order?.user?.name}
                                       </h4>
                                       <h4 className="text-gray-700 dark:text-gray-200">
@@ -416,11 +348,24 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
                                     </div>
                                   </td>
 
-                                  <td className="px-4 py-4 w-[50px]  text-sm ">
-                                    <div className="text-center  flex flex-col gap-x-2 ">
+                                  <td className="px-4 py-4 w-[50px] text-sm">
+                                    <div className="text-center flex flex-col gap-x-2">
                                       <h4 className="text-gray-700 dark:text-gray-200">
                                         ₹{order?.totalPrice}
                                       </h4>
+                                      {/* <p>
+                                        {order?.paymentInfo?.status ===
+                                        "Succeeded" ? (
+                                          <span className="px-1 py-[1px] bg-green-100 rounded-md border border-green-200 text-green-500 text-[10px]">
+                                            Paid
+                                          </span>
+                                        ) : (
+                                          <span className="px-1 bg-red-100 py-[1px] font-[600] border rounded-md border-red-200 text-red-500 text-[10px]">
+                                            Unpaid
+                                          </span>
+                                        )}
+                                      </p> */}
+
                                       <p>
                                         {order?.paymentInfo?.status || order?.paymentInfo?.status !== "succeeded"===
                                         "Succeeded" ? (
@@ -436,7 +381,7 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
                                     </div>
                                   </td>
 
-                                  <td className="px-4 py-4 text-[12px]  whitespace-nowrap ">
+                                  <td className="px-4 py-4 text-[12px] whitespace-nowrap">
                                     <h4 className="text-gray-700 text-center dark:text-gray-200">
                                       {order?.paymentInfo?.type ===
                                       "Cash On Delivery"
@@ -445,7 +390,7 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
                                     </h4>
                                   </td>
 
-                                  <td className="px-4 py-4 text-[12px]  whitespace-nowrap ">
+                                  <td className="px-4 py-4 text-[12px] whitespace-nowrap">
                                     {order?.cart.map((product, index) => (
                                       <h4
                                         key={index}
@@ -456,7 +401,6 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
                                     ))}
                                   </td>
 
-                                  
                                   <td className="px-4 py-4 text-[12px] whitespace-nowrap">
                                     {order?.cart.map((product, index) => (
                                       <div
@@ -481,7 +425,7 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
                                     ))}
                                   </td>
 
-                                  <td className="px-4 py-4 text-[12px]  whitespace-nowrap ">
+                                  <td className="px-4 py-4 text-[12px] whitespace-nowrap">
                                     {order?.cart.map((product, index) => (
                                       <h4
                                         key={index}
@@ -494,7 +438,7 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
                                     ))}
                                   </td>
 
-                                  <td className="px-2 py-4   whitespace-nowrap w-[80px] text-[12px]  ">
+                                  <td className="px-2 py-4 whitespace-nowrap w-[80px] text-[12px]">
                                     {order?.cart?.map((product) => (
                                       <ul
                                         key={product?._id}
@@ -505,7 +449,7 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
                                     ))}
                                   </td>
 
-                                  <td className="px-4 py-4 text-[12px]  whitespace-nowrap ">
+                                  <td className="px-4 py-4 text-[12px] whitespace-nowrap">
                                     <h4 className="text-gray-700 text-center dark:text-gray-200">
                                       {order?.dispatchDate &&
                                         formatMongoDate(
@@ -518,48 +462,50 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
                                   </td>
 
                                   <td className="px-4 py-4 text-sm">
-                                    <div className="flex flex-col gap-2">
+                                    {/* <div className="flex flex-col gap-2">
                                       <button
                                         onClick={() => {
-                                          setApprovedModalOpen(true);
+                                          setAssignPickupModalOpen(true);
                                           setOrderId(order?._id);
-                                          setStatus("Confirmed");
                                         }}
                                         disabled={isDisabled}
                                         className={`px-3 py-1 rounded-md shadow-md ${
                                           isDisabled
                                             ? "cursor-not-allowed bg-gray-500 hover:bg-gray-600 text-gray-400"
-                                            : "bg-blue-600 hover:bg-blue-700 text-white"
+                                            : "bg-green-600 hover:bg-green-700 text-white"
                                         }`}
                                       >
-                                        Approve
+                                        Assign for Pickup
                                       </button>
+                                    </div> */}
 
-                                      <button
-                                        onClick={() => {
-                                          setRejectedMoalOpen(true);
-                                          setOrderId(order?._id);
-                                        }}
-                                        disabled={isDisabled}
-                                        className={`px-3 py-1 rounded-md shadow-md ${
-                                          isDisabled
-                                            ? "cursor-not-allowed bg-gray-500 hover:bg-gray-600 text-gray-400"
-                                            : "bg-red-500 hover:bg-red-600 text-white"
-                                        }`}
-                                      >
-                                        Reject
-                                      </button>
+                                    {console.log('fggf', order.deliveryInfo[0].deliveryId.pickupCode.value)}
+
+                                     {/* NEW: Pickup Code Column */}
+                                  <td className="px-4 py-4 text-[12px] whitespace-nowrap">
+                                    <div className="text-center">
+                                      { order.deliveryInfo[0].deliveryId.pickupCode.value ? (
+                                        <div className="bg-blue-50 border border-blue-200 rounded-md p-1">
+                                          <span className="font-mono font-bold text-blue-700">
+                                            {order.deliveryInfo[0].deliveryId.pickupCode.value}
+                                          </span>
+                                          
+                                        </div>
+                                      ) : (
+                                        <span className="text-gray-400">Not assigned</span>
+                                      )}
                                     </div>
+                                  </td>
                                   </td>
                                 </tr>
                               ))
                             ) : (
                               <tr>
                                 <td
-                                  colSpan="11"
+                                  colSpan="12"
                                   className="text-center py-4 text-gray-500 dark:text-gray-400"
                                 >
-                                  No Order found
+                                  No orders ready for pickup
                                 </td>
                               </tr>
                             )}
@@ -567,8 +513,7 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
                         </table>
 
                         {currentData?.length > 9 && (
-                          <div className="flex  justify-end items-center my-2 mx-2 ">
-                            {/* Previous Button */}
+                          <div className="flex justify-end items-center my-2 mx-2">
                             <button
                               className={`px-4 py-2 rounded-md text-white font-semibold ${
                                 currentPage === 1
@@ -581,12 +526,10 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
                               Previous
                             </button>
 
-                            {/* Display current page and total pages */}
                             <span className="text-gray-600 dark:text-gray-300 mx-2">
                               Page {currentPage} of {totalPages}
                             </span>
 
-                            {/* Next Button */}
                             <button
                               className={`px-4 py-2 rounded-md text-white font-semibold ${
                                 currentPage === totalPages
@@ -607,85 +550,13 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
               </section>
             </div>
 
-            {selectedOrders?.length > 0 && (
-              <div className="w-full h-[50px] bg-gray-100 rounded-md shadow-md fixed bottom-0 left-0 z-1 flex items-center md:justify-end justify-between p-3  gap-x-4 b">
-                <div className="text-center">
-                  <p className="text-[14px]">{`${selectedOrders?.length} / ${pendingOrder?.length} orders selected`}</p>
-                </div>
-                <div>
-                  <button className="px-4 text-[14px] rounded-md py-2 bg-blue-900 text-white">
-                    Accept Selected Orders
-                  </button>
-                </div>
-              </div>
-            )}
+
           </div>
 
-          {approvedModalOpen && (
-            <Modal
-              open={approvedModalOpen}
-              onClose={() => setApprovedModalOpen(false)}
-              onConfirm={() => updateOrderStatus(orderId, status)}
-              title="Want to Approved this Order ?"
-              buttonText={"Accept Order"}
-              message="If approved this order will be moved to Confirmed tab."
-              isDelete={isDelete}
-            />
-          )}
-
-          {rejectModalOpen && (
-            <Modal
-              open={rejectModalOpen}
-              onClose={() => setRejectedMoalOpen(false)}
-              onConfirm={() => updateOrderStatus(orderId, "Cancled")}
-              title="Want to Cancel this Order ?"
-              buttonText={"Yes! Sure"}
-              message="If reject this order will be Cancel"
-              isDelete={isDelete}
-            />
-          )}
         </div>
       )}
     </>
   );
 };
 
-export default PendingOrderTable;
-
-{
-  /* Diapatch date */
-}
-
-{
-  /* <div className="">
-                    <select className=" p-2 mt-1 border rounded-md focus:outline-none text-[12px]  cursor-pointer focus:ring-1 focus:ring-blue-500">
-                      <option className="text-[12px]">Dispatch Date</option>
-                      <option className="text-[12px]">Today</option>
-                        <option className="text-[12px]">Last 3 Days</option>
-                    </select>
-                  </div>
-
-                 
-
-                  <div className="">
-                    <select className=" p-2 mt-1 border rounded-md focus:outline-none text-[12px] focus:ring-blue-500 focus:ring-1 cursor-pointer">
-                      <option className="text-[12px]"> Order Date</option>
-                      <option className="text-[12px]">Today</option>
-                      <option className="text-[12px]">Newest First</option>
-                      <option className="text-[12px]">Oldest First</option>
-                    </select>
-                  </div> */
-}
-
-{
-  /* Order Date */
-}
-
-{
-  /* <input
-                    type="date"
-                    name="orderEndDate"
-                    onChange={handleFilterChange}
-                    className="p-2 border rounded-md text-sm"
-                  /> */
-}
+export default ReadyForPickupOrderTable;

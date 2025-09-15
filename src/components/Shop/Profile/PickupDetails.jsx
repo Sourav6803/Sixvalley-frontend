@@ -251,14 +251,6 @@ const PickupDetails = ({ onNext, completedSteps, onDataUpdate }) => {
     }
   };
 
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-  //   // Call onDataUpdate with the updated data
-  //   onDataUpdate(pickupData);
-  //   // Move to the next step
-  //   onNext();
-  // };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 

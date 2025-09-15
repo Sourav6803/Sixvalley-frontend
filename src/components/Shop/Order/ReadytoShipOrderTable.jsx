@@ -363,8 +363,8 @@ const ReadyToShipOrderTable = ({ confirmedOrder, isLoading }) => {
                                         <h4 className="text-gray-700 dark:text-gray-200">
                                           ₹{order?.totalPrice}
                                         </h4>
-                                        <p>
-                                          {order?.paymentInfo?.status ===
+                                        {/* <p>
+                                          {order?.paymentInfo?.status  ===
                                           "Succeeded" ? (
                                             <span className="px-1 py-[1px] bg-green-100 rounded-md border border-green-200 text-green-500 text-[10px]">
                                               Paid
@@ -374,7 +374,19 @@ const ReadyToShipOrderTable = ({ confirmedOrder, isLoading }) => {
                                               Unpaid
                                             </span>
                                           )}
-                                        </p>
+                                        </p> */}
+                                        <p>
+                                        {order?.paymentInfo?.status || order?.paymentInfo?.status !== "succeeded"===
+                                        "Succeeded" ? (
+                                          <span className="px-1 py-[1px] bg-green-100 rounded-md border border-green-200 text-green-500 text-[10px]">
+                                            Paid
+                                          </span>
+                                        ) : (
+                                          <span className="px-1 bg-red-100 py-[1px] font-[600] border rounded-md border-red-200 text-red-500 text-[10px]">
+                                            Unpaid
+                                          </span>
+                                        )}
+                                      </p>
                                       </div>
                                     </td>
 

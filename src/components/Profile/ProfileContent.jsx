@@ -32,6 +32,8 @@ const ProfileContent = ({ active }) => {
   const [loading, setLoading] = useState(false); // To manage loading state
   const [imageLoading, setImageLoading] = useState(false); // For image upload
 
+  console.log("user-->", user?.phoneNumber)
+
   // Synchronize form data when `user` state changes
   useEffect(() => {
     if (user) {

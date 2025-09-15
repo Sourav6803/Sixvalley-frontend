@@ -160,6 +160,8 @@ const PendingOrder = () => {
     } 
   };
 
+  console.log("currentData-->", currentData)
+
   return (
     <>
       {isLoading ? (
@@ -194,7 +196,7 @@ const PendingOrder = () => {
                     value={selectedUser}
                     onChange={(e) => setSelectedUser(e.target.value)}
                   >
-                    <option value="" disabled >
+                    <option value="" disabled>
                       Select a user
                     </option>
                     {allUsers?.map((user) => (
@@ -397,13 +399,15 @@ const PendingOrder = () => {
                                       </h4>
                                       <p>
                                         {order?.paymentInfo?.type ===
-                                        "Cash On Delivery" ? (
-                                          <span className="px-1 bg-red-100 py-[1px] font-[600] border rounded-md border-red-200 text-red-500 text-[10px]">
+                                          "Cash On Delivery" ||
+                                        order?.paymentInfo?.status !==
+                                          "succeeded" ? (
+                                          <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-amber-100 text-amber-800 border border-amber-200">
                                             Unpaid
                                           </span>
                                         ) : (
-                                          <span className="px-1 py-[1px] bg-green-100 rounded-md border border-green-200 text-green-500 text-[10px]">
-                                            paid
+                                          <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                                            Paid
                                           </span>
                                         )}
                                       </p>
@@ -526,29 +530,29 @@ const PendingOrder = () => {
             </div>
           </div>
 
-          {approvedModalOpen && 
+          {approvedModalOpen && (
             <Modal
               open={approvedModalOpen}
               onClose={() => setApprovedModalOpen(false)}
-              onConfirm={()=> updateOrderStatus(orderId, "Confirmed")}
+              onConfirm={() => updateOrderStatus(orderId, "Confirmed")}
               title="Want to Approved this Order ?"
               buttonText={"Yes! Sure"}
               message="If approved this order will be Confirmed."
               isDelete={isDelete}
             />
-          }
+          )}
 
-          {rejectModalOpen && 
+          {rejectModalOpen && (
             <Modal
               open={rejectModalOpen}
               onClose={() => setRejectedMoalOpen(false)}
-              onConfirm={()=>updateOrderStatus(orderId, "Cancled")}
+              onConfirm={() => updateOrderStatus(orderId, "Cancled")}
               title="Want to Cancel this Order ?"
               buttonText={"Yes! Sure"}
               message="If reject this order will be Cancel"
               isDelete={isDelete}
             />
-          }
+          )}
         </div>
       )}
     </>
