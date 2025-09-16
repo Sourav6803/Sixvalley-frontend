@@ -85,6 +85,8 @@ const SellerActivationPage = () => {
                     const response = await axios.post(`${server}/shop/activation`, {
                         activation_token,
                     });
+
+                    console.log("response", response)
                     
                     setStatus('success');
                     setMessage(response.data.message || 'Your account has been activated successfully!');

@@ -655,7 +655,7 @@ const DashboardHero = ({open}) => {
                 <div className="flex justify-between items-center w-full">
                   <div className="flex flex-col items-start">
                     <h3 className="text-2xl font-bold mb-1">
-                      ₹{seller?.totalCommission.toFixed(2)}
+                      ₹{seller?.totalCommission?.toFixed(2)}
                     </h3>
                     <div className="capitalize mb-0">
                       Total Commission Given
