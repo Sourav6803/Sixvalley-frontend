@@ -82,7 +82,7 @@ import { getAllAttributes } from './redux/actions/attribute.js';
 import { getAllSellers } from './redux/actions/sellers.js';
 import { getAllBanner } from './redux/actions/banner.js';
 import { GoogleOAuthProvider } from '@react-oauth/google';
-import { requestFCMToken } from './utils/firebaseUtils.js';
+import { messaging, requestFCMToken, setupForegroundMessaging } from './utils/firebaseUtils.js';
 import CookieConsent from 'react-cookie-consent';
 import { useSelector } from 'react-redux';
 import FashionPage from './pages/User/FashionPage.jsx';
@@ -98,6 +98,8 @@ import ContactUsPage from './pages/ContactUsPage.jsx';
 import ShopConfirmedOrderPage from './pages/Shop/ShopConfirmedOrderPage.jsx';
 import ShopCreate from './components/Shop/ShopCreate.jsx';
 import Category from './components/Route/Navbar/Category.jsx';
+// import { messaging } from './firebaseUtils';
+// import { onMessage } from 'firebase/messaging';
 
 
 const App = () => {
@@ -131,176 +133,109 @@ const App = () => {
 
   }, [])
 
-  // const checkNotificationPermission = useCallback(async () => {
-  //   const permission = Notification.permission;
-
-  //   if (permission !== 'granted') {
-  //     setShowConsent(true);
-  //   } else {
-  //     setShowConsent(false);
-  //     try {
-  //       const token = await requestFCMToken();
-        
-
-  //       // Make API call to update deviceToken
-  //       if (isAuthenticated ) {
-  //         console.log("update device token api calling");
-  //         await axios.put(`${server}/user/update-device-token`, { fcmToken: token }, {
-  //           headers: {
-  //             'Content-Type': 'application/json',
-  //           },
-  //           withCredentials: true, // Include cookies with the request
-  //         });
-  //       }
-
-  //       // await axios.put(`${server}/user/update-device-token`, { fcmToken: token }, {
-  //       //   headers: {
-  //       //     'Content-Type': 'application/json',
-  //       //   },
-  //       //   withCredentials: true, // Include cookies with the request
-  //       // });
-  //     } catch (error) {
-  //       console.error("Error during notification setup:", error);
-  //     }
-  //   }
-  // }, [isAuthenticated, user?.deviceToken]);
 
   const checkNotificationPermission = useCallback(async () => {
-  const permission = Notification.permission;
+    const permission = Notification.permission;
+    console.log("permission-->", permission)
 
-  if (permission !== 'granted') {
-    setShowConsent(true);
-  } else {
-    setShowConsent(false);
-    try {
-      const token = await requestFCMToken();
-      
-      // Validate the token before sending to server
-      if (token && typeof token === 'string' && token.trim().length > 0) {
-        if (isAuthenticated) {
-          console.log("Updating device token");
-          await axios.put(`${server}/user/update-device-token`, 
-            { fcmToken: token }, 
-            {
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              withCredentials: true,
-            }
-          );
+    if (permission !== 'granted') {
+      setShowConsent(true);
+    } else {
+      setShowConsent(false);
+      try {
+        const token = await requestFCMToken();
+        console.log("from notification permission-->", token)
+        
+        // Validate the token before sending to server
+        if (token && typeof token === 'string' && token.trim().length > 0) {
+          if (isAuthenticated) {
+            console.log("user.deviceToken-->", user.deviceToken)
+
+            if(!user.deviceToken){
+              console.log("Updating device token");
+              await axios.put(`${server}/user/update-device-token`, 
+                  { fcmToken: token }, 
+                  {
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    withCredentials: true,
+                  }
+                );
+              }
+            
+          }
+        } else {
+          console.error("Invalid FCM token received");
         }
-      } else {
-        console.error("Invalid FCM token received");
+      } catch (error) {
+        console.error("Error during notification setup:", error);
       }
-    } catch (error) {
-      console.error("Error during notification setup:", error);
     }
-  }
-}, [isAuthenticated]);
-
-  // const handleAccept = async () => {
-  //   if (localStorage.getItem("cookieConsent") === "accepted") return; // Prevent multiple calls
-  
-  //   localStorage.setItem("cookieConsent", "accepted");
-  //   console.log("update device token API calling");
-  
-  //   // Request notification permission
-  //   const permission = await Notification.requestPermission();
-  //   if (permission === "granted") {
-  //     setShowConsent(false);
-  
-  //     try {
-  //       // Check if service worker is already registered
-  //       const existingSW = await navigator.serviceWorker.getRegistration();
-  //       if (!existingSW) {
-  //         const registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
-  //         console.log("Service Worker registered with scope:", registration.scope);
-  //       }
-  
-  //       // Get FCM token
-  //       const token = await requestFCMToken();
-  
-  //       // Make API call to update deviceToken
-  //       if (isAuthenticated ) {
-  //         await axios.put(`${server}/user/update-device-token`, { fcmToken: token }, {
-  //           headers: { "Content-Type": "application/json" },
-  //           withCredentials: true,
-  //         });
-  //       }
-  //     } catch (error) {
-  //       console.error("Error during notification setup:", error);
-  //     }
-  //   } else {
-  //     console.log("Notification permission not granted");
-  //   }
-  // };
+  }, [isAuthenticated]);
   
 
   const handleAccept = async () => {
-  if (localStorage.getItem("cookieConsent") === "accepted") return;
+    if (localStorage.getItem("cookieConsent") === "accepted") return;
 
-  try {
-    localStorage.setItem("cookieConsent", "accepted");
-    
-    // Request notification permission
-    const permission = await Notification.requestPermission();
-    if (permission === "granted") {
-      setShowConsent(false);
-
-      try {
-        // Register service worker if not already registered
-        const existingSW = await navigator.serviceWorker.getRegistration('/firebase-messaging-sw.js');
-        if (!existingSW) {
-          const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-          console.log("Service Worker registered with scope:", registration.scope);
-        }
-
-        // Get FCM token
-        const token = await requestFCMToken();
-        console.log("FCM Token:", token);
-
-        // Validate and send token to server
-        if (token && isAuthenticated) {
-          await axios.put(`${server}/user/update-device-token`, 
-            { fcmToken: token }, 
-            {
-              headers: { "Content-Type": "application/json" },
-              withCredentials: true,
-            }
-          );
-        }
-      } catch (error) {
-        console.error("Error in service worker or token generation:", error);
-      }
-    } else {
-      console.log("Notification permission not granted");
-    }
-  } catch (error) {
-    console.error("Error in notification permission request:", error);
-  }
-};
-
-
-  // useEffect(()=> {
-  //   if(isAuthenticated){
-  //     checkNotificationPermission()
-  //   }
-  // }, [isAuthenticated])
-
-
-  useEffect(() => {
-  const setupNotifications = async () => {
     try {
-      if (isAuthenticated) {
-        await checkNotificationPermission();
+      localStorage.setItem("cookieConsent", "accepted");
+      
+      // Request notification permission
+      const permission = await Notification.requestPermission();
+      if (permission === "granted") {
+        setShowConsent(false);
+
+        try {
+          // Register service worker if not already registered
+          const existingSW = await navigator.serviceWorker.getRegistration('/firebase-messaging-sw.js');
+          if (!existingSW) {
+            const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+            console.log("Service Worker registered with scope:", registration.scope);
+          }
+
+          // Get FCM token
+          const token = await requestFCMToken();
+          console.log("FCM Token:", token);
+
+          // Validate and send token to server
+          if (token && isAuthenticated) {
+            console.log("user token-->", user.deviceToken)
+            if(!user.deviceToken){
+              await axios.put(`${server}/user/update-device-token`, 
+              { fcmToken: token }, 
+              {
+                headers: { "Content-Type": "application/json" },
+                withCredentials: true,
+              }
+            );
+            }
+            
+          }
+        } catch (error) {
+          console.error("Error in service worker or token generation:", error);
+        }
+      } else {
+        console.log("Notification permission not granted");
       }
     } catch (error) {
-      console.error("Error in notification setup:", error);
+      console.error("Error in notification permission request:", error);
     }
   };
 
-  setupNotifications();
-}, [isAuthenticated, checkNotificationPermission]);
+  useEffect(() => {
+    const setupNotifications = async () => {
+      try {
+        if (isAuthenticated) {
+          await checkNotificationPermission();
+        }
+      } catch (error) {
+        console.error("Error in notification setup:", error);
+      }
+    };
+
+    setupNotifications();
+  }, [isAuthenticated, checkNotificationPermission]);
   
   useEffect(() => {
     const consent = localStorage.getItem('cookieConsent');
@@ -311,6 +246,213 @@ const App = () => {
       checkNotificationPermission();
     }
   }, [checkNotificationPermission]);
+
+  useEffect(()=> {
+    setupForegroundMessaging()
+  },[])
+
+
+// const checkNotificationPermission = useCallback(async () => {
+//     const permission = Notification.permission;
+//     console.log("permission-->", permission)
+
+//     if (permission !== 'granted') {
+//       setShowConsent(true);
+//     } else {
+//       setShowConsent(false);
+//       try {
+//         const token = await requestFCMToken();
+//         console.log("from notification permission-->", token)
+        
+//         // Validate the token before sending to server
+//         if (token && typeof token === 'string' && token.trim().length > 0) {
+//           if (isAuthenticated) {
+//             console.log("Updating device token");
+//             await axios.put(`${server}/user/update-device-token`, 
+//               { fcmToken: token }, 
+//               {
+//                 headers: {
+//                   'Content-Type': 'application/json',
+//                 },
+//                 withCredentials: true,
+//               }
+//             );
+//           }
+//         } else {
+//           console.error("Invalid FCM token received");
+//         }
+//       } catch (error) {
+//         console.error("Error during notification setup:", error);
+//       }
+//     }
+//   }, [isAuthenticated]);
+  
+
+//   const handleAccept = async () => {
+//     if (localStorage.getItem("cookieConsent") === "accepted") return;
+
+//     try {
+//       localStorage.setItem("cookieConsent", "accepted");
+      
+//       // Request notification permission
+//       const permission = await Notification.requestPermission();
+//       if (permission === "granted") {
+//         setShowConsent(false);
+
+//         try {
+//           // Register service worker if not already registered
+//           const existingSW = await navigator.serviceWorker.getRegistration('/firebase-messaging-sw.js');
+//           if (!existingSW) {
+//             const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+//             console.log("Service Worker registered with scope:", registration.scope);
+//           }
+
+//           // Get FCM token
+//           const token = await requestFCMToken();
+//           console.log("FCM Token:", token);
+
+//           // Validate and send token to server
+//           if (token && isAuthenticated) {
+//             await axios.put(`${server}/user/update-device-token`, 
+//               { fcmToken: token }, 
+//               {
+//                 headers: { "Content-Type": "application/json" },
+//                 withCredentials: true,
+//               }
+//             );
+//           }
+//         } catch (error) {
+//           console.error("Error in service worker or token generation:", error);
+//         }
+//       } else {
+//         console.log("Notification permission not granted");
+//       }
+//     } catch (error) {
+//       console.error("Error in notification permission request:", error);
+//     }
+//   };
+
+//   // ✅ NEW: Foreground message handler
+//   const setupForegroundMessages = useCallback(() => {
+//     if (messaging) {
+//       console.log("Setting up foreground message listener...");
+      
+//       const unsubscribe = onMessage(messaging, (payload) => {
+//         console.log('📱 Foreground message received:', payload);
+        
+//         // Handle the notification in your app state
+//         setNotification(payload);
+        
+//         // You can also show a custom notification UI
+//         showCustomNotification(payload);
+//       });
+      
+//       return unsubscribe;
+//     }
+//   }, []);
+
+//   // ✅ NEW: Custom notification display function
+//   const showCustomNotification = useCallback((payload) => {
+//     const { notification, data } = payload;
+    
+//     // Create custom notification UI
+//     const notificationElement = document.createElement('div');
+//     notificationElement.className = 'custom-notification';
+//     notificationElement.innerHTML = `
+//       <div class="notification-content">
+//         <img src="${data?.appIcon || notification?.icon || '/default-icon.png'}" 
+//              alt="${data?.appName || 'App'}" 
+//              class="notification-icon">
+//         <div class="notification-text">
+//           <div class="notification-title">${notification?.title || 'Notification'}</div>
+//           <div class="notification-body">${notification?.body || ''}</div>
+//           <div class="notification-app">${data?.appName || 'Jamalpur Bazar'}</div>
+//         </div>
+//         <button class="notification-close">&times;</button>
+//       </div>
+//     `;
+    
+//     // Add styles
+//     notificationElement.style.cssText = `
+//       position: fixed;
+//       top: 20px;
+//       right: 20px;
+//       background: white;
+//       border: 1px solid #ddd;
+//       border-radius: 8px;
+//       padding: 12px;
+//       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+//       z-index: 10000;
+//       max-width: 350px;
+//       cursor: pointer;
+//     `;
+    
+//     // Add click handler for redirection
+//     notificationElement.addEventListener('click', () => {
+//       if (data?.url || data?.click_action) {
+//         window.open(data.url || data.click_action, '_blank');
+//       }
+//       if (document.body.contains(notificationElement)) {
+//         document.body.removeChild(notificationElement);
+//       }
+//     });
+    
+//     // Add close button handler
+//     const closeBtn = notificationElement.querySelector('.notification-close');
+//     closeBtn.addEventListener('click', (e) => {
+//       e.stopPropagation();
+//       if (document.body.contains(notificationElement)) {
+//         document.body.removeChild(notificationElement);
+//       }
+//     });
+    
+//     // Auto remove after 5 seconds
+//     setTimeout(() => {
+//       if (document.body.contains(notificationElement)) {
+//         document.body.removeChild(notificationElement);
+//       }
+//     }, 5000);
+    
+//     document.body.appendChild(notificationElement);
+//   }, []);
+
+//   useEffect(() => {
+//     const setupNotifications = async () => {
+//       try {
+//         if (isAuthenticated) {
+//           await checkNotificationPermission();
+//         }
+//       } catch (error) {
+//         console.error("Error in notification setup:", error);
+//       }
+//     };
+
+//     setupNotifications();
+//   }, [isAuthenticated, checkNotificationPermission]);
+  
+//   useEffect(() => {
+//     const consent = localStorage.getItem('cookieConsent');
+
+//     if (consent === null) {
+//       setShowConsent(true);
+//     } else {
+//       checkNotificationPermission();
+//     }
+//   }, [checkNotificationPermission]);
+
+//   // ✅ NEW: Setup foreground messages when component mounts
+//   useEffect(() => {
+//     const unsubscribe = setupForegroundMessages();
+    
+//     // Cleanup on component unmount
+//     return () => {
+//       if (unsubscribe) {
+//         unsubscribe();
+//       }
+//     };
+//   }, [setupForegroundMessages]);
+
+
 
   return (
     < BrowserRouter >

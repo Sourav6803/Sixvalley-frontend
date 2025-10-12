@@ -1,4 +1,4 @@
-import React from 'react'
+
 import styles from '../../styles/styles'
 import { navItems } from '../../static/data'
 import { Link } from 'react-router-dom'

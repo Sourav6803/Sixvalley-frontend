@@ -1,4 +1,4 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Loader from "../../../pages/Loader";
 import { FaSearch } from "react-icons/fa";
 import { toast } from "react-toastify";
@@ -8,8 +8,10 @@ import {
   extractTimeFromDate,
   formatMongoDate,
 } from "../../../utils/common-utils";
+import { useDispatch, useSelector } from "react-redux";
 
 const ReadyForPickupOrderTable = ({ readyForPickupOrder, isLoading }) => {
+  const { seller } = useSelector((state) => state.seller);
   const [selectedOrders, setSelectedOrders] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchData, setSearchData] = useState([]);
@@ -58,13 +60,6 @@ const ReadyForPickupOrderTable = ({ readyForPickupOrder, isLoading }) => {
     setIsDisabled(selectedOrders.length > 0);
   }, [selectedOrders?.length]);
 
-  const handleCheckboxChange = (orderId) => {
-    setSelectedOrders((prev) =>
-      prev.includes(orderId)
-        ? prev.filter((id) => id !== orderId)
-        : [...prev, orderId]
-    );
-  };
 
   const handleSearchTypeChange = (e) => {
     const selectedType = e.target.value;
@@ -119,7 +114,11 @@ const ReadyForPickupOrderTable = ({ readyForPickupOrder, isLoading }) => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
 
   const currentData = (
-    filterOrders !== null ? filterOrders : searchData !== null ? searchData : readyForPickupOrder
+    filterOrders !== null
+      ? filterOrders
+      : searchData !== null
+      ? searchData
+      : readyForPickupOrder
   )?.slice(indexOfFirstItem, indexOfLastItem);
 
   // Calculate total pages
@@ -139,6 +138,44 @@ const ReadyForPickupOrderTable = ({ readyForPickupOrder, isLoading }) => {
     }
   };
 
+  // Get current shop ID from URL or context
+  const currentShopId = seller && seller?._id; // or from props/context
+  console.log("currentShopId=>", currentShopId)
+
+  // Helper function to get pickup code for current shop
+  const getPickupCodeForShop = (order, shopId) => {
+    if (!order.deliveryInfo || !Array.isArray(order.deliveryInfo)) return null;
+
+    // Find delivery info for this specific shop
+    const shopDeliveryInfo = order.deliveryInfo.find(
+      (info) => info.vendor && info.vendor._id.toString() === shopId
+    );
+
+    return shopDeliveryInfo?.deliveryId?.pickupCode?.value || null;
+  };
+
+  // Helper function to get pickup verification status for current shop
+const getPickupVerificationStatus = (order, shopId) => {
+  if (!order.deliveryInfo || !Array.isArray(order.deliveryInfo)) return false;
+  
+  // Find delivery info for this specific shop
+  const shopDeliveryInfo = order.deliveryInfo.find(info => 
+    info.vendor && info.vendor._id.toString() === shopId
+  );
+  
+  return shopDeliveryInfo?.deliveryId?.pickupCode?.verified || false;
+};
+
+// Helper function to get delivery status for current shop
+const getDeliveryStatusForShop = (order, shopId) => {
+  if (!order.deliveryInfo || !Array.isArray(order.deliveryInfo)) return order.status;
+  
+  const shopDeliveryInfo = order.deliveryInfo.find(info => 
+    info.vendor && info.vendor._id.toString() === shopId
+  );
+  
+  return shopDeliveryInfo?.deliveryId?.status || order.status;
+};
 
   return (
     <>
@@ -206,11 +243,7 @@ const ReadyForPickupOrderTable = ({ readyForPickupOrder, isLoading }) => {
                     className="w-2/3 p-2 text-[12px] focus:outline-none"
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
-                  <button
-                    type="submit"
-                    onClick={handleSearch}
-                    className="p-2"
-                  >
+                  <button type="submit" onClick={handleSearch} className="p-2">
                     <FaSearch size={20} color="blue" />
                   </button>
                 </div>
@@ -274,86 +307,97 @@ const ReadyForPickupOrderTable = ({ readyForPickupOrder, isLoading }) => {
 
                           <tbody className="bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-900">
                             {currentData?.length > 0 ? (
-                              currentData?.map((order, index) => (
-                                <tr key={index}>
-                                  <td className="px-2 py-4 text-sm font-medium">
-                                    <div className="text-center">
-                                      <input
-                                        type="checkbox"
-                                        checked={selectedOrders.includes(
-                                          order._id
-                                        )}
-                                        // onChange={() =>
-                                        //   handleCheckboxChange(order._id)
-                                        // }
-                                      />
-                                    </div>
-                                  </td>
+                              currentData?.map((order, index) => {
+                                const pickupCode = getPickupCodeForShop(order, currentShopId);
+                                const deliveryStatus = getDeliveryStatusForShop(order, currentShopId);
+                                const pickupVerified = getPickupVerificationStatus(order, currentShopId);
 
-                                  <td className="px-2 py-4 text-sm">
-                                    {order?.cart?.map((product, index) => (
-                                      <div
-                                        key={index}
-                                        className="w-full flex items-center gap-x-1 justify-between"
-                                      >
-                                        <div className="w-[30%] h-full flex items-center justify-center">
-                                          <img
-                                            className="object-cover w-[50px] h-[50px] rounded-md"
-                                            src={product?.images[0]?.url}
-                                            alt="Product"
-                                          />
-                                        </div>
-                                        <div className="h-full w-full">
-                                          <h2 className="font-normal text-gray-800 dark:text-white text-[12px]">
-                                            {product?.name?.length > 30
-                                              ? product.name.slice(0, 30) + "..."
-                                              : product?.name}
-                                          </h2>
-                                          <p className="font-normal text-gray-800 dark:text-white text-[12px]">
-                                            <span className="font-bold text-gray-800 dark:text-white text-[12px]">
-                                              Category:
-                                            </span>{" "}
-                                            {product?.category}
-                                          </p>
-                                        </div>
+                                console.log("pickupCode=>", pickupCode)
+                                  console.log("deliveryStatus=>", deliveryStatus)
+                                  console.log("pickupVerified=>", pickupVerified)
+
+                                return (
+                                  <tr key={index}>
+                                    <td className="px-2 py-4 text-sm font-medium">
+                                      <div className="text-center">
+                                        <input
+                                          type="checkbox"
+                                          checked={selectedOrders.includes(
+                                            order._id
+                                          )}
+                                          // onChange={() =>
+                                          //   handleCheckboxChange(order._id)
+                                          // }
+                                        />
                                       </div>
-                                    ))}
-                                  </td>
+                                    </td>
 
-                                  <td className="px-4 py-2 w-[50px]">
-                                    <div className="w-full gap-x-1 flex flex-col">
-                                      <h2 className="font-medium text-gray-600 text-[12px]">
-                                        {formatMongoDate(
-                                          new Date(order?.createdAt)
-                                        )}
-                                      </h2>
-                                      <h2 className="text-gray-600 text-[12px]">
-                                        {extractTimeFromDate(
-                                          new Date(order?.createdAt)
-                                        )}
-                                      </h2>
-                                    </div>
-                                  </td>
+                                    <td className="px-2 py-4 text-sm">
+                                      {order?.cart?.map((product, index) => (
+                                        <div
+                                          key={index}
+                                          className="w-full flex items-center gap-x-1 justify-between"
+                                        >
+                                          <div className="w-[30%] h-full flex items-center justify-center">
+                                            <img
+                                              className="object-cover w-[50px] h-[50px] rounded-md"
+                                              src={product?.images[0]?.url}
+                                              alt="Product"
+                                            />
+                                          </div>
+                                          <div className="h-full w-full">
+                                            <h2 className="font-normal text-gray-800 dark:text-white text-[12px]">
+                                              {product?.name?.length > 30
+                                                ? product.name.slice(0, 30) +
+                                                  "..."
+                                                : product?.name}
+                                            </h2>
+                                            <p className="font-normal text-gray-800 dark:text-white text-[12px]">
+                                              <span className="font-bold text-gray-800 dark:text-white text-[12px]">
+                                                Category:
+                                              </span>{" "}
+                                              {product?.category}
+                                            </p>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </td>
 
-                                  <td className="px-2 py-2 text-[12px]">
-                                    <div className="text-center flex flex-col gap-x-2">
-                                      <h4 className="text-gray-700 dark:text-gray-200">
-                                        {order?.user?.name?.length > 9
-                                          ? order?.user?.name.slice(0, 9) + "..."
-                                          : order?.user?.name}
-                                      </h4>
-                                      <h4 className="text-gray-700 dark:text-gray-200">
-                                        {order?.user?.phoneNumber}
-                                      </h4>
-                                    </div>
-                                  </td>
+                                    <td className="px-4 py-2 w-[50px]">
+                                      <div className="w-full gap-x-1 flex flex-col">
+                                        <h2 className="font-medium text-gray-600 text-[12px]">
+                                          {formatMongoDate(
+                                            new Date(order?.createdAt)
+                                          )}
+                                        </h2>
+                                        <h2 className="text-gray-600 text-[12px]">
+                                          {extractTimeFromDate(
+                                            new Date(order?.createdAt)
+                                          )}
+                                        </h2>
+                                      </div>
+                                    </td>
 
-                                  <td className="px-4 py-4 w-[50px] text-sm">
-                                    <div className="text-center flex flex-col gap-x-2">
-                                      <h4 className="text-gray-700 dark:text-gray-200">
-                                        ₹{order?.totalPrice}
-                                      </h4>
-                                      {/* <p>
+                                    <td className="px-2 py-2 text-[12px]">
+                                      <div className="text-center flex flex-col gap-x-2">
+                                        <h4 className="text-gray-700 dark:text-gray-200">
+                                          {order?.user?.name?.length > 9
+                                            ? order?.user?.name.slice(0, 9) +
+                                              "..."
+                                            : order?.user?.name}
+                                        </h4>
+                                        <h4 className="text-gray-700 dark:text-gray-200">
+                                          {order?.user?.phoneNumber}
+                                        </h4>
+                                      </div>
+                                    </td>
+
+                                    <td className="px-4 py-4 w-[50px] text-sm">
+                                      <div className="text-center flex flex-col gap-x-2">
+                                        <h4 className="text-gray-700 dark:text-gray-200">
+                                          ₹{order?.totalPrice}
+                                        </h4>
+                                        {/* <p>
                                         {order?.paymentInfo?.status ===
                                         "Succeeded" ? (
                                           <span className="px-1 py-[1px] bg-green-100 rounded-md border border-green-200 text-green-500 text-[10px]">
@@ -366,139 +410,167 @@ const ReadyForPickupOrderTable = ({ readyForPickupOrder, isLoading }) => {
                                         )}
                                       </p> */}
 
-                                      <p>
-                                        {order?.paymentInfo?.status || order?.paymentInfo?.status !== "succeeded"===
-                                        "Succeeded" ? (
-                                          <span className="px-1 py-[1px] bg-green-100 rounded-md border border-green-200 text-green-500 text-[10px]">
-                                            Paid
-                                          </span>
-                                        ) : (
-                                          <span className="px-1 bg-red-100 py-[1px] font-[600] border rounded-md border-red-200 text-red-500 text-[10px]">
-                                            Unpaid
-                                          </span>
-                                        )}
-                                      </p>
-                                    </div>
-                                  </td>
+                                        <p>
+                                          {order?.paymentInfo?.status ||
+                                          (order?.paymentInfo?.status !==
+                                            "succeeded") ===
+                                            "Succeeded" ? (
+                                            <span className="px-1 py-[1px] bg-green-100 rounded-md border border-green-200 text-green-500 text-[10px]">
+                                              Paid
+                                            </span>
+                                          ) : (
+                                            <span className="px-1 bg-red-100 py-[1px] font-[600] border rounded-md border-red-200 text-red-500 text-[10px]">
+                                              Unpaid
+                                            </span>
+                                          )}
+                                        </p>
+                                      </div>
+                                    </td>
 
-                                  <td className="px-4 py-4 text-[12px] whitespace-nowrap">
-                                    <h4 className="text-gray-700 text-center dark:text-gray-200">
-                                      {order?.paymentInfo?.type ===
-                                      "Cash On Delivery"
-                                        ? "COD"
-                                        : order?.paymentInfo?.type}
-                                    </h4>
-                                  </td>
-
-                                  <td className="px-4 py-4 text-[12px] whitespace-nowrap">
-                                    {order?.cart.map((product, index) => (
-                                      <h4
-                                        key={index}
-                                        className="text-gray-700 text-center dark:text-gray-200"
-                                      >
-                                        {product?.qty}
+                                    <td className="px-4 py-4 text-[12px] whitespace-nowrap">
+                                      <h4 className="text-gray-700 text-center dark:text-gray-200">
+                                        {order?.paymentInfo?.type ===
+                                        "Cash On Delivery"
+                                          ? "COD"
+                                          : order?.paymentInfo?.type}
                                       </h4>
-                                    ))}
-                                  </td>
+                                    </td>
 
-                                  <td className="px-4 py-4 text-[12px] whitespace-nowrap">
-                                    {order?.cart.map((product, index) => (
-                                      <div
-                                        key={index}
-                                        className="text-gray-700 text-center dark:text-gray-200"
-                                      >
-                                        {product?.attributes?.length > 0 ? (
-                                          product.attributes.map(
-                                            (attr, idx) => (
-                                              <p key={idx}>
-                                                <span className="font-semibold">
-                                                  {attr.key}:
-                                                </span>{" "}
-                                                {attr.value}
-                                              </p>
+                                    <td className="px-4 py-4 text-[12px] whitespace-nowrap">
+                                      {order?.cart.map((product, index) => (
+                                        <h4
+                                          key={index}
+                                          className="text-gray-700 text-center dark:text-gray-200"
+                                        >
+                                          {product?.qty}
+                                        </h4>
+                                      ))}
+                                    </td>
+
+                                    <td className="px-4 py-4 text-[12px] whitespace-nowrap">
+                                      {order?.cart.map((product, index) => (
+                                        <div
+                                          key={index}
+                                          className="text-gray-700 text-center dark:text-gray-200"
+                                        >
+                                          {product?.attributes?.length > 0 ? (
+                                            product.attributes.map(
+                                              (attr, idx) => (
+                                                <p key={idx}>
+                                                  <span className="font-semibold">
+                                                    {attr.key}:
+                                                  </span>{" "}
+                                                  {attr.value}
+                                                </p>
+                                              )
                                             )
-                                          )
+                                          ) : (
+                                            <p className="text-gray-500">N/A</p>
+                                          )}
+                                        </div>
+                                      ))}
+                                    </td>
+
+                                    <td className="px-4 py-4 text-[12px] whitespace-nowrap">
+                                      {order?.cart.map((product, index) => (
+                                        <h4
+                                          key={index}
+                                          className="text-gray-700 text-center dark:text-gray-200"
+                                        >
+                                          {product?.size
+                                            ? product?.size
+                                            : "Free Size"}
+                                        </h4>
+                                      ))}
+                                    </td>
+
+                                    <td className="px-2 py-4 whitespace-nowrap w-[80px] text-[12px]">
+                                      {order?.cart?.map((product) => (
+                                        <ul
+                                          key={product?._id}
+                                          className="text-gray-700 text-center dark:text-gray-200 rounded-md"
+                                        >
+                                          {product?.sku}
+                                        </ul>
+                                      ))}
+                                    </td>
+
+                                    <td className="px-4 py-4 text-[12px] whitespace-nowrap">
+                                      <h4 className="text-gray-700 text-center dark:text-gray-200">
+                                        {order?.dispatchDate &&
+                                          formatMongoDate(
+                                            new Date(order?.dispatchDate)
+                                          )}
+                                      </h4>
+                                      <p className="text-gray-700 text-center dark:text-gray-200">
+                                        {order?.slaStatus}
+                                      </p>
+                                    </td>
+
+                                    {/* <td className="px-4 py-4 text-sm">
+
+                                      
+                                      <td className="px-4 py-4 text-[12px] whitespace-nowrap">
+                                        <div className="text-center">
+                                          {order.deliveryInfo[0].deliveryId
+                                            .pickupCode.value ? (
+                                            <div className="bg-blue-50 border border-blue-200 rounded-md p-1">
+                                              <span className="font-mono font-bold text-blue-700">
+                                                {
+                                                  order.deliveryInfo[0]
+                                                    .deliveryId.pickupCode.value
+                                                }
+                                              </span>
+                                            </div>
+                                          ) : (
+                                            <span className="text-gray-400">
+                                              Not assigned
+                                            </span>
+                                          )}
+                                        </div>
+                                      </td>
+                                    </td> */}
+
+                                    <td className="px-4 py-4 text-[12px] whitespace-nowrap">
+                                      <div className="text-center">
+                                        {pickupCode ? (
+                                          <div
+                                            className={`border rounded-md p-1 ${
+                                              deliveryStatus === "in_transit" ||
+                                              pickupVerified
+                                                ? "bg-green-50 border-green-200"
+                                                : "bg-blue-50 border-blue-200"
+                                            }`}
+                                          >
+                                            <span
+                                              className={`font-mono font-bold ${
+                                                deliveryStatus ===
+                                                  "in_transit" || pickupVerified
+                                                  ? "text-green-700"
+                                                  : "text-blue-700"
+                                              }`}
+                                            >
+                                              {pickupCode}
+                                            </span>
+                                            {(deliveryStatus === "in_transit" ||
+                                              pickupVerified) && (
+                                              <div className="mt-1 flex items-center justify-center">
+                                                <span className="text-[10px] text-green-600 bg-green-100 px-1 py-0.5 rounded">
+                                                  ✓ Verified
+                                                </span>
+                                              </div>
+                                            )}
+                                          </div>
                                         ) : (
-                                          <p className="text-gray-500">N/A</p>
+                                          <span className="text-gray-400">
+                                            Not assigned
+                                          </span>
                                         )}
                                       </div>
-                                    ))}
-                                  </td>
-
-                                  <td className="px-4 py-4 text-[12px] whitespace-nowrap">
-                                    {order?.cart.map((product, index) => (
-                                      <h4
-                                        key={index}
-                                        className="text-gray-700 text-center dark:text-gray-200"
-                                      >
-                                        {product?.size
-                                          ? product?.size
-                                          : "Free Size"}
-                                      </h4>
-                                    ))}
-                                  </td>
-
-                                  <td className="px-2 py-4 whitespace-nowrap w-[80px] text-[12px]">
-                                    {order?.cart?.map((product) => (
-                                      <ul
-                                        key={product?._id}
-                                        className="text-gray-700 text-center dark:text-gray-200 rounded-md"
-                                      >
-                                        {product?.sku}
-                                      </ul>
-                                    ))}
-                                  </td>
-
-                                  <td className="px-4 py-4 text-[12px] whitespace-nowrap">
-                                    <h4 className="text-gray-700 text-center dark:text-gray-200">
-                                      {order?.dispatchDate &&
-                                        formatMongoDate(
-                                          new Date(order?.dispatchDate)
-                                        )}
-                                    </h4>
-                                    <p className="text-gray-700 text-center dark:text-gray-200">
-                                      {order?.slaStatus}
-                                    </p>
-                                  </td>
-
-                                  <td className="px-4 py-4 text-sm">
-                                    {/* <div className="flex flex-col gap-2">
-                                      <button
-                                        onClick={() => {
-                                          setAssignPickupModalOpen(true);
-                                          setOrderId(order?._id);
-                                        }}
-                                        disabled={isDisabled}
-                                        className={`px-3 py-1 rounded-md shadow-md ${
-                                          isDisabled
-                                            ? "cursor-not-allowed bg-gray-500 hover:bg-gray-600 text-gray-400"
-                                            : "bg-green-600 hover:bg-green-700 text-white"
-                                        }`}
-                                      >
-                                        Assign for Pickup
-                                      </button>
-                                    </div> */}
-
-                                    {console.log('fggf', order.deliveryInfo[0].deliveryId.pickupCode.value)}
-
-                                     {/* NEW: Pickup Code Column */}
-                                  <td className="px-4 py-4 text-[12px] whitespace-nowrap">
-                                    <div className="text-center">
-                                      { order.deliveryInfo[0].deliveryId.pickupCode.value ? (
-                                        <div className="bg-blue-50 border border-blue-200 rounded-md p-1">
-                                          <span className="font-mono font-bold text-blue-700">
-                                            {order.deliveryInfo[0].deliveryId.pickupCode.value}
-                                          </span>
-                                          
-                                        </div>
-                                      ) : (
-                                        <span className="text-gray-400">Not assigned</span>
-                                      )}
-                                    </div>
-                                  </td>
-                                  </td>
-                                </tr>
-                              ))
+                                    </td>
+                                  </tr>
+                                );
+                              })
                             ) : (
                               <tr>
                                 <td
@@ -549,10 +621,7 @@ const ReadyForPickupOrderTable = ({ readyForPickupOrder, isLoading }) => {
                 </div>
               </section>
             </div>
-
-
           </div>
-
         </div>
       )}
     </>

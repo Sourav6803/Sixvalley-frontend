@@ -235,10 +235,10 @@ const AllOrder = () => {
 
   return (
     <div className="p-4 w-full max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Your Orders</h1>
+      
       
       {/* Filters and Search */}
-      <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
+      <div className="bg-white p-2 rounded-lg shadow-sm mb-6">
         <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
           <div className="relative flex-1 w-full">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -285,7 +285,7 @@ const AllOrder = () => {
 
       {/* Order Summary Stats */}
       {orders && orders.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-6">
           <div className="bg-white p-3 rounded-lg shadow-sm text-center">
             <div className="text-2xl font-bold text-blue-600">{orders.length}</div>
             <div className="text-xs text-gray-600">Total Orders</div>
@@ -330,7 +330,7 @@ const AllOrder = () => {
               filteredOrders.map((order) => (
                 <div
                   key={order?._id}
-                  className="bg-white p-5 shadow-md rounded-lg hover:shadow-lg transition-shadow cursor-pointer border border-gray-100"
+                  className="bg-white p-2 shadow-md rounded-lg hover:shadow-lg transition-shadow cursor-pointer border border-gray-100"
                   onClick={() => navigate(`/user/order/${order?._id}`)}
                 >
                   <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
@@ -340,7 +340,7 @@ const AllOrder = () => {
                     </div>
                     <div className="mt-2 md:mt-0">
                       <p className="text-sm text-gray-500">Total</p>
-                      <p className="font-bold">${order?.totalPrice?.toFixed(2)}</p>
+                      <p className="font-bold">₹{order?.totalPrice?.toFixed(2)}</p>
                     </div>
                     <div className="mt-2 md:mt-0 text-right">
                       <p className="text-sm text-gray-500">Order # {order?._id.slice(-8)}</p>

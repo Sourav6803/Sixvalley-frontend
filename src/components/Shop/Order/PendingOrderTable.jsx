@@ -9,26 +9,25 @@ import {
   extractTimeFromDate,
   formatMongoDate,
 } from "../../../utils/common-utils";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllOrdersOfShop } from "../../../redux/actions/order";
 
 const PendingOrderTable = ({ pendingOrder, isLoading }) => {
+  const { seller } = useSelector((state) => state.seller);
   const [selectedOrders, setSelectedOrders] = useState([]);
-
   const [searchTearm, setSearchTearm] = useState("");
   const [searchData, setSearchData] = useState([]);
-
   const [filterOrders, setFilterOrders] = useState(null);
-
   const [isDisabled, setIsDisabled] = useState(false);
-
   const [searchType, setSearchType] = useState("SKU ID");
   const [placeholder, setPlaceholder] = useState("Enter SKU ID");
-
   const [orderId, setOrderId] = useState("");
-
   const [approvedModalOpen, setApprovedModalOpen] = useState(false);
   const [rejectModalOpen, setRejectedMoalOpen] = useState(false);
   const [isDelete, setIsDelete] = useState(false);
   const [status, setStatus] = useState("");
+
+  const dispatch = useDispatch();
 
   const [filters, setFilters] = useState({
     shipmentType: "",
@@ -36,15 +35,11 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
     searchType: "",
     searchTerm: "",
   });
-  
 
   const handleFilterChange = async (e) => {
     const { name, value } = e.target;
     const updatedFilters = { ...filters, [name]: value };
     setFilters(updatedFilters);
-
-    console.log("filters-", filters);
-    console.log("upda", updatedFilters);
 
     // Call handleSubmit with the updated filters
     try {
@@ -159,8 +154,6 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
     }
   };
 
-  
-
   const updateOrderStatus = async (id) => {
     try {
       // Update order status in the backend
@@ -173,15 +166,11 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
 
       setApprovedModalOpen(false)
 
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      dispatch(getAllOrdersOfShop(seller?._id));
     } catch (err) {
       toast.error("Error Updating Status");
     }
   };
-
-  
 
   return (
     <>
@@ -422,19 +411,23 @@ const PendingOrderTable = ({ pendingOrder, isLoading }) => {
                                         ₹{order?.totalPrice}
                                       </h4>
                                       <p>
-                                        {order?.paymentInfo?.status || order?.paymentInfo?.status !== "succeeded"===
-                                        "Succeeded" ? (
-                                          <span className="px-1 py-[1px] bg-green-100 rounded-md border border-green-200 text-green-500 text-[10px]">
-                                            Paid
-                                          </span>
-                                        ) : (
+                                        {order?.paymentInfo?.type ===
+                                          "Cash On Delivery" ||
+                                        order?.paymentInfo?.status !==
+                                          "succeeded"
+                                         ? (
                                           <span className="px-1 bg-red-100 py-[1px] font-[600] border rounded-md border-red-200 text-red-500 text-[10px]">
                                             Unpaid
+                                          </span>
+                                        ) : (
+                                          <span className="px-1 py-[1px] bg-green-100 rounded-md border border-green-200 text-green-500 text-[10px]">
+                                            Paid
                                           </span>
                                         )}
                                       </p>
                                     </div>
                                   </td>
+                                  
 
                                   <td className="px-4 py-4 text-[12px]  whitespace-nowrap ">
                                     <h4 className="text-gray-700 text-center dark:text-gray-200">
